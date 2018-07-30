@@ -1,0 +1,14 @@
+{
+    "rules": [
+        {
+            "packType": 1,
+            "path": "Resources/Materials",
+            "searchPattern": "*.mat"
+        },
+        {
+            "packType": 2,
+            "path": "Resources/Prefabs",
+            "searchPattern": "*.prefab"
+        }
+    ]
+}
