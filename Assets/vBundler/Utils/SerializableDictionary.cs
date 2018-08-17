@@ -24,39 +24,42 @@ using UnityEngine;
 //
 // Now you can use it in exactly the same way as a notmal Dictionary. Everything just works.
 
-[Serializable]
-public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+namespace vBundler.Utils
 {
-    // We save the keys and values in two lists because Unity does understand those.
-    [SerializeField] [HideInInspector] private List<TKey> _keys;
-
-    [SerializeField] [HideInInspector] private List<TValue> _values;
-
-    public SerializableDictionary()
+    [Serializable]
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
-    }
+        // We save the keys and values in two lists because Unity does understand those.
+        [SerializeField] [HideInInspector] private List<TKey> _keys;
 
-    public SerializableDictionary(SerializableDictionary<TKey, TValue> other)
-    {
-        foreach (var item in other) Add(item.Key, item.Value);
-    }
+        [SerializeField] [HideInInspector] private List<TValue> _values;
 
-    // Before the serialization we fill these lists
-    public void OnBeforeSerialize()
-    {
-        _keys = new List<TKey>(Count);
-        _values = new List<TValue>(Count);
-        foreach (var kvp in this)
+        public SerializableDictionary()
         {
-            _keys.Add(kvp.Key);
-            _values.Add(kvp.Value);
         }
-    }
 
-    // After the serialization we create the dictionary from the two lists
-    public void OnAfterDeserialize()
-    {
-        Clear();
-        for (var i = 0; i != Mathf.Min(_keys.Count, _values.Count); i++) Add(_keys[i], _values[i]);
+        public SerializableDictionary(SerializableDictionary<TKey, TValue> other)
+        {
+            foreach (var item in other) Add(item.Key, item.Value);
+        }
+
+        // Before the serialization we fill these lists
+        public void OnBeforeSerialize()
+        {
+            _keys = new List<TKey>(Count);
+            _values = new List<TValue>(Count);
+            foreach (var kvp in this)
+            {
+                _keys.Add(kvp.Key);
+                _values.Add(kvp.Value);
+            }
+        }
+
+        // After the serialization we create the dictionary from the two lists
+        public void OnAfterDeserialize()
+        {
+            Clear();
+            for (var i = 0; i != Mathf.Min(_keys.Count, _values.Count); i++) Add(_keys[i], _values[i]);
+        }
     }
 }
