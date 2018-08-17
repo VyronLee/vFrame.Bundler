@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
 using vBundler.Utils;
@@ -33,6 +34,9 @@ namespace vBundler.Editor
             var builds = GenerateAssetBundleBuilds(manifest);
             BuildPipeline.BuildAssetBundles(outputPath, builds,
                 BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.StrictMode, platform);
+
+            var md5Info = CalculateFilesMd5Info(outputPath);
+            SaveMd5Info(ref manifest, ref md5Info);
         }
 
         private DependenciesInfo ParseBundleDependenciesFromRules(BundlerBuildRule buildRule)
@@ -269,6 +273,54 @@ namespace vBundler.Editor
             }
         }
 
+        private MD5Info CalculateFilesMd5Info(string directory)
+        {
+            var info = new MD5Info();
+            
+            var files = Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories);
+            var index = 0;
+            foreach (var file in files)
+            {
+                EditorUtility.DisplayProgressBar("Computing file md5", file, (float)++index / files.Length);
+                
+                var md5 = CalculateMd5(file);
+                var name = file.Replace("\\", "/").Replace(directory + "/", "").ToLower();
+                
+                info.Add(name, md5);
+            }
+            EditorUtility.ClearProgressBar();
+
+            return info;
+        }
+
+        private string CalculateMd5(string filePath)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
+
+        private void SaveMd5Info(ref BundlerManifest manifest, ref MD5Info md5Info)
+        {
+            foreach (var kv in manifest.bundles)
+            {
+                if (!md5Info.ContainsKey(kv.Key))
+                    throw new InvalidProgramException("No bundle md5 info: " + kv.Key);
+                    
+                kv.Value.md5 = md5Info[kv.Key];
+            }
+
+            var manifestFilePath = Path.Combine(manifest.bundlePath, BundlerSetting.kDefaultManifestFileName);
+            var fullPath = PathUtility.RelativeDataPathToFullPath(manifestFilePath);
+            var jsonData = JsonUtility.ToJson(manifest);
+            File.WriteAllText(fullPath, jsonData);
+        }
+
         #region Data Structure Alias
 
         // Asset name -> bundles name contains this asset
@@ -293,6 +345,10 @@ namespace vBundler.Editor
             public readonly HashSet<string> dependencies = new HashSet<string>();
         }
 
+        private class MD5Info : Dictionary<string, string>
+        {
+        }
+        
         #endregion
     }
 }

@@ -17,7 +17,7 @@ namespace vBundler.Utils
                 value = FullPathToRelativeDataPath(value);
 
             value = value.ToLower();
-            return value;
+            return NormalizePath(value);
         }
 
         public static string FullPathToRelativeProjectPath(string fullPath)
