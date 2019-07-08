@@ -56,7 +56,7 @@ namespace vBundler.Loader
             if (_assetBundle)
                 return false;
 
-            if (BundlerSetting.kCustomFileReaderAsync == null)
+            if (BundlerSetting.kCustomFileReaderAsync != null)
             {
                 if (_fileReadRequest == null)
                     _fileReadRequest = CreateFileReaderRequest();
@@ -65,7 +65,7 @@ namespace vBundler.Loader
                     return true;
 
                 _assetBundle =
-                    AssetBundle.LoadFromMemory(_fileReadRequest.GetBytes()); // LoadFromMemoryAsync 有问题，有可能不会完成
+                    AssetBundle.LoadFromMemory(_fileReadRequest.GetBytes()); // Problem with LoadFromMemoryAsync
             }
             else
             {
@@ -74,7 +74,7 @@ namespace vBundler.Loader
 
                 if (!_bundleLoadRequest.isDone || _bundleLoadRequest.progress < 1f)
                 {
-                    Logger.LogInfo("Bundle load request does not finished: {0}, progress: {1.00}",
+                    Logger.LogInfo("Bundle load request does not finished: {0}, progress: {1:0.00}",
                         _path, _bundleLoadRequest.progress);
                     return true;
                 }

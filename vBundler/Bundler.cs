@@ -36,10 +36,6 @@ namespace vBundler
                 Logger.LogInfo("Bundler manifest not provided, bundle mode will disabled.");
                 SetMode(BundleModeType.Resource);
             }
-
-#if UNITY_ANDROID
-            BetterStreamingAssets.Initialize();
-#endif
         }
 
         private ModeBase CurrentMode
