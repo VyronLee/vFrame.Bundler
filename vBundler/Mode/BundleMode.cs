@@ -31,13 +31,13 @@ namespace vBundler.Mode
         {
         }
 
-        public override ILoadRequest LoadAsset(string path)
+        public override ILoadRequest Load(string path)
         {
             var loader = CreateLoaderByAssetPath<BundleLoaderSync>(path);
             return new LoadRequestSync(this, path, loader);
         }
 
-        public override ILoadRequestAsync LoadAssetAsync(string path)
+        public override ILoadRequestAsync LoadAsync(string path)
         {
             var loader = CreateLoaderByAssetPath<BundleLoaderAsync>(path);
             return new LoadRequestAsync(this, path, loader);

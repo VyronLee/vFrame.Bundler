@@ -43,14 +43,14 @@ namespace vBundler
             get { return _modes[_modeType]; }
         }
 
-        public ILoadRequest LoadAsset(string path)
+        public ILoadRequest Load(string path)
         {
-            return CurrentMode.LoadAsset(path);
+            return CurrentMode.Load(path);
         }
 
-        public ILoadRequestAsync LoadAssetAsync(string path)
+        public ILoadRequestAsync LoadAsync(string path)
         {
-            return CurrentMode.LoadAssetAsync(path);
+            return CurrentMode.LoadAsync(path);
         }
 
         public void AddSearchPath(string path)

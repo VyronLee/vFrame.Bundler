@@ -18,8 +18,8 @@ namespace vBundler.Interface
 
     public interface IBundler
     {
-        ILoadRequest LoadAsset(string path);
-        ILoadRequestAsync LoadAssetAsync(string path);
+        ILoadRequest Load(string path);
+        ILoadRequestAsync LoadAsync(string path);
 
         void AddSearchPath(string path);
         void ClearSearchPaths();

@@ -22,12 +22,12 @@ namespace vBundler.Mode
         {
         }
 
-        public override ILoadRequest LoadAsset(string path)
+        public override ILoadRequest Load(string path)
         {
             return new LoadRequest(this, path, null);
         }
 
-        public override ILoadRequestAsync LoadAssetAsync(string path)
+        public override ILoadRequestAsync LoadAsync(string path)
         {
             return new LoadRequestAsync(this, path, null);
         }

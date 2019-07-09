@@ -28,8 +28,8 @@ namespace vBundler.Mode
             _searchPaths = searchPaths;
         }
 
-        public abstract ILoadRequest LoadAsset(string path);
-        public abstract ILoadRequestAsync LoadAssetAsync(string path);
+        public abstract ILoadRequest Load(string path);
+        public abstract ILoadRequestAsync LoadAsync(string path);
 
         public virtual void Collect()
         {
