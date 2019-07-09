@@ -90,6 +90,7 @@
         <Compile Include="Interface\IFileReaderAsync.cs" />
         <Compile Include="Interface\ILoadRequest.cs" />
         <Compile Include="Interface\ILoadRequestAsync.cs" />
+        <Compile Include="Interface\IPoolObjectAllocator.cs" />
         <Compile Include="Interface\IScene.cs" />
         <Compile Include="Interface\ISceneAsync.cs" />
         <Compile Include="Loader\BundleLoaderAsync.cs" />
@@ -99,7 +100,7 @@
         <Compile Include="LoadRequests\LoadRequestAsync.cs" />
         <Compile Include="LoadRequests\LoadRequestSync.cs" />
         <Compile Include="Log\Logger.cs" />
-        <Compile Include="Messenger\DestroyedMessenger.cs" />
+        <Compile Include="Messenger\BundlerMessenger.cs" />
         <Compile Include="Mode\BundleMode.cs" />
         <Compile Include="Mode\ModeBase.cs" />
         <Compile Include="Mode\ResourceMode.cs" />
@@ -107,8 +108,12 @@
         <Compile Include="Scene\SceneAsync.cs" />
         <Compile Include="Scene\SceneBase.cs" />
         <Compile Include="Scene\SceneSync.cs" />
-        <Compile Include="Utils\FixedStringBuilderPool.cs" />
         <Compile Include="Utils\PathUtility.cs" />
+        <Compile Include="Utils\Pools\ListAllocator.cs" />
+        <Compile Include="Utils\Pools\ListPool.cs" />
+        <Compile Include="Utils\Pools\StringBuilderPool.cs" />
+        <Compile Include="Utils\Pools\ObjectPool.cs" />
+        <Compile Include="Utils\Pools\StringBuilderAllocator.cs" />
         <Compile Include="Utils\SerializableDictionary.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

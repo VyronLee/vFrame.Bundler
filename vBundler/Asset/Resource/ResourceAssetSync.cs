@@ -13,6 +13,7 @@ using System.IO;
 using UnityEngine;
 using vBundler.Exception;
 using vBundler.Utils;
+using vBundler.Utils.Pools;
 using Logger = vBundler.Log.Logger;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,7 +21,7 @@ using UnityEditor;
 
 namespace vBundler.Asset.Resource
 {
-    public class ResourceAssetSync : AssetBase
+    public sealed class ResourceAssetSync : AssetBase
     {
         public ResourceAssetSync(string assetName, Type type)
             : base(assetName, type, null)
@@ -43,7 +44,7 @@ namespace vBundler.Asset.Resource
             {
                 var resPath = PathUtility.RelativeProjectPathToRelativeResourcesPath(_path);
 
-                var sb = FixedStringBuilderPool.Get();
+                var sb = StringBuilderPool.Get();
                 sb.Append(Path.GetDirectoryName(resPath));
                 sb.Append("/");
                 sb.Append(Path.GetFileNameWithoutExtension(resPath));
@@ -52,12 +53,12 @@ namespace vBundler.Asset.Resource
                 if (!_asset)
                     throw new BundleAssetLoadFailedException("Could not load asset from resources: " + _path);
 
-                FixedStringBuilderPool.Return(sb);
+                StringBuilderPool.Return(sb);
             }
 
             IsDone = true;
 
-            Logger.LogInfo("End synchronously loading asset: " + _path);
+            Logger.LogInfo("End synchronously loading asset: {0}", _path);
         }
     }
 }

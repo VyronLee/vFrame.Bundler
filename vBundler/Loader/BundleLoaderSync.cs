@@ -20,7 +20,7 @@ namespace vBundler.Loader
     {
         protected override bool LoadProcess()
         {
-            Logger.LogInfo("Start synchronously loading process: " + _path);
+            Logger.LogInfo("Start synchronously loading process: {0}", _path);
 
             foreach (var basePath in _searchPaths)
             {
@@ -50,7 +50,7 @@ namespace vBundler.Loader
                     if (_assetBundle)
                     {
                         IsDone = true;
-                        Logger.LogInfo("AssetBundle synchronously loading finished, path: " + _path);
+                        Logger.LogInfo("AssetBundle synchronously loading finished, path: {0}", _path);
                         break;
                     }
 
@@ -66,7 +66,7 @@ namespace vBundler.Loader
             if (!IsDone)
                 throw new BundleNotFoundException("AssetBundle synchronously loading failed, path: " + _path);
 
-            Logger.LogInfo("End synchronously loading process: " + _path);
+            Logger.LogInfo("End synchronously loading process: {0}", _path);
 
             return IsDone;
         }

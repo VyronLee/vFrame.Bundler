@@ -34,8 +34,15 @@ namespace vBundler.Asset
             if (target != null && !target.IsDone)
                 throw new InvalidProgramException("Loader hasn't finished: " + target.AssetBundlePath);
 
+            LoadAsset();
+        }
+
+        private void LoadAsset()
+        {
             LoadAssetInternal();
         }
+
+        protected abstract void LoadAssetInternal();
 
         public virtual bool IsDone { get; set; }
 
@@ -76,11 +83,11 @@ namespace vBundler.Asset
 
         public void DestroyGameObject(GameObject gameObject)
         {
-            // Unsubscribe current node
+            // Unsubscribe parent node
             UnsubscribeDestroyedMessenger(gameObject);
 
             // Unsubscribe children nodes
-            var messengers = gameObject.GetComponentsInChildren<DestroyedMessenger>(true);
+            var messengers = gameObject.GetComponentsInChildren<BundlerMessenger>(true);
             foreach (var messenger in messengers)
                 UnsubscribeDestroyedMessenger(messenger.gameObject);
 
@@ -101,20 +108,18 @@ namespace vBundler.Asset
             SubscribeDestroyedMessenger(target.gameObject);
         }
 
-        protected abstract void LoadAssetInternal();
-
         private void SubscribeDestroyedMessenger(GameObject gameObject)
         {
-            var messenger = gameObject.GetComponent<DestroyedMessenger>();
+            var messenger = gameObject.GetComponent<BundlerMessenger>();
             if (!messenger)
-                messenger = gameObject.AddComponent<DestroyedMessenger>();
+                messenger = gameObject.AddComponent<BundlerMessenger>();
 
             messenger.RetainRef(this);
         }
 
         private void UnsubscribeDestroyedMessenger(GameObject gameObject)
         {
-            var messenger = gameObject.GetComponent<DestroyedMessenger>();
+            var messenger = gameObject.GetComponent<BundlerMessenger>();
             if (!messenger)
                 return;
 

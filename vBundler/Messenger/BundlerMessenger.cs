@@ -1,6 +1,6 @@
 //------------------------------------------------------------
-//        File:  DestroyedMessenger.cs
-//       Brief:  DestroyedMessenger
+//        File:  BundlerMessenger.cs
+//       Brief:  BundlerMessenger
 //
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
@@ -11,15 +11,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using vBundler.Asset;
+using vBundler.Utils.Pools;
 
 namespace vBundler.Messenger
 {
-    public class DestroyedMessenger : MonoBehaviour
+    public class BundlerMessenger : MonoBehaviour
     {
-        public static readonly LinkedList<DestroyedMessenger> Messengers = new LinkedList<DestroyedMessenger>();
+        public static readonly List<BundlerMessenger> Messengers = new List<BundlerMessenger>(2048);
 
         [SerializeField]
-        private readonly List<AssetBase> _assets = new List<AssetBase>();
+        private List<AssetBase> _assets;
 
         private void Awake()
         {
@@ -29,11 +30,14 @@ namespace vBundler.Messenger
 
         private void RecoverRefs()
         {
+            if (null == _assets)
+                return;
+
             foreach (var assetBase in _assets)
                 assetBase.Retain();
 
             if (!Messengers.Contains(this))
-                Messengers.AddLast(this);
+                Messengers.Add(this);
         }
 
         private void OnDestroy()
@@ -43,15 +47,22 @@ namespace vBundler.Messenger
 
         public void ReleaseRef()
         {
+            if (null == _assets)
+                return;
+
             foreach (var assetBase in _assets)
                 assetBase.Release();
-            _assets.Clear();
+
+            ListPool<AssetBase>.Return(_assets);
 
             Messengers.Remove(this);
         }
 
         public void RetainRef(AssetBase assetBase)
         {
+            if (null == _assets)
+                _assets = ListPool<AssetBase>.Get();
+
             if (_assets.Contains(assetBase))
                 return;
             _assets.Add(assetBase);
@@ -59,7 +70,7 @@ namespace vBundler.Messenger
             assetBase.Retain();
 
             if (!Messengers.Contains(this))
-                Messengers.AddLast(this);
+                Messengers.Add(this);
         }
     }
 }

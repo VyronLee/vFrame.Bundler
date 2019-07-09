@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using vBundler.Base;
+using vBundler.Utils.Pools;
 using Logger = vBundler.Log.Logger;
 
 namespace vBundler.Loader
@@ -48,14 +49,14 @@ namespace vBundler.Loader
             _searchPaths = searchPaths;
             _assetBundle = null;
 
-            Dependencies = new List<BundleLoaderBase>();
+            Dependencies = ListPool<BundleLoaderBase>.Get();
         }
 
         public void Load()
         {
             if (AssetBundleCache.TryGetValue(_path, out _assetBundle))
             {
-                Logger.LogInfo("Load assetbundle from cache: " + _path);
+                Logger.LogInfo("Load assetbundle from cache: {0}", _path);
                 IsDone = true;
                 return;
             }
@@ -66,7 +67,7 @@ namespace vBundler.Loader
             if (!(IsDone = LoadProcess()))
                 return;
 
-            Logger.LogInfo("Add assetbundle to cache: " + _path);
+            Logger.LogInfo("Add assetbundle to cache: {0}", _path);
 
             if (AssetBundleCache.ContainsKey(_path))
                 throw new System.Exception("Assetbundle already in cache: " + _path);
@@ -75,7 +76,7 @@ namespace vBundler.Loader
 
         public void Unload()
         {
-            Logger.LogInfo("Unload assetbundle: " + _path);
+            Logger.LogInfo("Unload assetbundle: {0}", _path);
 
             if (_references > 0)
                 throw new InvalidProgramException("Cannot unload, references: " + _references);
@@ -88,14 +89,19 @@ namespace vBundler.Loader
 
             AssetBundleCache.Remove(_path);
 
-            Dependencies.ForEach(v => v.Release());
-
             IsDone = !UnloadProcess();
+
+            foreach (var loader in Dependencies)
+                loader.Release();
+
+            ListPool<BundleLoaderBase>.Return(Dependencies);
         }
 
         public override void Retain()
         {
-            Dependencies.ForEach(v => v.Retain());
+            foreach (var loader in Dependencies)
+                loader.Retain();
+
             base.Retain();
 
             Logger.LogVerbose("Retain loader: {0}, ref: {1}", _path, _references);
@@ -103,7 +109,9 @@ namespace vBundler.Loader
 
         public override void Release()
         {
-            Dependencies.ForEach(v => v.Release());
+            foreach (var loader in Dependencies)
+                loader.Release();
+
             base.Release();
 
             Logger.LogVerbose("Release loader: {0}, ref: {1}", _path, _references);

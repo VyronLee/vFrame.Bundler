@@ -15,6 +15,7 @@ using vBundler.Exception;
 using vBundler.Interface;
 using vBundler.Loader;
 using vBundler.Utils;
+using vBundler.Utils.Pools;
 using Logger = vBundler.Log.Logger;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
@@ -23,7 +24,7 @@ using UnityEditor;
 
 namespace vBundler.Asset.Resource
 {
-    public class ResourceAssetAsync : AssetBase, IAssetAsync
+    public sealed class ResourceAssetAsync : AssetBase, IAssetAsync
     {
         private ResourceRequest _request;
 
@@ -42,7 +43,7 @@ namespace vBundler.Asset.Resource
 
             _asset = _request.asset;
 
-            Logger.LogInfo("End asynchronously loading asset: " + _path);
+            Logger.LogInfo("End asynchronously loading asset: {0}", _path);
 
             return false;
         }
@@ -70,7 +71,7 @@ namespace vBundler.Asset.Resource
 
         protected override void LoadAssetInternal()
         {
-            Logger.LogInfo("Start asynchronously loading asset: " + _path);
+            Logger.LogInfo("Start asynchronously loading asset: {0}", _path);
 
 #if UNITY_EDITOR
             if (BundlerCustomSettings.kUseAssetDatabaseInsteadOfResources)
@@ -85,7 +86,7 @@ namespace vBundler.Asset.Resource
 
             var resPath = PathUtility.RelativeProjectPathToRelativeResourcesPath(_path);
 
-            var sb = FixedStringBuilderPool.Get();
+            var sb = StringBuilderPool.Get();
             sb.Append(Path.GetDirectoryName(resPath));
             sb.Append("/");
             sb.Append(Path.GetFileNameWithoutExtension(resPath));
@@ -95,7 +96,7 @@ namespace vBundler.Asset.Resource
                 throw new BundleAssetLoadFailedException(
                     string.Format("Cannot load asset {0} from resources: ", sb));
 
-            FixedStringBuilderPool.Return(sb);
+            StringBuilderPool.Return(sb);
         }
     }
 }

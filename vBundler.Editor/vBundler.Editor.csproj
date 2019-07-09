@@ -70,6 +70,7 @@
         <Compile Include="BundlerGenerator.cs" />
         <Compile Include="BundlerMenu.cs" />
         <Compile Include="BundlerPreference.cs" />
+        <Compile Include="Inspector\BundlerMessengerInspector.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>

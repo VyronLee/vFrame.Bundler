@@ -18,6 +18,7 @@ using vBundler.Loader;
 using vBundler.LoadRequests;
 using vBundler.Messenger;
 using vBundler.Utils;
+using vBundler.Utils.Pools;
 using Logger = vBundler.Log.Logger;
 
 namespace vBundler.Mode
@@ -77,12 +78,13 @@ namespace vBundler.Mode
 
         public override void Collect()
         {
-            var unused = new LinkedList<string>();
+            var unused = ListPool<string>.Get();
+
             foreach (var kv in LoaderCache)
             {
                 var loader = kv.Value;
                 if (loader.GetReferences() <= 0)
-                    unused.AddLast(kv.Key);
+                    unused.Add(kv.Key);
             }
 
             foreach (var name in unused)
@@ -94,24 +96,27 @@ namespace vBundler.Mode
                 loader.Unload();
                 LoaderCache.Remove(name);
             }
+
+            ListPool<string>.Return(unused);
         }
 
         public override void DeepCollect()
         {
-            var messengers = DestroyedMessenger.Messengers;
-            var deadMessengers = new LinkedList<DestroyedMessenger>();
+            var deadMessengers = ListPool<BundlerMessenger>.Get();
 
             // "OnDestroy will only be called on game objects that have previously been active."
             // In this case we can only use "NullReference" to check whether game object is alive or not
-            foreach (var messenger in messengers)
+            foreach (var messenger in BundlerMessenger.Messengers)
             {
                 if (messenger == null)
-                    deadMessengers.AddLast(messenger);
+                    deadMessengers.Add(messenger);
             }
 
             foreach (var messenger in deadMessengers)
                 messenger.ReleaseRef();
             deadMessengers.Clear();
+
+            ListPool<BundlerMessenger>.Return(deadMessengers);
 
             Collect();
         }

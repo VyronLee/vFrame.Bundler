@@ -18,7 +18,7 @@ using Logger = vBundler.Log.Logger;
 
 namespace vBundler.Asset.Bundle
 {
-    public class BundleAssetAsync : AssetBase, IAssetAsync
+    public sealed class BundleAssetAsync : AssetBase, IAssetAsync
     {
         private AssetBundleRequest _request;
 
@@ -36,7 +36,7 @@ namespace vBundler.Asset.Bundle
 
             _asset = _request.asset;
 
-            Logger.LogInfo("End asynchronously loading asset from bundle: " + _path);
+            Logger.LogInfo("End asynchronously loading asset from bundle: {0}", _path);
 
             return false;
         }
@@ -59,7 +59,7 @@ namespace vBundler.Asset.Bundle
 
         protected override void LoadAssetInternal()
         {
-            Logger.LogInfo("Start asynchronously loading asset from bundle: " + _path);
+            Logger.LogInfo("Start asynchronously loading asset from bundle: {0}", _path);
 
             var name = PathUtility.GetAssetName(_path);
             _request = _target.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);

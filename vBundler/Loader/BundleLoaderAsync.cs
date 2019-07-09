@@ -84,13 +84,13 @@ namespace vBundler.Loader
                 _assetBundle = _bundleLoadRequest.assetBundle;
             }
 
-            Logger.LogInfo("Add assetbundle to cache: " + _path);
+            Logger.LogInfo("Add assetbundle to cache: {0}", _path);
 
             if (AssetBundleCache.ContainsKey(_path))
                 throw new System.Exception("Assetbundle already in cache: " + _path);
             AssetBundleCache.Add(_path, _assetBundle);
 
-            Logger.LogInfo("AssetBundle asynchronously loading finished, path: " + _path);
+            Logger.LogInfo("AssetBundle asynchronously loading finished, path: {0}", _path);
 
             IsLoading = false;
             return false;
@@ -104,7 +104,7 @@ namespace vBundler.Loader
 
         protected override bool LoadProcess()
         {
-            Logger.LogInfo("Start asynchronously loading process: " + _path);
+            Logger.LogInfo("Start asynchronously loading process: {0}", _path);
 
             IsLoading = true;
 

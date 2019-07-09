@@ -16,7 +16,7 @@ using vBundler.Utils;
 
 namespace vBundler.Asset.Bundle
 {
-    public class BundleAssetSync : AssetBase
+    public sealed class BundleAssetSync : AssetBase
     {
         public BundleAssetSync(string path, Type type, BundleLoaderBase target) : base(path, type, target)
         {
@@ -24,7 +24,7 @@ namespace vBundler.Asset.Bundle
 
         protected override void LoadAssetInternal()
         {
-            Logger.LogInfo("Start synchronously loading asset from bundle: " + _path);
+            Logger.LogInfo("Start synchronously loading asset from bundle: {0}", _path);
 
             var name = PathUtility.GetAssetName(_path);
             var assets = _target.AssetBundle.LoadAssetWithSubAssets(name, _type);
@@ -34,7 +34,7 @@ namespace vBundler.Asset.Bundle
             _asset = assets[0];
             IsDone = true;
 
-            Logger.LogInfo("End synchronously loading asset from bundle: " + _path);
+            Logger.LogInfo("End synchronously loading asset from bundle: {0}", _path);
         }
     }
 }
