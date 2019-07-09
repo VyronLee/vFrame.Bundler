@@ -37,13 +37,13 @@ namespace vBundler.Loader
                         continue;
                     }
 
-                    if (BundlerSetting.kCustomFileReader == null)
+                    if (BundlerCustomSettings.kCustomFileReader == null)
                     {
                         _assetBundle = AssetBundle.LoadFromFile(path);
                     }
                     else
                     {
-                        var bytes = BundlerSetting.kCustomFileReader.ReadAllBytes(path);
+                        var bytes = BundlerCustomSettings.kCustomFileReader.ReadAllBytes(path);
                         _assetBundle = AssetBundle.LoadFromMemory(bytes);
                     }
 

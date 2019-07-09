@@ -9,11 +9,11 @@
 //============================================================
 
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using vBundler.Exception;
 using vBundler.Interface;
 using vBundler.Loader;
+using vBundler.Messenger;
 using Object = UnityEngine.Object;
 
 namespace vBundler.Asset
@@ -58,23 +58,33 @@ namespace vBundler.Asset
             return _asset;
         }
 
-        public T GetAsset<T>() where T : Object
-        {
-            if (!_asset)
-                throw new BundleAssetNotReadyException("Asset has not loaded, path: " + _path);
-            return _asset as T;
-        }
-
-        public GameObject Instantiate()
+        public GameObject InstantiateGameObject()
         {
             if (!IsDone)
                 throw new BundleAssetNotReadyException("Asset not ready: " + _path);
 
-            var go = Object.Instantiate(GetAsset<GameObject>());
+            var prefab = GetAsset() as GameObject;
+            if (!prefab)
+                throw new BundleAssetTypeNotMatchException("Asset not typeof GameObject");
+
+            var go = Object.Instantiate(prefab);
 
             SubscribeDestroyedMessenger(go);
 
             return go;
+        }
+
+        public void DestroyGameObject(GameObject gameObject)
+        {
+            // Unsubscribe current node
+            UnsubscribeDestroyedMessenger(gameObject);
+
+            // Unsubscribe children nodes
+            var messengers = gameObject.GetComponentsInChildren<DestroyedMessenger>(true);
+            foreach (var messenger in messengers)
+                UnsubscribeDestroyedMessenger(messenger.gameObject);
+
+            Object.Destroy(gameObject);
         }
 
         public void SetTo(Component target, string propName)
@@ -95,23 +105,20 @@ namespace vBundler.Asset
 
         private void SubscribeDestroyedMessenger(GameObject gameObject)
         {
-            var messenger = gameObject.GetComponent<DestroyedMessenger>() ??
-                            gameObject.AddComponent<DestroyedMessenger>();
+            var messenger = gameObject.GetComponent<DestroyedMessenger>();
+            if (!messenger)
+                messenger = gameObject.AddComponent<DestroyedMessenger>();
 
-            if (messenger.Assets.Contains(this)) return;
-            messenger.Assets.Add(this);
-            Retain();
+            messenger.RetainRef(this);
         }
-    }
 
-    internal class DestroyedMessenger : MonoBehaviour
-    {
-        public readonly HashSet<AssetBase> Assets = new HashSet<AssetBase>();
-
-        private void OnDestroy()
+        private void UnsubscribeDestroyedMessenger(GameObject gameObject)
         {
-            foreach (var assetBase in Assets) assetBase.Release();
-            Assets.Clear();
+            var messenger = gameObject.GetComponent<DestroyedMessenger>();
+            if (!messenger)
+                return;
+
+            messenger.ReleaseRef();
         }
     }
 }

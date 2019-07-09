@@ -74,7 +74,7 @@
         <Compile Include="Asset\Resource\ResourceAssetAsync.cs" />
         <Compile Include="Asset\Resource\ResourceAssetSync.cs" />
         <Compile Include="Base\Reference.cs" />
-        <Compile Include="BunderSetting.cs" />
+        <Compile Include="BunderCustomSettings.cs" />
         <Compile Include="Bundler.cs" />
         <Compile Include="BundlerManifest.cs" />
         <Compile Include="Exception\BundlerException.cs" />
@@ -99,6 +99,7 @@
         <Compile Include="LoadRequests\LoadRequestAsync.cs" />
         <Compile Include="LoadRequests\LoadRequestSync.cs" />
         <Compile Include="Log\Logger.cs" />
+        <Compile Include="Messenger\DestroyedMessenger.cs" />
         <Compile Include="Mode\BundleMode.cs" />
         <Compile Include="Mode\ModeBase.cs" />
         <Compile Include="Mode\ResourceMode.cs" />

@@ -31,7 +31,11 @@ namespace vBundler.Mode
         public abstract ILoadRequest LoadAsset(string path);
         public abstract ILoadRequestAsync LoadAssetAsync(string path);
 
-        public virtual void GarbageCollect()
+        public virtual void Collect()
+        {
+        }
+
+        public virtual void DeepCollect()
         {
         }
 

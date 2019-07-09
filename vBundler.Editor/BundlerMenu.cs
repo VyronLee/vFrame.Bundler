@@ -1,4 +1,13 @@
-﻿using System.IO;
+﻿//------------------------------------------------------------
+//        File:  BundlerMenu.cs
+//       Brief:  BundlerMenu
+//
+//      Author:  VyronLee, lwz_jz@hotmail.com
+//
+//    Modified:  2019-07-09 10:40
+//   Copyright:  Copyright (c) 2019, VyronLee
+//============================================================
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using vBundler.Utils;
@@ -10,13 +19,13 @@ namespace vBundler.Editor
         [MenuItem("Assets/vBundler/Generate Manifest")]
         public static void GenerateManifest()
         {
-            var buildRuleFile = PathUtility.RelativeDataPathToAbsolutePath(BundlerBuildSetting.kDefaultBuildRuleFilePath);
+            var buildRuleFile = PathUtility.RelativeDataPathToAbsolutePath(BundlerDefaultBuildSettings.kBuildRuleFilePath);
             var relativeBuildRuleFile = PathUtility.AbsolutePathToRelativeProjectPath(buildRuleFile);
             var buildRuleAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(relativeBuildRuleFile);
             var buildRule = JsonUtility.FromJson<BundlerBuildRule>(buildRuleAsset.text);
 
             BundlerGenerator.Instance.GenerateManifest(buildRule,
-                PathUtility.Combine(BundlerBuildSetting.kDefaultBundlePath, BundlerBuildSetting.kDefaultManifestFileName));
+                PathUtility.Combine(BundlerDefaultBuildSettings.kBundlePath, BundlerDefaultBuildSettings.kManifestFileName));
         }
 
         [MenuItem("Assets/vBundler/Generate AssetBundles(iOS)")]
@@ -74,7 +83,7 @@ namespace vBundler.Editor
         private static void GenerateAssetBundles(BuildTarget platform)
         {
             var manifestFile =
-                PathUtility.Combine(BundlerBuildSetting.kDefaultBundlePath, BundlerBuildSetting.kDefaultManifestFileName);
+                PathUtility.Combine(BundlerDefaultBuildSettings.kBundlePath, BundlerDefaultBuildSettings.kManifestFileName);
             var manifestFileFullPath = PathUtility.Combine(Application.streamingAssetsPath, manifestFile);
 
             if (!File.Exists(manifestFileFullPath))
@@ -91,9 +100,9 @@ namespace vBundler.Editor
         private static void RegenerateAssetBundle(string path, BuildTarget platform)
         {
             var bundleOutputFullPath =
-                PathUtility.Combine(Application.streamingAssetsPath, BundlerBuildSetting.kDefaultBundlePath);
+                PathUtility.Combine(Application.streamingAssetsPath, BundlerDefaultBuildSettings.kBundlePath);
             var bundleOutputRelativePath = PathUtility.AbsolutePathToRelativeProjectPath(bundleOutputFullPath);
-            var manifestFilePath = PathUtility.Combine(bundleOutputFullPath, BundlerBuildSetting.kDefaultManifestFileName);
+            var manifestFilePath = PathUtility.Combine(bundleOutputFullPath, BundlerDefaultBuildSettings.kManifestFileName);
 
             var bundleName = path.Substring(bundleOutputRelativePath.Length + 1);
             var jsonText = File.ReadAllText(manifestFilePath);

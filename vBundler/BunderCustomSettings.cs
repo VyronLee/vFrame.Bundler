@@ -12,11 +12,8 @@ using vBundler.Interface;
 
 namespace vBundler
 {
-    public static class BundlerSetting
+    public static class BundlerCustomSettings
     {
-        public static string kBundlerModePreferenceKey = "vBundlerModePreferenceKey";
-        public static string kBundlerLogLevelPreferenceKey = "vBundlerLogLevelPreferenceKey";
-
         public static IFileReader kCustomFileReader = null;
         public static IFileReaderAsync kCustomFileReaderAsync = null;
 

@@ -16,6 +16,7 @@ using vBundler.Exception;
 using vBundler.Interface;
 using vBundler.Loader;
 using vBundler.LoadRequests;
+using vBundler.Messenger;
 using vBundler.Utils;
 using Logger = vBundler.Log.Logger;
 
@@ -74,7 +75,7 @@ namespace vBundler.Mode
             return bundleLoader;
         }
 
-        public override void GarbageCollect()
+        public override void Collect()
         {
             var unused = new LinkedList<string>();
             foreach (var kv in LoaderCache)
@@ -90,11 +91,29 @@ namespace vBundler.Mode
                 if (loader.IsLoading)
                     continue;
 
-                Logger.LogVerbose(string.Format("Garbage collecting[{0}] - unloading {1}", Time.frameCount, name));
-
                 loader.Unload();
                 LoaderCache.Remove(name);
             }
+        }
+
+        public override void DeepCollect()
+        {
+            var messengers = DestroyedMessenger.Messengers;
+            var deadMessengers = new LinkedList<DestroyedMessenger>();
+
+            // "OnDestroy will only be called on game objects that have previously been active."
+            // In this case we can only use "NullReference" to check whether game object is alive or not
+            foreach (var messenger in messengers)
+            {
+                if (messenger == null)
+                    deadMessengers.AddLast(messenger);
+            }
+
+            foreach (var messenger in deadMessengers)
+                messenger.ReleaseRef();
+            deadMessengers.Clear();
+
+            Collect();
         }
 
         public override IAsset GetAsset(LoadRequest request, Type type)

@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using vBundler.Interface;
 using vBundler.Loader;
 using vBundler.Mode;
+using Object = UnityEngine.Object;
 
 namespace vBundler.LoadRequests
 {
@@ -48,6 +49,11 @@ namespace vBundler.LoadRequests
             get { return _bundleLoader == null || _bundleLoader.IsDone; }
         }
 
+        public IAsset GetAsset<T>() where T: Object
+        {
+            return _mode.GetAsset(this, typeof(T));
+        }
+
         public IAsset GetAsset(Type type)
         {
             return _mode.GetAsset(this, type);
@@ -56,6 +62,11 @@ namespace vBundler.LoadRequests
         public IScene GetScene(LoadSceneMode mode)
         {
             return _mode.GetScene(this, mode);
+        }
+
+        public IAssetAsync GetAssetAsync<T>() where T: Object
+        {
+            return _mode.GetAssetAsync(this, typeof(T));
         }
 
         public IAssetAsync GetAssetAsync(Type type)

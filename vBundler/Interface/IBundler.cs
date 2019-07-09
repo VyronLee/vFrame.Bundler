@@ -24,7 +24,8 @@ namespace vBundler.Interface
         void AddSearchPath(string path);
         void ClearSearchPaths();
 
-        void GarbageCollect();
+        void Collect();
+        void DeepCollect();
 
         void SetLogLevel(int level);
         void SetMode(BundleModeType type);

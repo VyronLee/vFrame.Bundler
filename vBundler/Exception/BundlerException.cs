@@ -58,4 +58,11 @@ namespace vBundler.Exception
         {
         }
     }
+
+    public class BundleAssetTypeNotMatchException : System.Exception
+    {
+        public BundleAssetTypeNotMatchException(string message) : base(message)
+        {
+        }
+    }
 }

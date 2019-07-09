@@ -10,14 +10,17 @@
 
 using System;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace vBundler.Interface
 {
     public interface ILoadRequest
     {
+        IAsset GetAsset<T>() where T: Object;
         IAsset GetAsset(Type type);
         IScene GetScene(LoadSceneMode mode);
 
+        IAssetAsync GetAssetAsync<T>() where T : Object;
         IAssetAsync GetAssetAsync(Type type);
         ISceneAsync GetSceneAsync(LoadSceneMode mode);
     }

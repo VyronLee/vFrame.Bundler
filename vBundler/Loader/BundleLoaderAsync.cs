@@ -56,7 +56,7 @@ namespace vBundler.Loader
             if (_assetBundle)
                 return false;
 
-            if (BundlerSetting.kCustomFileReaderAsync != null)
+            if (BundlerCustomSettings.kCustomFileReaderAsync != null)
             {
                 if (_fileReadRequest == null)
                     _fileReadRequest = CreateFileReaderRequest();
@@ -162,7 +162,7 @@ namespace vBundler.Loader
                         continue;
                     }
 
-                    var fileReader = BundlerSetting.kCustomFileReaderAsync.Clone();
+                    var fileReader = BundlerCustomSettings.kCustomFileReaderAsync.Clone();
                     return fileReader.ReadAllBytesAsync(path);
                 }
                 catch (System.Exception e)

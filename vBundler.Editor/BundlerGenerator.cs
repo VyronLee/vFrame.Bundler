@@ -1,4 +1,13 @@
-﻿using System;
+﻿//------------------------------------------------------------
+//        File:  BundlerGenerator.cs
+//       Brief:  BundlerGenerator
+//
+//      Author:  VyronLee, lwz_jz@hotmail.com
+//
+//    Modified:  2019-07-09 10:40
+//   Copyright:  Copyright (c) 2019, VyronLee
+//============================================================
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,7 +67,7 @@ namespace vBundler.Editor
 
         public void GenerateAssetBundles(BundlerManifest manifest, BuildTarget platform)
         {
-            var fullPath = PathUtility.Combine(Application.streamingAssetsPath, BundlerBuildSetting.kDefaultBundlePath);
+            var fullPath = PathUtility.Combine(Application.streamingAssetsPath, BundlerDefaultBuildSettings.kBundlePath);
             var outputPath = PathUtility.AbsolutePathToRelativeProjectPath(fullPath);
 
             var builds = GenerateAssetBundleBuilds(manifest);
@@ -110,7 +119,7 @@ namespace vBundler.Editor
                                 (float) index++ / files.Length);
 
                             var bundleName = PathUtility.NormalizeAssetBundlePath(file);
-                            bundleName = string.Format(BundlerBuildSetting.kDefaultBundleFormatter, bundleName);
+                            bundleName = string.Format(BundlerDefaultBuildSettings.kBundleFormatter, bundleName);
 
                             var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
                             if (rule.shared)
@@ -127,7 +136,7 @@ namespace vBundler.Editor
                     case PackType.PackByDirectory:
                     {
                         var bundleName = PathUtility.NormalizeAssetBundlePath(rule.path);
-                        bundleName = string.Format(BundlerBuildSetting.kDefaultBundleFormatter, bundleName);
+                        bundleName = string.Format(BundlerDefaultBuildSettings.kBundleFormatter, bundleName);
 
                         var searchPath = PathUtility.RelativeDataPathToAbsolutePath(rule.path);
 
@@ -173,7 +182,7 @@ namespace vBundler.Editor
                                 .ToArray();
 
                             var bundleName = PathUtility.NormalizeAssetBundlePath(subDirectory);
-                            bundleName = string.Format(BundlerBuildSetting.kDefaultBundleFormatter, bundleName);
+                            bundleName = string.Format(BundlerDefaultBuildSettings.kBundleFormatter, bundleName);
 
                             var index = 0;
                             foreach (var file in files)
@@ -258,7 +267,7 @@ namespace vBundler.Editor
                 }
 
                 sharedDict.Add(depSet.dependencies,
-                    depSet.bundle = string.Format(BundlerBuildSetting.kDefaultSharedBundleFormatter, (++index).ToString()));
+                    depSet.bundle = string.Format(BundlerDefaultBuildSettings.kSharedBundleFormatter, (++index).ToString()));
             }
 
             // Collect shared bundles info
@@ -285,7 +294,7 @@ namespace vBundler.Editor
                 using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(name)))
                 {
                     var nameHash = CalculateMd5(stream);
-                    var uniqueName = string.Format(BundlerBuildSetting.kDefaultSharedBundleFormatter, nameHash);
+                    var uniqueName = string.Format(BundlerDefaultBuildSettings.kSharedBundleFormatter, nameHash);
 
                     var bundleInfo = new BundleInfo();
                     foreach (var asset in kv.Value.assets)
@@ -348,7 +357,7 @@ namespace vBundler.Editor
                         continue;
 
                     string sceneBundleName;
-                    sceneBundleName = string.Format(BundlerBuildSetting.kDefaultSceneBundleFormatter,
+                    sceneBundleName = string.Format(BundlerDefaultBuildSettings.kSceneBundleFormatter,
                         PathUtility.RelativeProjectPathToAbsolutePath(asset));
                     sceneBundleName = PathUtility.NormalizeAssetBundlePath(sceneBundleName);
 

@@ -27,15 +27,15 @@ namespace vBundler
             _modes[BundleModeType.Bundle] = new BundleMode(manifest, _searchPaths);
             _modes[BundleModeType.Resource] = new ResourceMode(manifest, _searchPaths);
 
+            Logger.LogInfo("Bundler manifest not provided, bundle mode will disabled.");
+
             if (manifest != null)
             {
                 SetMode(BundleModeType.Bundle);
+                return;
             }
-            else
-            {
-                Logger.LogInfo("Bundler manifest not provided, bundle mode will disabled.");
-                SetMode(BundleModeType.Resource);
-            }
+
+            SetMode(BundleModeType.Resource);
         }
 
         private ModeBase CurrentMode
@@ -63,9 +63,14 @@ namespace vBundler
             _searchPaths.Clear();
         }
 
-        public void GarbageCollect()
+        public void Collect()
         {
-            CurrentMode.GarbageCollect();
+            CurrentMode.Collect();
+        }
+
+        public void DeepCollect()
+        {
+            CurrentMode.DeepCollect();
         }
 
         public void SetMode(BundleModeType type)
