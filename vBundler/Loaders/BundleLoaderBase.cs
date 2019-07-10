@@ -12,10 +12,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using vBundler.Base;
+using vBundler.Exception;
 using vBundler.Utils.Pools;
-using Logger = vBundler.Log.Logger;
+using Logger = vBundler.Logs.Logger;
 
-namespace vBundler.Loader
+namespace vBundler.Loaders
 {
     public abstract class BundleLoaderBase : Reference
     {
@@ -79,7 +80,7 @@ namespace vBundler.Loader
             Logger.LogInfo("Unload assetbundle: {0}", _path);
 
             if (_references > 0)
-                throw new InvalidProgramException("Cannot unload, references: " + _references);
+                throw new BundleException("Cannot unload, references: " + _references);
 
             if (_assetBundle)
             {

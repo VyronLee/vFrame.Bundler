@@ -14,7 +14,7 @@ namespace vBundler.Utils.Pools
 {
     public class StringBuilderAllocator : IPoolObjectAllocator<StringBuilder>
     {
-        private const int BuilderLength = 1024;
+        public static int BuilderLength = 1024;
 
         public StringBuilder Alloc()
         {

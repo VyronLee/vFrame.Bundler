@@ -12,9 +12,9 @@ using System;
 using UnityEngine.SceneManagement;
 using vBundler.Exception;
 using vBundler.Interface;
-using vBundler.Loader;
+using vBundler.Loaders;
 
-namespace vBundler.Scene
+namespace vBundler.Scenes
 {
     public abstract class SceneBase : IScene
     {
@@ -32,7 +32,7 @@ namespace vBundler.Scene
             _scenePath = _path.Substring(7, _path.Length - 13); // Cut from "Assets/_____.unity"
 
             if (_bundleLoader != null && !_bundleLoader.IsDone)
-                throw new InvalidProgramException("Loader hasn't finished!");
+                throw new BundleException("Loader hasn't finished!");
 
             LoadInternal();
             Retain();

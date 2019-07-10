@@ -12,9 +12,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using vBundler.Exception;
 using vBundler.Interface;
-using vBundler.Loader;
+using vBundler.Loaders;
 
-namespace vBundler.Scene
+namespace vBundler.Scenes
 {
     public class SceneAsync : SceneBase, ISceneAsync
     {

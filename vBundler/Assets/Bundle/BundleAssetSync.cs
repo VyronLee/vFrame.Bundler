@@ -10,11 +10,11 @@
 
 using System;
 using vBundler.Exception;
-using vBundler.Loader;
-using vBundler.Log;
+using vBundler.Loaders;
+using vBundler.Logs;
 using vBundler.Utils;
 
-namespace vBundler.Asset.Bundle
+namespace vBundler.Assets.Bundle
 {
     public sealed class BundleAssetSync : AssetBase
     {

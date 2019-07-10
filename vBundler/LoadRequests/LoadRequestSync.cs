@@ -8,8 +8,9 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
-using vBundler.Loader;
-using vBundler.Mode;
+using vBundler.Exception;
+using vBundler.Loaders;
+using vBundler.Modes;
 
 namespace vBundler.LoadRequests
 {
@@ -38,6 +39,8 @@ namespace vBundler.LoadRequests
                 LoadRecursive(dependency);
 
             // Load target at last
+            if (bundleLoader is BundleLoaderAsync)
+                throw new BundleMixLoaderException("Mix using async and sync loader is not supported.");
             bundleLoader.Load();
         }
     }

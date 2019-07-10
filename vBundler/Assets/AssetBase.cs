@@ -12,11 +12,11 @@ using System;
 using UnityEngine;
 using vBundler.Exception;
 using vBundler.Interface;
-using vBundler.Loader;
-using vBundler.Messenger;
+using vBundler.Loaders;
+using vBundler.Messengers;
 using Object = UnityEngine.Object;
 
-namespace vBundler.Asset
+namespace vBundler.Assets
 {
     public abstract class AssetBase : IAsset
     {
@@ -32,7 +32,7 @@ namespace vBundler.Asset
             _type = type;
 
             if (target != null && !target.IsDone)
-                throw new InvalidProgramException("Loader hasn't finished: " + target.AssetBundlePath);
+                throw new BundleException("Loader hasn't finished: " + target.AssetBundlePath);
 
             LoadAsset();
         }

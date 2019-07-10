@@ -13,16 +13,16 @@ using System.IO;
 using UnityEngine;
 using vBundler.Exception;
 using vBundler.Interface;
-using vBundler.Loader;
+using vBundler.Loaders;
 using vBundler.Utils;
 using vBundler.Utils.Pools;
-using Logger = vBundler.Log.Logger;
+using Logger = vBundler.Logs.Logger;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace vBundler.Asset.Resource
+namespace vBundler.Assets.Resource
 {
     public sealed class ResourceAssetAsync : AssetBase, IAssetAsync
     {

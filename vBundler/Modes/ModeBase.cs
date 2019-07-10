@@ -11,12 +11,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using vBundler.Asset;
 using vBundler.Interface;
 using vBundler.LoadRequests;
-using vBundler.Scene;
+using vBundler.Scenes;
 
-namespace vBundler.Mode
+namespace vBundler.Modes
 {
     public abstract class ModeBase
     {

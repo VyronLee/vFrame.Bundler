@@ -10,8 +10,8 @@
 
 using System.Collections.Generic;
 using vBundler.Interface;
-using vBundler.Loader;
-using vBundler.Mode;
+using vBundler.Loaders;
+using vBundler.Modes;
 
 namespace vBundler.LoadRequests
 {

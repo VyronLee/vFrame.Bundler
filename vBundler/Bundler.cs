@@ -10,8 +10,8 @@
 
 using System.Collections.Generic;
 using vBundler.Interface;
-using vBundler.Log;
-using vBundler.Mode;
+using vBundler.Logs;
+using vBundler.Modes;
 
 namespace vBundler
 {

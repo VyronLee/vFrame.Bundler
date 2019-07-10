@@ -10,11 +10,11 @@
 
 using System;
 using System.Collections.Generic;
-using vBundler.Asset.Resource;
+using vBundler.Assets.Resource;
 using vBundler.Interface;
 using vBundler.LoadRequests;
 
-namespace vBundler.Mode
+namespace vBundler.Modes
 {
     public class ResourceMode : ModeBase
     {

@@ -11,9 +11,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using vBundler.Asset;
-using vBundler.Loader;
-using vBundler.Messenger;
+using vBundler.Assets;
+using vBundler.Loaders;
+using vBundler.Messengers;
 
 namespace vBundler.Editor.Inspector
 {

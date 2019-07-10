@@ -10,10 +10,10 @@
 
 using System.Collections.Generic;
 using UnityEngine;
-using vBundler.Asset;
+using vBundler.Assets;
 using vBundler.Utils.Pools;
 
-namespace vBundler.Messenger
+namespace vBundler.Messengers
 {
     public class BundlerMessenger : MonoBehaviour
     {

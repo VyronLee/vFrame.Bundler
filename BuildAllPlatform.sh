@@ -5,9 +5,9 @@ CUR_DIR=$(pwd)
 echo "Building for platform: Editor"
 msbuild vBundler.sln /t:Clean,Rebuild /p:Configuration=Debug /p:Platform="Any CPU" /p:DefineConstants="TRACE DEBUG UNITY_EDITOR"
 mkdir -p ${CUR_DIR}/Output/vBundler/Runtime
-cp -f ${CUR_DIR}/Build/vBundler/Release/vBundler.* ${CUR_DIR}/Output/vBundler/Runtime/
+cp -f ${CUR_DIR}/Build/vBundler/Debug/vBundler.* ${CUR_DIR}/Output/vBundler/Runtime/
 mkdir -p ${CUR_DIR}/Output/vBundler/Editor
-cp -f ${CUR_DIR}/Build/vBundler.Editor/Release/vBundler.Editor.* ${CUR_DIR}/Output/vBundler/Editor/
+cp -f ${CUR_DIR}/Build/vBundler.Editor/Debug/vBundler.Editor.* ${CUR_DIR}/Output/vBundler/Editor/
 
 echo "Building for platform: Standalone"
 msbuild vBundler.sln /t:Clean,Rebuild /p:Configuration=Release /p:Platform="Any CPU" /p:DefineConstants="TRACE UNITY_STANDALONE"

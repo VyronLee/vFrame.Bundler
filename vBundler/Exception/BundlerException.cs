@@ -10,58 +10,72 @@
 
 namespace vBundler.Exception
 {
-    public class BundleNotFoundException : System.Exception
+    public class BundleException : System.Exception
+    {
+        public BundleException(string message) : base(message)
+        {
+        }
+    }
+
+    public class BundleNotFoundException : BundleException
     {
         public BundleNotFoundException(string message) : base(message)
         {
         }
     }
 
-    public class BundleNoneConfigurationException : System.Exception
+    public class BundleNoneConfigurationException : BundleException
     {
         public BundleNoneConfigurationException(string message) : base(message)
         {
         }
     }
 
-    public class BundleLoadFailedException : System.Exception
+    public class BundleLoadFailedException : BundleException
     {
         public BundleLoadFailedException(string message) : base(message)
         {
         }
     }
 
-    public class BundleAssetLoadFailedException : System.Exception
+    public class BundleAssetLoadFailedException : BundleException
     {
         public BundleAssetLoadFailedException(string message) : base(message)
         {
         }
     }
 
-    public class BundleAssetNotReadyException : System.Exception
+    public class BundleAssetNotReadyException : BundleException
     {
         public BundleAssetNotReadyException(string message) : base(message)
         {
         }
     }
 
-    public class BundleSceneLoadFailedException : System.Exception
+    public class BundleSceneLoadFailedException : BundleException
     {
         public BundleSceneLoadFailedException(string message) : base(message)
         {
         }
     }
 
-    public class BundleInstanceNotFoundException : System.Exception
+    public class BundleInstanceNotFoundException : BundleException
     {
         public BundleInstanceNotFoundException(string message) : base(message)
         {
         }
     }
 
-    public class BundleAssetTypeNotMatchException : System.Exception
+    public class BundleAssetTypeNotMatchException : BundleException
     {
         public BundleAssetTypeNotMatchException(string message) : base(message)
+        {
+        }
+    }
+
+    public class BundleMixLoaderException : BundleException
+    {
+        public BundleMixLoaderException(string message) : base(message)
         {
         }
     }

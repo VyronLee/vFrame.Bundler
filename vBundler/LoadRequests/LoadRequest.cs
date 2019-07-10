@@ -11,8 +11,8 @@
 using System;
 using UnityEngine.SceneManagement;
 using vBundler.Interface;
-using vBundler.Loader;
-using vBundler.Mode;
+using vBundler.Loaders;
+using vBundler.Modes;
 using Object = UnityEngine.Object;
 
 namespace vBundler.LoadRequests

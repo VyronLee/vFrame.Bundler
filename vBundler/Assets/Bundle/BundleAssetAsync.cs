@@ -12,11 +12,11 @@ using System;
 using UnityEngine;
 using vBundler.Exception;
 using vBundler.Interface;
-using vBundler.Loader;
+using vBundler.Loaders;
 using vBundler.Utils;
-using Logger = vBundler.Log.Logger;
+using Logger = vBundler.Logs.Logger;
 
-namespace vBundler.Asset.Bundle
+namespace vBundler.Assets.Bundle
 {
     public sealed class BundleAssetAsync : AssetBase, IAssetAsync
     {

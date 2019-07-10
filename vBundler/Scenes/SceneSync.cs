@@ -9,9 +9,9 @@
 //============================================================
 
 using UnityEngine.SceneManagement;
-using vBundler.Loader;
+using vBundler.Loaders;
 
-namespace vBundler.Scene
+namespace vBundler.Scenes
 {
     public class SceneSync : SceneBase
     {

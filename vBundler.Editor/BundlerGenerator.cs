@@ -16,6 +16,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using vBundler.Exception;
 using vBundler.Utils;
 using Object = UnityEngine.Object;
 
@@ -362,7 +363,7 @@ namespace vBundler.Editor
                     sceneBundleName = PathUtility.NormalizeAssetBundlePath(sceneBundleName);
 
                     if (sceneBundles.ContainsKey(sceneBundleName))
-                        throw new InvalidProgramException("Scene asset bundle duplicated: " + sceneBundleName);
+                        throw new BundleException("Scene asset bundle duplicated: " + sceneBundleName);
 
                     var bundle = new BundleInfo();
                     bundle.assets.Add(asset);
@@ -411,7 +412,7 @@ namespace vBundler.Editor
                 foreach (var asset in assets)
                 {
                     if (manifest.assets.ContainsKey(asset))
-                        throw new InvalidProgramException(string.Format("Asset duplicated: {0}", asset));
+                        throw new BundleException(string.Format("Asset duplicated: {0}", asset));
 
                     var assetData = new AssetData
                     {
@@ -423,7 +424,7 @@ namespace vBundler.Editor
 
                 // Generate bundles data
                 if (manifest.bundles.ContainsKey(bundleName))
-                    throw new InvalidProgramException(string.Format("Bundle duplicated: {0}", bundleName));
+                    throw new BundleException(string.Format("Bundle duplicated: {0}", bundleName));
 
                 manifest.bundles.Add(bundleName, new BundleData {name = bundleName});
                 foreach (var depName in dependencies)

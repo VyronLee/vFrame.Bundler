@@ -9,7 +9,7 @@
 //============================================================
 using UnityEditor;
 using UnityEngine;
-using Logger = vBundler.Log.Logger;
+using Logger = vBundler.Logs.Logger;
 
 namespace vBundler.Editor
 {

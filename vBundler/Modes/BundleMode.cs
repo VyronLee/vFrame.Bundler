@@ -10,18 +10,16 @@
 
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using vBundler.Asset.Bundle;
+using vBundler.Assets.Bundle;
 using vBundler.Exception;
 using vBundler.Interface;
-using vBundler.Loader;
+using vBundler.Loaders;
 using vBundler.LoadRequests;
-using vBundler.Messenger;
+using vBundler.Messengers;
 using vBundler.Utils;
 using vBundler.Utils.Pools;
-using Logger = vBundler.Log.Logger;
 
-namespace vBundler.Mode
+namespace vBundler.Modes
 {
     public class BundleMode : ModeBase
     {

@@ -13,9 +13,9 @@ using UnityEngine;
 using vBundler.Exception;
 using vBundler.Interface;
 using vBundler.Utils;
-using Logger = vBundler.Log.Logger;
+using Logger = vBundler.Logs.Logger;
 
-namespace vBundler.Loader
+namespace vBundler.Loaders
 {
     public class BundleLoaderAsync : BundleLoaderBase, IAsync
     {
