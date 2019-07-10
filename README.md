@@ -1,5 +1,7 @@
 # vBundler
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](LICENSE)
+
 一款简单易用的 Unity AssetBundle 生成工具。
 
 # 目录
