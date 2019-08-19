@@ -21,13 +21,13 @@ namespace vBundler.Assets
     public abstract class AssetBase : IAsset
     {
         protected readonly string _path;
-        protected readonly BundleLoaderBase _target;
+        protected readonly BundleLoaderBase _loader;
         protected readonly Type _type;
         protected Object _asset;
 
         protected AssetBase(string path, Type type, BundleLoaderBase target)
         {
-            _target = target;
+            _loader = target;
             _path = path;
             _type = type;
 
@@ -48,14 +48,14 @@ namespace vBundler.Assets
 
         public void Retain()
         {
-            if (_target != null)
-                _target.Retain();
+            if (_loader != null)
+                _loader.Retain();
         }
 
         public void Release()
         {
-            if (_target != null)
-                _target.Release();
+            if (_loader != null)
+                _loader.Release();
         }
 
         public virtual Object GetAsset()

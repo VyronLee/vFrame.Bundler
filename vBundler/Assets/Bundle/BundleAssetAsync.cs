@@ -38,6 +38,9 @@ namespace vBundler.Assets.Bundle
 
             Logger.LogInfo("End asynchronously loading asset from bundle: {0}", _path);
 
+            // Must release reference after assets loaded.
+            _loader.Release();
+
             return false;
         }
 
@@ -62,12 +65,15 @@ namespace vBundler.Assets.Bundle
             Logger.LogInfo("Start asynchronously loading asset from bundle: {0}", _path);
 
             var name = PathUtility.GetAssetName(_path);
-            _request = _target.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);
+            _request = _loader.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);
             _request.allowSceneActivation = true;
 
             if (_request == null)
                 throw new BundleAssetLoadFailedException(
                     string.Format("Cannot load asset {0} from bundle: {1}", name, _path));
+
+            // Avoid releasing reference when loading assets.
+            _loader.Retain();
         }
     }
 }

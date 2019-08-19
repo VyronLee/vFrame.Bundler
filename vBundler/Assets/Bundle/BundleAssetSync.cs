@@ -27,7 +27,7 @@ namespace vBundler.Assets.Bundle
             Logger.LogInfo("Start synchronously loading asset from bundle: {0}", _path);
 
             var name = PathUtility.GetAssetName(_path);
-            var assets = _target.AssetBundle.LoadAssetWithSubAssets(name, _type);
+            var assets = _loader.AssetBundle.LoadAssetWithSubAssets(name, _type);
             if (assets.Length <= 0)
                 throw new BundleAssetLoadFailedException(
                     string.Format("Could not load asset {0} from assetbundle: ", name));
