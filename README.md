@@ -1,6 +1,7 @@
 # vBundler
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](LICENSE)
+[![HitCount](http://hits.dwyl.io/vyronlee/vBundler.svg)](http://hits.dwyl.io/vyronlee/vBundler)
 
 一款简单易用的 Unity AssetBundle 生成工具。
 
