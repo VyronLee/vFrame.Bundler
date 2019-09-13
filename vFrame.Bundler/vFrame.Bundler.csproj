@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{951497C2-E16A-41F1-A092-1E8592339412}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>vFrame.Bundler</RootNamespace>
+    <AssemblyName>vFrame.Bundler</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <LangVersion>4</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Build\vFrame.Bundler\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_EDITOR</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Build\vFrame.Bundler\Release</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(OS)' != 'Unix' ">
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Condition="'$(Configuration)|$(Platform)' != 'Release|AnyCPU'" Include="UnityEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>C:\Program Files\Unity\Editor\Data\Managed\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>C:\Program Files\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>C:\Program Files\Unity\Editor\Data\UnityExtensions\Unity\GUISystem\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(OS)' == 'Unix' ">
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Condition="'$(Configuration)|$(Platform)' != 'Release|AnyCPU'" Include="UnityEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>/Applications/Unity.app/Contents/Managed/UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>/Applications/Unity.app/Contents/Managed/UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>/Applications/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\AssetBase.cs" />
+    <Compile Include="Assets\Bundle\BundleAssetAsync.cs" />
+    <Compile Include="Assets\Bundle\BundleAssetSync.cs" />
+    <Compile Include="Assets\Resource\ResourceAssetAsync.cs" />
+    <Compile Include="Assets\Resource\ResourceAssetSync.cs" />
+    <Compile Include="Base\Reference.cs" />
+    <Compile Include="BunderCustomSettings.cs" />
+    <Compile Include="Bundler.cs" />
+    <Compile Include="BundlerManifest.cs" />
+    <Compile Include="Exception\BundlerException.cs" />
+    <Compile Include="Extension\AudioSourceExtensions.cs" />
+    <Compile Include="Extension\RendererExtensions.cs" />
+    <Compile Include="Extension\UI\ImageExtensions.cs" />
+    <Compile Include="Interface\IAsset.cs" />
+    <Compile Include="Interface\IAssetAsync.cs" />
+    <Compile Include="Interface\IAsync.cs" />
+    <Compile Include="Interface\IBundler.cs" />
+    <Compile Include="Interface\ICloneable.cs" />
+    <Compile Include="Interface\IFileReader.cs" />
+    <Compile Include="Interface\IFileReaderAsync.cs" />
+    <Compile Include="Interface\ILoadRequest.cs" />
+    <Compile Include="Interface\ILoadRequestAsync.cs" />
+    <Compile Include="Interface\IPoolObjectAllocator.cs" />
+    <Compile Include="Interface\IScene.cs" />
+    <Compile Include="Interface\ISceneAsync.cs" />
+    <Compile Include="Loaders\BundleLoaderAsync.cs" />
+    <Compile Include="Loaders\BundleLoaderBase.cs" />
+    <Compile Include="Loaders\BundleLoaderSync.cs" />
+    <Compile Include="LoadRequests\LoadRequest.cs" />
+    <Compile Include="LoadRequests\LoadRequestAsync.cs" />
+    <Compile Include="LoadRequests\LoadRequestSync.cs" />
+    <Compile Include="Logs\Logger.cs" />
+    <Compile Include="Messengers\BundlerMessenger.cs" />
+    <Compile Include="Modes\BundleMode.cs" />
+    <Compile Include="Modes\ModeBase.cs" />
+    <Compile Include="Modes\ResourceMode.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scenes\SceneAsync.cs" />
+    <Compile Include="Scenes\SceneBase.cs" />
+    <Compile Include="Scenes\SceneSync.cs" />
+    <Compile Include="Utils\PathUtility.cs" />
+    <Compile Include="Utils\Pools\ListAllocator.cs" />
+    <Compile Include="Utils\Pools\ListPool.cs" />
+    <Compile Include="Utils\Pools\StringBuilderPool.cs" />
+    <Compile Include="Utils\Pools\ObjectPool.cs" />
+    <Compile Include="Utils\Pools\StringBuilderAllocator.cs" />
+    <Compile Include="Utils\SerializableDictionary.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+</Project>
