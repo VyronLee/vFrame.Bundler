@@ -1,13 +1,13 @@
-# vBundler
+# vFrame.Bundler
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](LICENSE)
-[![HitCount](http://hits.dwyl.io/vyronlee/vBundler.svg)](http://hits.dwyl.io/vyronlee/vBundler)
+[![HitCount](http://hits.dwyl.io/vyronlee/vFrame.Bundler.svg)](http://hits.dwyl.io/vyronlee/vFrame.Bundler)
 
 一款简单易用的 Unity AssetBundle 生成工具。
 
 # 目录
 
-   * [vBundler](#vbundler)
+   * [vFrame.Bundler](#vFrame.Bundler)
    * [目录](#目录)
    * [特点](#特点)
    * [使用方式](#使用方式)
@@ -34,7 +34,9 @@
 
 # 使用方式
 
-可直接查看 [Example](https://github.com/VyronLee/vBundlerExample) 工程，或者根据下面的描述进行操作
+可直接查看 [Example](https://github.com/VyronLee/vFrame.Bundler.Example) 工程，或者根据下面的描述进行操作。
+
+该插件在 Unity 2018.4.7f1 版本上测试通过，如果你使用其他版本，可能需要根据错误提示自行调整部分 API。
 
 ## 配置打包规则
 
@@ -75,8 +77,8 @@
 
 配置规则文件设计好后，按照如下步骤进行操作：
 
-1. 点击 Assets -> vBundler -> Generate Manifest，会自动分析资源依赖关系，然后生成 Manifest.json 文件。该文件主要用于下面 AssetBundle 的生成规则设置，以及作为运行时的加载配置文件。
-2. 点击 Assets -> vBundler -> Generate AssetBundle，选择需要的目标平台，然后等待 AssetBundle 的生成即可。
+1. 点击 Assets -> vFrame.Bundler -> Generate Manifest，会自动分析资源依赖关系，然后生成 Manifest.json 文件。该文件主要用于下面 AssetBundle 的生成规则设置，以及作为运行时的加载配置文件。
+2. 点击 Assets -> vFrame.Bundler -> Generate AssetBundle，选择需要的目标平台，然后等待 AssetBundle 的生成即可。
 
 当然，也可以直接通过 API 调用，方便持续集成的接入。主要 API 有：
 
@@ -99,7 +101,7 @@ All things done!
 
 # 接入说明
 
-工具提供一个唯一操作接口：```IBundler```，该接口位于命名空间 ``` vBundler.Interface```下。所有资源操作逻辑必须使用该接口进行。接口使用主要分为3个部分：
+工具提供一个唯一操作接口：```IBundler```，该接口位于命名空间 ``` vFrame.Bundler.Interface```下。所有资源操作逻辑必须使用该接口进行。接口使用主要分为3个部分：
 
 ## 初始化
 
@@ -110,8 +112,8 @@ All things done!
 var bundleMode = false;
 var logLevel = Logger.LogLevel.ERROR;
 #if UNITY_EDITOR
-bundleMode = EditorPrefs.GetBool("vBundlerModePreferenceKey", false);
-logLevel = EditorPrefs.GetInt("vBundlerLogLevelPreferenceKey", 0) + 1;
+bundleMode = EditorPrefs.GetBool("vFrameBundlerModePreferenceKey", false);
+logLevel = EditorPrefs.GetInt("vFrameBundlerLogLevelPreferenceKey", 0) + 1;
 #endif
 
 // 读取资源 Manifest 文件
@@ -121,10 +123,10 @@ var manifest = JsonUtility.FromJson<BundlerManifest>(manifestText);
 var searchPath = Path.Combine(Application.streamingAssetsPath, "Bundles");
 
 // 生成 Bundler 操作对象，以及设置搜索路径、加载模式，日志等级
-_vBundler = new Bundler(manifest);
-_vBundler.AddSearchPath(searchPath);
-_vBundler.SetMode(bundleMode ? BundleModeType.Bundle : BundleModeType.Resource);
-_vBundler.SetLogLevel(logLevel);
+_bundler = new Bundler(manifest);
+_bundler.AddSearchPath(searchPath);
+_bundler.SetMode(bundleMode ? BundleModeType.Bundle : BundleModeType.Resource);
+_bundler.SetLogLevel(logLevel);
 ```
 
 初始化 Bundler 对象有3个要点：
@@ -143,7 +145,7 @@ _vBundler.SetLogLevel(logLevel);
 
 - **设置搜索路径**
 
-  搜索路径是一个很重要的概念，尤其对于需要热更的游戏。vBundler 内部维护一个文件路径的 Root 列表，会优先从列表头部开始，尝试加载资源。如果资源加载失败，再使用下一个路径尝试加载，直至列表使用完。对于需要热更的游戏，一般至少需要设置2个搜索路径：
+  搜索路径是一个很重要的概念，尤其对于需要热更的游戏。vFrame.Bundler 内部维护一个文件路径的 Root 列表，会优先从列表头部开始，尝试加载资源。如果资源加载失败，再使用下一个路径尝试加载，直至列表使用完。对于需要热更的游戏，一般至少需要设置2个搜索路径：
 
   1. 外存储搜索路径，如：Path.Combine(Application.persistentDataPath, "Hotfix/Bundles")
   2. 包体内搜索路径，如：Path.Combine(Application.streamingAssetsPath, "Bundles")
@@ -155,7 +157,7 @@ _vBundler.SetLogLevel(logLevel);
 1. 同步加载：
 
    ```csharp
-   var request = _vBundler.Load("Assets/Resources/Prefabs/Balls/BlueBall.prefab");
+   var request = _bundler.Load("Assets/Resources/Prefabs/Balls/BlueBall.prefab");
    var asset = request.GetAsset<GameObject>();
    var ball = asset.InstantiateGameObject();
    ```
@@ -163,7 +165,7 @@ _vBundler.SetLogLevel(logLevel);
 2. 异步加载：
 
    ```csharp
-   var request = _vBundler.LoadAsync("Assets/Resources/Prefabs/Balls/BlueBall.prefab");
+   var request = _bundler.LoadAsync("Assets/Resources/Prefabs/Balls/BlueBall.prefab");
    yield return request;
    var asset = request.GetAssetAsync<GameObject>();
    yield return asset;
@@ -229,16 +231,16 @@ _vBundler.SetLogLevel(logLevel);
    image.SetSprite(asset);
    ```
 
-   像上面的 SetMaterial / SetSprite，对应的类型中默认是没有这些方法的，而我们通过**扩展**的方式让它们具备了这种能力。vBundler 中所有的扩展在 ``` vBundler.Extension ``` 命名空间下，可在代码中查看支持的实际功能。如果发现缺少了你所需要的功能，可以自行扩展，简单就能实现。
+   像上面的 SetMaterial / SetSprite，对应的类型中默认是没有这些方法的，而我们通过**扩展**的方式让它们具备了这种能力。vFrame.Bundler 中所有的扩展在 ``` vFrame.Bundler.Extension ``` 命名空间下，可在代码中查看支持的实际功能。如果发现缺少了你所需要的功能，可以自行扩展，简单就能实现。
 
 ## 资源的回收
 
-vBundler 的设计目的之一是使用者永远不需要操心 AssetBundle 的回收与释放。为了达到这个目的，于是产生了上面一套的 ILoadRequest 以及 IAsset 流程。为了驱动 vBundler 自行回收无用的 AssetBundler，还需要在相应的地方进行以下代码调用：
+vFrame.Bundler 的设计目的之一是使用者永远不需要操心 AssetBundle 的回收与释放。为了达到这个目的，于是产生了上面一套的 ILoadRequest 以及 IAsset 流程。为了驱动 vFrame.Bundler 自行回收无用的 AssetBundler，还需要在相应的地方进行以下代码调用：
 
 ```csharp
 private void Update()
 {
-    _vBundler.Collect();
+    _bundler.Collect();
 }
 ```
 
@@ -247,7 +249,7 @@ private void Update()
 另外特别说明，由于 Unity 的消息机制，会导致未曾激活过的 GameObject 无法接收消息（*OnDestroy will only be called on game objects that have previously been active.*）。因此在场景切换后，为了保证引用计数的正确性，还需要进行以下调用：
 
 ```csharp
-_vBundler.DeepCollect();
+_bundler.DeepCollect();
 ```
 
 该函数会进行资源有效性的深度检测，会消耗一定的性能，因此不宜频繁调用。
