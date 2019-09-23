@@ -9,19 +9,33 @@
 //============================================================
 
 using System.Collections.Generic;
+using UnityEngine;
 using vFrame.Bundler.Interface;
-using vFrame.Bundler.Logs;
 using vFrame.Bundler.Modes;
+using Logger = vFrame.Bundler.Logs.Logger;
 
 namespace vFrame.Bundler
 {
     public class Bundler : IBundler
     {
-        private readonly Dictionary<BundleModeType, ModeBase> _modes;
+        private Dictionary<BundleModeType, ModeBase> _modes;
         private readonly List<string> _searchPaths = new List<string>();
         private BundleModeType _modeType;
 
+        public Bundler(string json)
+        {
+            BundlerManifest manifest = null;
+            if (!string.IsNullOrEmpty(json))
+                manifest = JsonUtility.FromJson<BundlerManifest>(json);
+            Initialize(manifest);
+        }
+
         public Bundler(BundlerManifest manifest = null)
+        {
+            Initialize(manifest);
+        }
+
+        private void Initialize(BundlerManifest manifest)
         {
             _modes = new Dictionary<BundleModeType, ModeBase>(2);
             _modes[BundleModeType.Bundle] = new BundleMode(manifest, _searchPaths);
