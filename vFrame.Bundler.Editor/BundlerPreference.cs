@@ -20,7 +20,7 @@ namespace vFrame.Bundler.Editor
             var bundleMode = EditorPrefs.GetBool(BundlerDefaultBuildSettings.kModePreferenceKey, false);
             bundleMode = EditorGUILayout.Toggle("Bundle Mode", bundleMode);
 
-            var logLevel = EditorPrefs.GetInt(BundlerDefaultBuildSettings.kLogLevelPreferenceKey, Logs.Logger.LogLevel.INFO - 1);
+            var logLevel = EditorPrefs.GetInt(BundlerDefaultBuildSettings.kLogLevelPreferenceKey, Logs.Logger.LogLevel.ERROR - 1);
             logLevel = EditorGUILayout.Popup("Log Level", logLevel, new[] {"Verbose", "Info", "Error"});
 
             if (GUI.changed)

@@ -10,9 +10,14 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Modes;
 using Logger = vFrame.Bundler.Logs.Logger;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace vFrame.Bundler
 {
@@ -21,6 +26,7 @@ namespace vFrame.Bundler
         private Dictionary<BundleModeType, ModeBase> _modes;
         private readonly List<string> _searchPaths = new List<string>();
         private BundleModeType _modeType;
+        private BundlerManifest _manifest;
 
         public Bundler(string json)
         {
@@ -37,19 +43,29 @@ namespace vFrame.Bundler
 
         private void Initialize(BundlerManifest manifest)
         {
+            _manifest = manifest;
+
             _modes = new Dictionary<BundleModeType, ModeBase>(2);
             _modes[BundleModeType.Bundle] = new BundleMode(manifest, _searchPaths);
             _modes[BundleModeType.Resource] = new ResourceMode(manifest, _searchPaths);
 
-            Logger.LogInfo("Bundler manifest not provided, bundle mode will disabled.");
-
-            if (manifest != null)
+            var bundleMode = false;
+            var logLevel = Logger.LogLevel.ERROR;
+#if UNITY_EDITOR
+            bundleMode = EditorPrefs.GetBool("vFrameBundlerModePreferenceKey", false);
+            logLevel = EditorPrefs.GetInt("vFrameBundlerLogLevelPreferenceKey", Logger.LogLevel.ERROR - 1) + 1;
+#endif
+            if (bundleMode)
             {
-                SetMode(BundleModeType.Bundle);
-                return;
+                if (manifest != null)
+                {
+                    SetMode(BundleModeType.Bundle);
+                    return;
+                }
+                Logger.LogInfo("Bundle manifest does not provided, bundle mode will disable.");
             }
-
             SetMode(BundleModeType.Resource);
+            SetLogLevel(logLevel + 1);
         }
 
         private ModeBase CurrentMode
@@ -89,6 +105,8 @@ namespace vFrame.Bundler
 
         public void SetMode(BundleModeType type)
         {
+            if (type == BundleModeType.Bundle && null == _manifest)
+                throw new BundleException("Bundle manifest does not provided, bundle mode cannot enabled.");
             _modeType = type;
         }
 

@@ -15,9 +15,9 @@ namespace vFrame.Bundler.Editor
         public static string kBuildRuleFilePath = "BundleRules.json";
         public static string kManifestFileName = "Manifest.json";
 
-        public static string kBundleFormatter = "{0}.unity3d";
-        public static string kSharedBundleFormatter = "shared/shared_{0}.unity3d";
-        public static string kSceneBundleFormatter = "{0}.scene.unity3d";
+        public static string kBundleFormatter = "{0}";
+        public static string kSharedBundleFormatter = "shared/shared_{0}";
+        public static string kSceneBundleFormatter = "{0}.scene";
 
         public static string kModePreferenceKey = "vFrameBundlerModePreferenceKey";
         public static string kLogLevelPreferenceKey = "vFrameBundlerLogLevelPreferenceKey";
