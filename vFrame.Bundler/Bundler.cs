@@ -65,7 +65,7 @@ namespace vFrame.Bundler
                 Logger.LogInfo("Bundle manifest does not provided, bundle mode will disable.");
             }
             SetMode(BundleModeType.Resource);
-            SetLogLevel(logLevel + 1);
+            SetLogLevel(logLevel);
         }
 
         private ModeBase CurrentMode
