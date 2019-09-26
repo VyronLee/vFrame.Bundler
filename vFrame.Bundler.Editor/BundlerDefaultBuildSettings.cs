@@ -19,6 +19,8 @@ namespace vFrame.Bundler.Editor
         public static string kSharedBundleFormatter = "shared/shared_{0}";
         public static string kSceneBundleFormatter = "{0}.scene";
 
+        public static bool kHashAssetBundlePath = true;
+
         public static string kModePreferenceKey = "vFrameBundlerModePreferenceKey";
         public static string kLogLevelPreferenceKey = "vFrameBundlerLogLevelPreferenceKey";
     }

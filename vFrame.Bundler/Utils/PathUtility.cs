@@ -9,7 +9,11 @@
 //============================================================
 
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using UnityEngine;
+using UnityEngine.Rendering;
+using vFrame.Bundler.Utils.Pools;
 
 namespace vFrame.Bundler.Utils
 {
@@ -138,6 +142,29 @@ namespace vFrame.Bundler.Utils
         public static bool IsFileInPersistentDataPath(string path)
         {
             return path.StartsWith(Application.persistentDataPath);
+        }
+
+        public static string HashPath(string path)
+        {
+            var md5 = new MD5CryptoServiceProvider();
+            var ret = md5.ComputeHash(Encoding.UTF8.GetBytes(path));
+
+            var builder = StringBuilderPool.Get();
+            foreach (var b in ret)
+                builder.Append(b.ToString("x2"));
+            var str = builder.ToString();
+            StringBuilderPool.Return(builder);
+
+            builder = StringBuilderPool.Get();
+            builder.Append(str.Substring(0, 2));
+            builder.Append("/");
+            builder.Append(str.Substring(2, 2));
+            builder.Append("/");
+            builder.Append(str);
+            var hashed = builder.ToString();
+            StringBuilderPool.Return(builder);
+
+            return hashed;
         }
     }
 }

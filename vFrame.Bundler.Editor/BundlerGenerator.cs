@@ -121,6 +121,9 @@ namespace vFrame.Bundler.Editor
 
                             var bundleName = PathUtility.NormalizeAssetBundlePath(file);
                             bundleName = string.Format(BundlerDefaultBuildSettings.kBundleFormatter, bundleName);
+                            bundleName = BundlerDefaultBuildSettings.kHashAssetBundlePath
+                                ? PathUtility.HashPath(bundleName)
+                                : bundleName;
 
                             var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
                             if (rule.shared)
@@ -138,6 +141,9 @@ namespace vFrame.Bundler.Editor
                     {
                         var bundleName = PathUtility.NormalizeAssetBundlePath(rule.path);
                         bundleName = string.Format(BundlerDefaultBuildSettings.kBundleFormatter, bundleName);
+                        bundleName = BundlerDefaultBuildSettings.kHashAssetBundlePath
+                            ? PathUtility.HashPath(bundleName)
+                            : bundleName;
 
                         var searchPath = PathUtility.RelativeDataPathToAbsolutePath(rule.path);
 
@@ -184,6 +190,9 @@ namespace vFrame.Bundler.Editor
 
                             var bundleName = PathUtility.NormalizeAssetBundlePath(subDirectory);
                             bundleName = string.Format(BundlerDefaultBuildSettings.kBundleFormatter, bundleName);
+                            bundleName = BundlerDefaultBuildSettings.kHashAssetBundlePath
+                                ? PathUtility.HashPath(bundleName)
+                                : bundleName;
 
                             var index = 0;
                             foreach (var file in files)
