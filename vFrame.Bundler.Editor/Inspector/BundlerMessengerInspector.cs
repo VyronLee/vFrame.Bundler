@@ -51,6 +51,12 @@ namespace vFrame.Bundler.Editor.Inspector
                 return;
             }
 
+            if (null == _targetFieldInfo)
+            {
+                EditorGUILayout.EndVertical();
+                return;
+            }
+
             EditorGUILayout.BeginVertical(GUI.skin.box);
 
             var abNames = new HashSet<string>();
