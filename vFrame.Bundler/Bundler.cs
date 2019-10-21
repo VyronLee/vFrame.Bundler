@@ -49,7 +49,7 @@ namespace vFrame.Bundler
             _modes[BundleModeType.Bundle] = new BundleMode(manifest, _searchPaths);
             _modes[BundleModeType.Resource] = new ResourceMode(manifest, _searchPaths);
 
-            var bundleMode = false;
+            var bundleMode = true;
             var logLevel = Logger.LogLevel.ERROR;
 #if UNITY_EDITOR
             bundleMode = EditorPrefs.GetBool("vFrameBundlerModePreferenceKey", false);
