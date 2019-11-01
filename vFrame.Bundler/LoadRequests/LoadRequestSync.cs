@@ -40,7 +40,9 @@ namespace vFrame.Bundler.LoadRequests
 
             // Load target at last
             if (bundleLoader is BundleLoaderAsync)
-                throw new BundleMixLoaderException("Mix using async and sync loader is not supported.");
+                if (!bundleLoader.IsDone) {
+                    throw new BundleMixLoaderException("Mix using async and sync loader is not supported.");
+                }
             bundleLoader.Load();
         }
     }
