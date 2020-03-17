@@ -14,7 +14,6 @@ using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Utils;
 using vFrame.Bundler.Utils.Pools;
-using Logger = vFrame.Bundler.Logs.Logger;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -33,7 +32,7 @@ namespace vFrame.Bundler.Assets.Resource
             Logs.Logger.LogInfo("Start synchronously loading asset: {0}", _path);
 
 #if UNITY_EDITOR
-            if (BundlerCustomSettings.kUseAssetDatabaseInsteadOfResources)
+            if (BundlerCustomSettingsInEditorMode.kUseAssetDatabaseInsteadOfResources)
             {
                 _asset = AssetDatabase.LoadAssetAtPath(_path, _type);
                 if (!_asset)

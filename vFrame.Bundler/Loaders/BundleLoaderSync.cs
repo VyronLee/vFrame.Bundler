@@ -43,8 +43,13 @@ namespace vFrame.Bundler.Loaders
                     }
                     else
                     {
+//#if UNITY_5
                         var bytes = BundlerCustomSettings.kCustomFileReader.ReadAllBytes(path);
                         _assetBundle = AssetBundle.LoadFromMemory(bytes);
+//#else                 // Load form stream will always crash at this time
+//                      _fileStream = BundlerCustomSettings.kCustomFileReader.GetStream(path);
+//                      _assetBundle = AssetBundle.LoadFromStream(_fileStream);
+//#endif
                     }
 
                     if (_assetBundle)

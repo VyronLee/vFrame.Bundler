@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using vFrame.Bundler.Base;
 using vFrame.Bundler.Exception;
@@ -24,6 +25,7 @@ namespace vFrame.Bundler.Loaders
             new Dictionary<string, AssetBundle>();
 
         protected AssetBundle _assetBundle;
+        protected Stream _fileStream;
 
         protected string _path;
         protected List<string> _searchPaths;
@@ -86,6 +88,12 @@ namespace vFrame.Bundler.Loaders
             {
                 _assetBundle.Unload(true);
                 _assetBundle = null;
+            }
+
+            if (null != _fileStream) {
+                _fileStream.Close();
+                _fileStream.Dispose();
+                _fileStream = null;
             }
 
             AssetBundleCache.Remove(_path);

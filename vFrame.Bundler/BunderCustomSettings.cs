@@ -16,7 +16,10 @@ namespace vFrame.Bundler
     {
         public static IFileReader kCustomFileReader = null;
         public static IFileReaderAsync kCustomFileReaderAsync = null;
+    }
 
+    public static class BundlerCustomSettingsInEditorMode
+    {
 #if UNITY_EDITOR
         public static bool kUseAssetDatabaseInsteadOfResources = true;
 #endif

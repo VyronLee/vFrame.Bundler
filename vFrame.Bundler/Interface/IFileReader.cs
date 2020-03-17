@@ -8,10 +8,14 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System.IO;
+
 namespace vFrame.Bundler.Interface
 {
     public interface IFileReader : ICloneable<IFileReader>
     {
         byte[] ReadAllBytes(string path);
+
+        Stream GetStream(string path);
     }
 }

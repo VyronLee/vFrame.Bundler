@@ -8,11 +8,16 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System;
+using System.IO;
+
 namespace vFrame.Bundler.Interface
 {
-    public interface IFileReaderRequest : IAsync
+    public interface IFileReaderRequest : IAsync, IDisposable
     {
         byte[] GetBytes();
+
+        Stream GetStream();
     }
 
     public interface IFileReaderAsync : ICloneable<IFileReaderAsync>

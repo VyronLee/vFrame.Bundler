@@ -74,7 +74,7 @@ namespace vFrame.Bundler.Assets.Resource
             Logs.Logger.LogInfo("Start asynchronously loading asset: {0}", _path);
 
 #if UNITY_EDITOR
-            if (BundlerCustomSettings.kUseAssetDatabaseInsteadOfResources)
+            if (BundlerCustomSettingsInEditorMode.kUseAssetDatabaseInsteadOfResources)
             {
                 _asset = AssetDatabase.LoadAssetAtPath(_path, _type);
                 if (!_asset)

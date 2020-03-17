@@ -64,8 +64,16 @@ namespace vFrame.Bundler.Loaders
                 if (_fileReadRequest.MoveNext())
                     return true;
 
+//#if UNITY_5
                 _assetBundle =
                     AssetBundle.LoadFromMemory(_fileReadRequest.GetBytes()); // Problem with LoadFromMemoryAsync
+//#else         // Load form stream will always crash at this time
+//              _fileStream = _fileReadRequest.GetStream();
+//              _assetBundle = AssetBundle.LoadFromStream(_fileStream);
+//#endif
+
+                _fileReadRequest.Dispose();
+                _fileReadRequest = null;
             }
             else
             {
