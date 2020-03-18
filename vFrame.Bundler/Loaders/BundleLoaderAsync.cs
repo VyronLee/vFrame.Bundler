@@ -10,6 +10,7 @@
 
 using System.IO;
 using UnityEngine;
+using UnityEngine.Profiling;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Utils;
@@ -56,51 +57,54 @@ namespace vFrame.Bundler.Loaders
             if (_assetBundle)
                 return false;
 
-            if (BundlerCustomSettings.kCustomFileReaderAsync != null)
-            {
-                if (_fileReadRequest == null)
-                    _fileReadRequest = CreateFileReaderRequest();
-
-                if (_fileReadRequest.MoveNext())
-                    return true;
-
-//#if UNITY_5
-                _assetBundle =
-                    AssetBundle.LoadFromMemory(_fileReadRequest.GetBytes()); // Problem with LoadFromMemoryAsync
-//#else         // Load form stream will always crash at this time
-//              _fileStream = _fileReadRequest.GetStream();
-//              _assetBundle = AssetBundle.LoadFromStream(_fileStream);
-//#endif
-
-                _fileReadRequest.Dispose();
-                _fileReadRequest = null;
-            }
-            else
-            {
-                if (_bundleLoadRequest == null)
-                    _bundleLoadRequest = CreateBuiltinBundleLoadRequest();
-
-                if (!_bundleLoadRequest.isDone || _bundleLoadRequest.progress < 1f)
+            if (_bundleLoadRequest == null) {
+                Profiler.BeginSample("BundleLoaderAsync:MoveNext");
+                if (BundlerCustomSettings.kCustomFileReaderAsync != null)
                 {
-                    Logs.Logger.LogInfo("Bundle load request does not finished: {0}, progress: {1:0.00}",
-                        _path, _bundleLoadRequest.progress);
-                    return true;
+                    if (_fileReadRequest == null) {
+                        _fileReadRequest = CreateFileReaderRequest();
+                    }
+
+                    if (_fileReadRequest.MoveNext()) {
+                        Profiler.EndSample();
+                        return true;
+                    }
+
+                    Profiler.BeginSample("BundleLoaderAsync:MoveNext - AssetBundle.LoadFromMemoryAsync");
+                    _bundleLoadRequest = AssetBundle.LoadFromMemoryAsync(_fileReadRequest.GetBytes());
+                    Profiler.EndSample();
+
+                    _fileReadRequest.Dispose();
+                    _fileReadRequest = null;
                 }
-
-                Logs.Logger.LogInfo("Bundle load request finished: {0}", _path);
-
-                _assetBundle = _bundleLoadRequest.assetBundle;
+                else
+                {
+                    _bundleLoadRequest = CreateBuiltinBundleLoadRequest();
+                }
             }
 
-            Logs.Logger.LogInfo("Add assetbundle to cache: {0}", _path);
+            if (!_bundleLoadRequest.isDone || _bundleLoadRequest.progress < 1f)
+            {
+                Logger.LogInfo("Bundle load request does not finished: {0}, progress: {1:0.00}",
+                    _path, _bundleLoadRequest.progress);
+                Profiler.EndSample();
+                return true;
+            }
+
+            Logger.LogInfo("Bundle load request finished: {0}", _path);
+
+            _assetBundle = _bundleLoadRequest.assetBundle;
+
+            Logger.LogInfo("Add assetbundle to cache: {0}", _path);
 
             if (AssetBundleCache.ContainsKey(_path))
                 throw new System.Exception("Assetbundle already in cache: " + _path);
             AssetBundleCache.Add(_path, _assetBundle);
 
-            Logs.Logger.LogInfo("AssetBundle asynchronously loading finished, path: {0}", _path);
+            Logger.LogInfo("AssetBundle asynchronously loading finished, path: {0}", _path);
 
             IsLoading = false;
+            Profiler.EndSample();
             return false;
         }
 
@@ -112,7 +116,7 @@ namespace vFrame.Bundler.Loaders
 
         protected override bool LoadProcess()
         {
-            Logs.Logger.LogInfo("Start asynchronously loading process: {0}", _path);
+            Logger.LogInfo("Start asynchronously loading process: {0}", _path);
 
             IsLoading = true;
 
@@ -121,7 +125,7 @@ namespace vFrame.Bundler.Loaders
 
         private AssetBundleCreateRequest CreateBuiltinBundleLoadRequest()
         {
-            Logs.Logger.LogInfo("Bundle load request does not exist, create it from file: {0}", _path);
+            Logger.LogInfo("Bundle load request does not exist, create it from file: {0}", _path);
 
             foreach (var basePath in _searchPaths)
             {
@@ -133,19 +137,21 @@ namespace vFrame.Bundler.Loaders
                     // Avoid throwing error messages.
                     if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path))
                     {
-                        Logs.Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
+                        Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                         continue;
                     }
 
+                    Profiler.BeginSample("BundleLoaderAsync:CreateBuiltinBundleLoadRequest - AssetBundle.LoadFromFileAsync");
                     var bundleLoadRequest = AssetBundle.LoadFromFileAsync(path);
+                    Profiler.EndSample();
                     if (bundleLoadRequest != null)
                         return bundleLoadRequest;
 
-                    Logs.Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
+                    Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                 }
                 catch
                 {
-                    Logs.Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
+                    Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                 }
             }
 
@@ -154,8 +160,9 @@ namespace vFrame.Bundler.Loaders
 
         private IFileReaderRequest CreateFileReaderRequest()
         {
-            Logs.Logger.LogInfo("File reader request does not exist, create it: {0}", _path);
+            Logger.LogInfo("File reader request does not exist, create it: {0}", _path);
 
+            Profiler.BeginSample("BundleLoaderAsync:CreateFileReaderRequest");
             foreach (var basePath in _searchPaths)
             {
                 var path = Path.Combine(basePath, _path);
@@ -166,20 +173,26 @@ namespace vFrame.Bundler.Loaders
                     // Avoid throwing error messages.
                     if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path))
                     {
-                        Logs.Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
+                        Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                         continue;
                     }
 
                     var fileReader = BundlerCustomSettings.kCustomFileReaderAsync.Clone();
-                    return fileReader.ReadAllBytesAsync(path);
+                    Profiler.BeginSample("BundleLoaderAsync:CreateFileReaderRequest - ReadAllBytesAsync");
+                    var ret = fileReader.ReadAllBytesAsync(path);
+                    Profiler.EndSample();
+
+                    Profiler.EndSample();
+                    return ret;
                 }
                 catch (System.Exception e)
                 {
-                    Logs.Logger.LogInfo("AssetBundle cannot load at path: {0}, exception: {1}, searching next ... ",
+                    Logger.LogInfo("AssetBundle cannot load at path: {0}, exception: {1}, searching next ... ",
                         path, e);
                 }
             }
 
+            Profiler.EndSample();
             throw new BundleLoadFailedException("Cannot load assetbundle: " + _path);
         }
     }
