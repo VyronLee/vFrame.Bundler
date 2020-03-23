@@ -51,6 +51,10 @@ namespace vFrame.Bundler.Editor
             return unmanaged;
         }
 
+        private static bool IsShader(string name) {
+            return Path.GetExtension(name) == ".shader";
+        }
+
         private static bool IsExclude(string path, string pattern)
         {
             path = PathUtility.NormalizePath(path);
@@ -238,6 +242,13 @@ namespace vFrame.Bundler.Editor
             {
                 if (!info.ContainsKey(dependency))
                     info[dependency] = new DependencyInfo();
+
+                if (IsShader(dependency)) {
+                    if (BundlerDefaultBuildSettings.kSeparateShaderBundle) {
+                        info[dependency].referenceInBundles.Add(BundlerDefaultBuildSettings.kSeparatedShaderBundleName);
+                        continue;
+                    }
+                }
                 info[dependency].referenceInBundles.Add(bundleName);
             }
         }
