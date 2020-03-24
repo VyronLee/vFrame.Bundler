@@ -150,7 +150,7 @@ namespace vFrame.Bundler.Editor
                 if (rule.shared)
                     reserved.Add(relativePath, bundleName);
 
-                AddDependenciesInfo(bundleName, relativePath, ref depsInfo);
+                AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
             }
 
             EditorUtility.ClearProgressBar();
@@ -182,7 +182,7 @@ namespace vFrame.Bundler.Editor
                 if (rule.shared)
                     reserved.Add(relativePath, bundleName);
 
-                AddDependenciesInfo(bundleName, relativePath, ref depsInfo);
+                AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
             }
 
             EditorUtility.ClearProgressBar();
@@ -221,14 +221,15 @@ namespace vFrame.Bundler.Editor
                     if (rule.shared)
                         reserved.Add(relativePath, bundleName);
 
-                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo);
+                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
                 }
 
                 EditorUtility.ClearProgressBar();
             }
         }
 
-        private void AddDependenciesInfo(string bundleName, string relativePath, ref DependenciesInfo info)
+        private void AddDependenciesInfo(string bundleName, string relativePath, ref DependenciesInfo info,
+            ref ReservedSharedBundleInfo reserved)
         {
             var asset = AssetDatabase.LoadAssetAtPath(relativePath, typeof(Object));
             var dependencies = EditorUtility.CollectDependencies(new[] {asset})
@@ -246,7 +247,7 @@ namespace vFrame.Bundler.Editor
                 if (IsShader(dependency)) {
                     if (BundlerDefaultBuildSettings.kSeparateShaderBundle) {
                         info[dependency].referenceInBundles.Add(BundlerDefaultBuildSettings.kSeparatedShaderBundleName);
-                        continue;
+                        reserved[dependency] = BundlerDefaultBuildSettings.kSeparatedShaderBundleName;
                     }
                 }
                 info[dependency].referenceInBundles.Add(bundleName);
