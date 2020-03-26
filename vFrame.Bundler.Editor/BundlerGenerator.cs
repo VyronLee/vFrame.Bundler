@@ -134,26 +134,29 @@ namespace vFrame.Bundler.Editor
                 .Where(v => !IsExclude(v, excludePattern))
                 .ToArray();
 
-            var index = 0;
-            foreach (var file in files)
-            {
-                EditorUtility.DisplayProgressBar("Parsing Rule of Pack By File Name", file,
-                    (float) index++ / files.Length);
+            try {
+                var index = 0;
+                foreach (var file in files)
+                {
+                    EditorUtility.DisplayProgressBar("Parsing Rule of Pack By File Name", file,
+                        (float) index++ / files.Length);
 
-                var bundleName = PathUtility.NormalizeAssetBundlePath(file);
-                bundleName = string.Format(BundlerDefaultBuildSettings.kBundleFormatter, bundleName);
-                bundleName = BundlerDefaultBuildSettings.kHashAssetBundlePath
-                    ? PathUtility.HashPath(bundleName)
-                    : bundleName;
+                    var bundleName = PathUtility.NormalizeAssetBundlePath(file);
+                    bundleName = string.Format(BundlerDefaultBuildSettings.kBundleFormatter, bundleName);
+                    bundleName = BundlerDefaultBuildSettings.kHashAssetBundlePath
+                        ? PathUtility.HashPath(bundleName)
+                        : bundleName;
 
-                var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
-                if (rule.shared)
-                    reserved.Add(relativePath, bundleName);
+                    var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
+                    if (rule.shared)
+                        TryAddToForceSharedBundle(relativePath, bundleName, ref reserved);
 
-                AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                }
             }
-
-            EditorUtility.ClearProgressBar();
+            finally {
+                EditorUtility.ClearProgressBar();
+            }
         }
 
         private void ParseBundleDependenciesByRuleOfPackByDirectory(BundleRule rule, ref DependenciesInfo depsInfo,
@@ -172,20 +175,23 @@ namespace vFrame.Bundler.Editor
                 .Where(v => !IsExclude(v, excludePattern))
                 .ToArray();
 
-            var index = 0;
-            foreach (var file in files)
-            {
-                EditorUtility.DisplayProgressBar("Parsing Rule of Pack By Directory Name", file,
-                    (float) index++ / files.Length);
+            try {
+                var index = 0;
+                foreach (var file in files)
+                {
+                    EditorUtility.DisplayProgressBar("Parsing Rule of Pack By Directory Name", file,
+                        (float) index++ / files.Length);
 
-                var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
-                if (rule.shared)
-                    reserved.Add(relativePath, bundleName);
+                    var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
+                    if (rule.shared)
+                        TryAddToForceSharedBundle(relativePath, bundleName, ref reserved);
 
-                AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                }
             }
-
-            EditorUtility.ClearProgressBar();
+            finally {
+                EditorUtility.ClearProgressBar();
+            }
         }
 
         private void ParseBundleDependenciesByRuleOfPackBySubDirectory(BundleRule rule, ref DependenciesInfo depsInfo,
@@ -211,21 +217,34 @@ namespace vFrame.Bundler.Editor
                     ? PathUtility.HashPath(bundleName)
                     : bundleName;
 
-                var index = 0;
-                foreach (var file in files)
-                {
-                    EditorUtility.DisplayProgressBar("Parsing Rule of Pack By Sub Directory Name", file,
-                        (float) index++ / files.Length);
+                try {
+                    var index = 0;
+                    foreach (var file in files)
+                    {
+                        EditorUtility.DisplayProgressBar("Parsing Rule of Pack By Sub Directory Name", file,
+                            (float) index++ / files.Length);
 
-                    var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
-                    if (rule.shared)
-                        reserved.Add(relativePath, bundleName);
+                        var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
+                        if (rule.shared)
+                            TryAddToForceSharedBundle(relativePath, bundleName, ref reserved);
 
-                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                        AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                    }
+                }
+                finally {
+                    EditorUtility.ClearProgressBar();
                 }
 
-                EditorUtility.ClearProgressBar();
             }
+        }
+
+        private void TryAddToForceSharedBundle(string assetName, string bundleName, ref ReservedSharedBundleInfo reserved) {
+            if (reserved.ContainsKey(assetName)) {
+                throw new BundleRuleConflictException(
+                    string.Format("Asset({0} has already contain in bundle: {1}, but trying add to new bundle: {2})",
+                        assetName, reserved[assetName], bundleName));
+            }
+            reserved.Add(assetName, bundleName);
         }
 
         private void AddDependenciesInfo(string bundleName, string relativePath, ref DependenciesInfo info,
