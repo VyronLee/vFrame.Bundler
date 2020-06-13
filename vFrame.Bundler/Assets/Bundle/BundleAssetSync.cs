@@ -12,7 +12,6 @@ using System;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Logs;
-using vFrame.Bundler.Utils;
 
 namespace vFrame.Bundler.Assets.Bundle
 {
@@ -26,7 +25,7 @@ namespace vFrame.Bundler.Assets.Bundle
         {
             Logger.LogInfo("Start synchronously loading asset from bundle: {0}", _path);
 
-            var name = PathUtility.GetAssetName(_path);
+            var name = GetAssetName();
             var assets = _loader.AssetBundle.LoadAssetWithSubAssets(name, _type);
             if (assets.Length <= 0)
                 throw new BundleAssetLoadFailedException(

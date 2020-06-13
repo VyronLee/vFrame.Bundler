@@ -111,6 +111,8 @@
     <Compile Include="Scenes\SceneBase.cs" />
     <Compile Include="Scenes\SceneSync.cs" />
     <Compile Include="Utils\PathUtility.cs" />
+    <Compile Include="Utils\Pools\HashSetAllocator.cs" />
+    <Compile Include="Utils\Pools\HashSetPool.cs" />
     <Compile Include="Utils\Pools\ListAllocator.cs" />
     <Compile Include="Utils\Pools\ListPool.cs" />
     <Compile Include="Utils\Pools\StringBuilderPool.cs" />
