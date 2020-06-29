@@ -8,15 +8,23 @@
 //   Copyright:  Copyright (c) 2020, VyronLee
 //============================================================
 using UnityEngine;
+using vFrame.Bundler.Base;
 using vFrame.Bundler.Interface;
 
 namespace vFrame.Bundler.Extension
 {
     public static class SpriteRendererExtensions
     {
+        private class SpriteSetter : PropertySetterProxy<SpriteRenderer, Sprite>
+        {
+            public override void Set(SpriteRenderer target, Sprite asset) {
+                target.sprite = asset;
+            }
+        }
+
         public static void SetSprite(this SpriteRenderer target, IAsset asset)
         {
-            asset.SetTo(target, "sprite");
+            asset.SetTo<SpriteRenderer, Sprite, SpriteSetter>(target);
         }
     }
 }

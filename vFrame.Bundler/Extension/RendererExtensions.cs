@@ -9,20 +9,35 @@
 //============================================================
 
 using UnityEngine;
+using vFrame.Bundler.Base;
 using vFrame.Bundler.Interface;
 
 namespace vFrame.Bundler.Extension
 {
     public static class RendererExtensions
     {
+        private class MaterialSetter : PropertySetterProxy<Renderer, Material>
+        {
+            public override void Set(Renderer target, Material asset) {
+                target.material = asset;
+            }
+        }
+
+        private class SharedMaterialSetter : PropertySetterProxy<Renderer, Material>
+        {
+            public override void Set(Renderer target, Material asset) {
+                target.sharedMaterial = asset;
+            }
+        }
+
         public static void SetMaterial(this Renderer target, IAsset asset)
         {
-            asset.SetTo(target, "material");
+            asset.SetTo<Renderer, Material, MaterialSetter>(target);
         }
 
         public static void SetSharedMaterial(this Renderer target, IAsset asset)
         {
-            asset.SetTo(target, "sharedMaterial");
+            asset.SetTo<Renderer, Material, SharedMaterialSetter>(target);
         }
     }
 }

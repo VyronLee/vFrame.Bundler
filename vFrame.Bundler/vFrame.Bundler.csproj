@@ -73,6 +73,7 @@
     <Compile Include="Assets\Bundle\BundleAssetSync.cs" />
     <Compile Include="Assets\Resource\ResourceAssetAsync.cs" />
     <Compile Include="Assets\Resource\ResourceAssetSync.cs" />
+    <Compile Include="Base\PropertySetterProxy.cs" />
     <Compile Include="Base\Reference.cs" />
     <Compile Include="BunderCustomSettings.cs" />
     <Compile Include="Bundler.cs" />

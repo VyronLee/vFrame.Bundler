@@ -12,11 +12,13 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using vFrame.Bundler.Base;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Messengers;
 using vFrame.Bundler.Utils;
+using vFrame.Bundler.Utils.Pools;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Assets
@@ -120,6 +122,21 @@ namespace vFrame.Bundler.Assets
                 property.SetValue(target, GetAsset(), null);
             else
                 throw new ArgumentOutOfRangeException("Unknown property: " + propName);
+
+            SubscribeDestroyedMessenger(target.gameObject);
+        }
+
+        public void SetTo<T1, T2, TSetter>(T1 target)
+            where T1: Component
+            where T2: Object
+            where TSetter: PropertySetterProxy<T1, T2>, new() {
+
+            if (!IsDone)
+                throw new BundleAssetNotReadyException("Asset not ready: " + _path);
+
+            var setter = ObjectPool<TSetter>.Get();
+            setter.Set(target, GetAsset() as T2);
+            ObjectPool<TSetter>.Return(setter);
 
             SubscribeDestroyedMessenger(target.gameObject);
         }
