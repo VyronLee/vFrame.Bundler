@@ -23,6 +23,8 @@ namespace vFrame.Bundler.Loaders
         private AssetBundleCreateRequest _bundleLoadRequest;
         private IFileReaderRequest _fileReadRequest;
 
+        private static int _assetbundleRequestParallelsCount = 0;
+
         public override AssetBundle AssetBundle
         {
             get
@@ -70,6 +72,11 @@ namespace vFrame.Bundler.Loaders
                         return true;
                     }
 
+                    if (_assetbundleRequestParallelsCount >= BundlerCustomSettings.kAssetBundleRequestParallelsCount) {
+                        return true;
+                    }
+                    _assetbundleRequestParallelsCount++;
+
                     Profiler.BeginSample("BundleLoaderAsync:MoveNext - AssetBundle.LoadFromMemoryAsync");
                     _bundleLoadRequest = AssetBundle.LoadFromMemoryAsync(_fileReadRequest.GetBytes());
                     Profiler.EndSample();
@@ -79,6 +86,11 @@ namespace vFrame.Bundler.Loaders
                 }
                 else
                 {
+                    if (_assetbundleRequestParallelsCount >= BundlerCustomSettings.kAssetBundleRequestParallelsCount) {
+                        return true;
+                    }
+                    _assetbundleRequestParallelsCount++;
+
                     _bundleLoadRequest = CreateBuiltinBundleLoadRequest();
                 }
             }
@@ -94,6 +106,7 @@ namespace vFrame.Bundler.Loaders
             Logger.LogInfo("Bundle load request finished: {0}", _path);
 
             _assetBundle = _bundleLoadRequest.assetBundle;
+            _assetbundleRequestParallelsCount--;
 
             Logger.LogInfo("Add assetbundle to cache: {0}", _path);
 

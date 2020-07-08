@@ -17,15 +17,16 @@ namespace vFrame.Bundler.Messengers
 {
     public class BundlerMessenger : MonoBehaviour
     {
-        public static readonly List<BundlerMessenger> Messengers = new List<BundlerMessenger>(2048);
+        public static readonly HashSet<BundlerMessenger> Messengers = new HashSet<BundlerMessenger>();
 
-        [SerializeField]
-        private List<AssetBase> _assets;
+        private HashSet<AssetBase> _assets;
 
         private void Awake()
         {
             // Reference should be calculated when cloning from other instance
             RecoverRefs();
+
+            hideFlags = HideFlags.HideAndDontSave;
         }
 
         private void RecoverRefs()
@@ -36,8 +37,7 @@ namespace vFrame.Bundler.Messengers
             foreach (var assetBase in _assets)
                 assetBase.Retain();
 
-            if (!Messengers.Contains(this))
-                Messengers.Add(this);
+            Messengers.Add(this);
         }
 
         private void OnDestroy()
@@ -53,7 +53,7 @@ namespace vFrame.Bundler.Messengers
             foreach (var assetBase in _assets)
                 assetBase.Release();
 
-            ListPool<AssetBase>.Return(_assets);
+            HashSetPool<AssetBase>.Return(_assets);
 
             Messengers.Remove(this);
         }
@@ -61,7 +61,7 @@ namespace vFrame.Bundler.Messengers
         public void RetainRef(AssetBase assetBase)
         {
             if (null == _assets)
-                _assets = ListPool<AssetBase>.Get();
+                _assets = HashSetPool<AssetBase>.Get();
 
             if (_assets.Contains(assetBase))
                 return;
@@ -69,8 +69,7 @@ namespace vFrame.Bundler.Messengers
 
             assetBase.Retain();
 
-            if (!Messengers.Contains(this))
-                Messengers.Add(this);
+            Messengers.Add(this);
         }
     }
 }

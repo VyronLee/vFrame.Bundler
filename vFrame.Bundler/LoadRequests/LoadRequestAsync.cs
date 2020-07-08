@@ -9,6 +9,7 @@
 //============================================================
 
 using System.Collections.Generic;
+using UnityEngine;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Modes;
@@ -17,16 +18,19 @@ namespace vFrame.Bundler.LoadRequests
 {
     public sealed class LoadRequestAsync : LoadRequest, ILoadRequestAsync
     {
-        private readonly Stack<BundleLoaderBase> _loaders = new Stack<BundleLoaderBase>();
-        private BundleLoaderBase _currentBundleLoader;
-        private int _index;
-        private readonly BundleLoaderBase _sourceBundleLoader;
+        private class Node
+        {
+            public BundleLoaderBase Loader;
+            public readonly List<Node> Children = new List<Node>();
+        }
+
+        private Node _root;
         private int _total;
 
         public LoadRequestAsync(ModeBase mode, string path, BundleLoaderBase bundleLoader)
             : base(mode, path, bundleLoader)
         {
-            _sourceBundleLoader = bundleLoader;
+
         }
 
         public bool MoveNext()
@@ -34,10 +38,12 @@ namespace vFrame.Bundler.LoadRequests
             if (_finished)
                 return false;
 
-            if (_currentBundleLoader != null && !_currentBundleLoader.IsDone)
+            if (TravelAndLoadLeaf(_root)) {
                 return true;
+            }
 
-            return LoadNext();
+            _finished = true;
+            return false;
         }
 
         public void Reset()
@@ -53,50 +59,76 @@ namespace vFrame.Bundler.LoadRequests
 
         public float Progress
         {
-            get
-            {
-                var loadingProgress = 0f;
-                var loaderAsync = _currentBundleLoader as BundleLoaderAsync;
-                if (loaderAsync != null)
-                    loadingProgress = loaderAsync.Progress;
-
-                return (_index + loadingProgress) / _total;
+            get {
+                var progress = CalculateLoadingProgress();
+                return progress / _total;
             }
         }
 
-        private bool LoadNext()
-        {
-            // No others loader, finish immediately
-            if (_loaders.Count <= 0)
-            {
-                _finished = true;
-                _sourceBundleLoader.Release();
-                return false;
+        protected override void LoadInternal() {
+            _root = BuildLoaderTree(ref _total);
+        }
+
+        private Node BuildLoaderTree(ref int count) {
+            var root = new Node {
+                Loader = _bundleLoader
+            };
+            BuildTree(root, _bundleLoader.Dependencies, ref count);
+            count += 1;
+            return root;
+        }
+
+        private static void BuildTree(Node parent, IEnumerable<BundleLoaderBase> children, ref int count) {
+            foreach (var child in children) {
+                var node = new Node {
+                    Loader = child,
+                };
+                BuildTree(node, child.Dependencies, ref count);
+                count += 1;
+
+                parent.Children.Add(node);
+            }
+        }
+
+        private bool TravelAndLoadLeaf(Node node) {
+            var loading = false;
+            foreach (var child in node.Children) {
+                var ret = TravelAndLoadLeaf(child);
+                loading |= ret;
             }
 
-            ++_index;
+            if (loading) {
+                return true;
+            }
 
-            _currentBundleLoader = _loaders.Pop();
-            _currentBundleLoader.Load();
-
-            if (_currentBundleLoader.IsDone)
-                return LoadNext();
-
-            return true;
+            if (!node.Loader.IsDone) {
+                if (!node.Loader.IsLoading) {
+                    node.Loader.Load();
+                }
+                return true;
+            }
+            return false;
         }
 
-        protected override void LoadInternal()
-        {
-            TravelRecursive(_bundleLoader);
-            _total = _loaders.Count;
+        private float CalculateLoadingProgress() {
+            var progress = 0f;
+            CalculateNodeProgress(_root, ref progress);
+            return progress;
         }
 
-        private void TravelRecursive(BundleLoaderBase bundleLoader)
-        {
-            _loaders.Push(bundleLoader);
+        private void CalculateNodeProgress(Node node, ref float progress) {
+            foreach (var child in node.Children) {
+                CalculateNodeProgress(child, ref progress);
+            }
 
-            foreach (var dependency in bundleLoader.Dependencies)
-                TravelRecursive(dependency);
+            var loaderAsync = node.Loader as BundleLoaderAsync;
+            if (null != loaderAsync) {
+                progress += loaderAsync.Progress;
+            }
+            else {
+                progress += 1;
+            }
         }
+
     }
 }

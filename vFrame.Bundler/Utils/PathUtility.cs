@@ -12,7 +12,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Rendering;
 using vFrame.Bundler.Utils.Pools;
 
 namespace vFrame.Bundler.Utils

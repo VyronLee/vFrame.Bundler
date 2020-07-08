@@ -9,15 +9,22 @@
 //============================================================
 
 using UnityEngine;
+using vFrame.Bundler.Base;
 using vFrame.Bundler.Interface;
 
 namespace vFrame.Bundler.Extension
 {
     public static class AudioSourceExtensions
     {
-        public static void SetClip(this AudioSource target, IAsset asset)
+        private class AudioClipSetter : PropertySetterProxy<AudioSource, AudioClip>
         {
-            asset.SetTo(target, "clip");
+            public override void Set(AudioSource target, AudioClip asset) {
+                target.clip = asset;
+            }
+        }
+
+        public static void SetClip(this AudioSource target, IAsset asset) {
+            asset.SetTo<AudioSource, AudioClip, AudioClipSetter>(target);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace vFrame.Bundler
     {
         public static IFileReader kCustomFileReader = null;
         public static IFileReaderAsync kCustomFileReaderAsync = null;
+        public static int kAssetBundleRequestParallelsCount = 5;
     }
 
     public static class BundlerCustomSettingsInEditorMode

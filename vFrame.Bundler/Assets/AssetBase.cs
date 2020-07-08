@@ -9,11 +9,16 @@
 //============================================================
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+using vFrame.Bundler.Base;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Messengers;
+using vFrame.Bundler.Utils;
+using vFrame.Bundler.Utils.Pools;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Assets
@@ -24,6 +29,11 @@ namespace vFrame.Bundler.Assets
         protected readonly BundleLoaderBase _loader;
         protected readonly Type _type;
         protected Object _asset;
+
+        private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _propertiesCache
+            = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
+
+        private static readonly Dictionary<string, string> _assetNameCache = new Dictionary<string, string>(2048);
 
         protected AssetBase(string path, Type type, BundleLoaderBase target)
         {
@@ -56,6 +66,14 @@ namespace vFrame.Bundler.Assets
         {
             if (_loader != null)
                 _loader.Release();
+        }
+
+        protected string GetAssetName() {
+            string assetName;
+            if (!_assetNameCache.TryGetValue(_path, out assetName)) {
+                assetName = _assetNameCache[_path] = PathUtility.GetAssetName(_path);
+            }
+            return assetName;
         }
 
         public virtual Object GetAsset()
@@ -99,13 +117,42 @@ namespace vFrame.Bundler.Assets
             if (!IsDone)
                 throw new BundleAssetNotReadyException("Asset not ready: " + _path);
 
-            var property = target.GetType().GetProperty(propName);
+            var property = GetProperty(target, propName);
             if (property != null)
                 property.SetValue(target, GetAsset(), null);
             else
                 throw new ArgumentOutOfRangeException("Unknown property: " + propName);
 
             SubscribeDestroyedMessenger(target.gameObject);
+        }
+
+        public void SetTo<T1, T2, TSetter>(T1 target)
+            where T1: Component
+            where T2: Object
+            where TSetter: PropertySetterProxy<T1, T2>, new() {
+
+            if (!IsDone)
+                throw new BundleAssetNotReadyException("Asset not ready: " + _path);
+
+            var setter = ObjectPool<TSetter>.Get();
+            setter.Set(target, GetAsset() as T2);
+            ObjectPool<TSetter>.Return(setter);
+
+            SubscribeDestroyedMessenger(target.gameObject);
+        }
+
+        private static PropertyInfo GetProperty(Component target, string propertyName) {
+            Dictionary<string, PropertyInfo> propertyDict;
+            var typeInfo = target.GetType();
+            if (!_propertiesCache.TryGetValue(typeInfo, out propertyDict)) {
+                propertyDict = _propertiesCache[typeInfo] = new Dictionary<string, PropertyInfo>();
+            }
+
+            PropertyInfo propertyInfo;
+            if (!propertyDict.TryGetValue(propertyName, out propertyInfo)) {
+                propertyInfo = propertyDict[propertyName] = target.GetType().GetProperty(propertyName);
+            }
+            return propertyInfo;
         }
 
         private void SubscribeDestroyedMessenger(GameObject gameObject)

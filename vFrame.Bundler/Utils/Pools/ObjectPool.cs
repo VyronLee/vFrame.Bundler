@@ -44,4 +44,20 @@ namespace vFrame.Bundler.Utils.Pools
             Objects.Push(obj);
         }
     }
+
+    public abstract class ObjectPool<TClass> where TClass : class, new()
+    {
+        private static readonly Stack<TClass> Objects = new Stack<TClass>();
+
+        public static TClass Get() {
+            return Objects.Count > 0 ? Objects.Pop() : new TClass();
+        }
+
+        public static void Return(TClass obj) {
+            if (Objects.Contains(obj)) {
+                return;
+            }
+            Objects.Push(obj);
+        }
+    }
 }

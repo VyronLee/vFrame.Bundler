@@ -14,7 +14,6 @@ using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Utils;
-using Logger = vFrame.Bundler.Logs.Logger;
 
 namespace vFrame.Bundler.Assets.Bundle
 {
@@ -64,7 +63,7 @@ namespace vFrame.Bundler.Assets.Bundle
         {
             Logs.Logger.LogInfo("Start asynchronously loading asset from bundle: {0}", _path);
 
-            var name = PathUtility.GetAssetName(_path);
+            var name = GetAssetName();
             _request = _loader.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);
             _request.allowSceneActivation = true;
 
