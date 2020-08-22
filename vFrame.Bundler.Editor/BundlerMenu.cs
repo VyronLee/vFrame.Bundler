@@ -7,6 +7,7 @@
 //    Modified:  2019-07-09 10:40
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
+
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -19,13 +20,13 @@ namespace vFrame.Bundler.Editor
         [MenuItem("Assets/vFrame.Bundler/Generate Manifest")]
         public static void GenerateManifest()
         {
-            var buildRuleFile = PathUtility.RelativeDataPathToAbsolutePath(BundlerDefaultBuildSettings.kBuildRuleFilePath);
+            var buildRuleFile = PathUtility.RelativeDataPathToAbsolutePath(BundlerBuildSettings.kBuildRuleFilePath);
             var relativeBuildRuleFile = PathUtility.AbsolutePathToRelativeProjectPath(buildRuleFile);
             var buildRuleAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(relativeBuildRuleFile);
             var buildRule = JsonUtility.FromJson<BundlerBuildRule>(buildRuleAsset.text);
 
             BundlerGenerator.Instance.GenerateManifest(buildRule,
-                PathUtility.Combine(BundlerDefaultBuildSettings.kBundlePath, BundlerDefaultBuildSettings.kManifestFileName));
+                PathUtility.Combine(BundlerBuildSettings.kBundlePath, BundlerBuildSettings.kManifestFileName));
         }
 
         [MenuItem("Assets/vFrame.Bundler/Generate AssetBundles(iOS)")]
@@ -83,7 +84,7 @@ namespace vFrame.Bundler.Editor
         private static void GenerateAssetBundles(BuildTarget platform)
         {
             var manifestFile =
-                PathUtility.Combine(BundlerDefaultBuildSettings.kBundlePath, BundlerDefaultBuildSettings.kManifestFileName);
+                PathUtility.Combine(BundlerBuildSettings.kBundlePath, BundlerBuildSettings.kManifestFileName);
             var manifestFileFullPath = PathUtility.Combine(Application.streamingAssetsPath, manifestFile);
 
             if (!File.Exists(manifestFileFullPath))
@@ -100,9 +101,9 @@ namespace vFrame.Bundler.Editor
         private static void RegenerateAssetBundle(string path, BuildTarget platform)
         {
             var bundleOutputFullPath =
-                PathUtility.Combine(Application.streamingAssetsPath, BundlerDefaultBuildSettings.kBundlePath);
+                PathUtility.Combine(Application.streamingAssetsPath, BundlerBuildSettings.kBundlePath);
             var bundleOutputRelativePath = PathUtility.AbsolutePathToRelativeProjectPath(bundleOutputFullPath);
-            var manifestFilePath = PathUtility.Combine(bundleOutputFullPath, BundlerDefaultBuildSettings.kManifestFileName);
+            var manifestFilePath = PathUtility.Combine(bundleOutputFullPath, BundlerBuildSettings.kManifestFileName);
 
             var bundleName = path.Substring(bundleOutputRelativePath.Length + 1);
             var jsonText = File.ReadAllText(manifestFilePath);

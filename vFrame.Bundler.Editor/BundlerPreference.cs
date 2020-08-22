@@ -17,16 +17,16 @@ namespace vFrame.Bundler.Editor
         [PreferenceItem("vFrame")]
         public static void BundlerPreferences()
         {
-            var bundleMode = EditorPrefs.GetBool(BundlerDefaultBuildSettings.kModePreferenceKey, false);
+            var bundleMode = EditorPrefs.GetBool(BundlerBuildSettings.kModePreferenceKey, false);
             bundleMode = EditorGUILayout.Toggle("Bundle Mode", bundleMode);
 
-            var logLevel = EditorPrefs.GetInt(BundlerDefaultBuildSettings.kLogLevelPreferenceKey, Logs.Logger.LogLevel.ERROR - 1);
+            var logLevel = EditorPrefs.GetInt(BundlerBuildSettings.kLogLevelPreferenceKey, Logs.Logger.LogLevel.ERROR - 1);
             logLevel = EditorGUILayout.Popup("Log Level", logLevel, new[] {"Verbose", "Info", "Error"});
 
             if (GUI.changed)
             {
-                EditorPrefs.SetBool(BundlerDefaultBuildSettings.kModePreferenceKey, bundleMode);
-                EditorPrefs.SetInt(BundlerDefaultBuildSettings.kLogLevelPreferenceKey, logLevel);
+                EditorPrefs.SetBool(BundlerBuildSettings.kModePreferenceKey, bundleMode);
+                EditorPrefs.SetInt(BundlerBuildSettings.kLogLevelPreferenceKey, logLevel);
             }
         }
     }
