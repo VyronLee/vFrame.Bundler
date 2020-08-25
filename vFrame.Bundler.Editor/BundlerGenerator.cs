@@ -18,6 +18,7 @@ using UnityEditor;
 using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Utils;
+using vFrame.Bundler.Utils.Pools;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Editor
@@ -63,6 +64,15 @@ namespace vFrame.Bundler.Editor
             return Path.GetExtension(name) == ".cs";
         }
 
+        private static bool IsAssembly(string name) {
+            return Path.GetExtension(name) == ".dll";
+        }
+
+        private static bool IsBuiltinResource(string name) {
+            return name.EndsWith("unity_builtin_extra")
+                || name.EndsWith("unity default resources");
+        }
+
         private static bool IsExclude(string path, string pattern)
         {
             path = PathUtility.NormalizePath(path);
@@ -85,8 +95,6 @@ namespace vFrame.Bundler.Editor
 
             var builds = GenerateAssetBundleBuilds(manifest);
             BuildPipeline.BuildAssetBundles(outputPath, builds, kAssetBundleBuildOptions, platform);
-
-            ValidateBundleDependencies(manifest, outputPath);
         }
 
         /// <summary>
@@ -117,7 +125,7 @@ namespace vFrame.Bundler.Editor
         /// <param name="manifest"></param>
         /// <param name="outputPath"></param>
         /// <exception cref="BundleException"></exception>
-        private void ValidateBundleDependencies(BundlerManifest manifest, string outputPath) {
+        public void ValidateBundleDependencies(BundlerManifest manifest, string outputPath) {
             var abManifestPath = string.Format("{0}/{1}", outputPath, new DirectoryInfo(outputPath).Name);
             var abManifestRelativePath = PathUtility.AbsolutePathToRelativeProjectPath(abManifestPath);
             var ab = AssetBundle.LoadFromFile(abManifestRelativePath);
@@ -130,7 +138,12 @@ namespace vFrame.Bundler.Editor
                 throw new BundleException("Load asset bundle manifest failed: " + abManifestPath);
             }
 
-            void ValidateBundle(string assetBundle) {
+            void ValidateBundle(string assetBundle, List<string> validated) {
+                if (validated.Contains(assetBundle)) {
+                    throw new BundleException("Circular dependency detected: " + assetBundle);
+                }
+                validated.Add(assetBundle);
+
                 if (!manifest.bundles.ContainsKey(assetBundle)) {
                     throw new BundleException("Bundle does not contain in manifest: " + assetBundle);
                 }
@@ -145,8 +158,10 @@ namespace vFrame.Bundler.Editor
                         throw new BundleException(string.Format(
                             "Bundle dependencies does not equal: {0}, lost dependency: {1}", assetBundle, dependency));
                     }
-                    ValidateBundle(dependency);
+                    Debug.Log("Validating dependency: " + dependency);
+                    ValidateBundle(dependency, validated);
                 }
+                validated.Remove(assetBundle);
             }
 
             var index = 0f;
@@ -154,7 +169,8 @@ namespace vFrame.Bundler.Editor
             try {
                 foreach (var assetBundle in abs) {
                     EditorUtility.DisplayProgressBar("Validating asset bundle", assetBundle, index++/abs.Length);
-                    ValidateBundle(assetBundle);
+                    Debug.Log("Validating asset bundle: " + assetBundle);
+                    ValidateBundle(assetBundle, new List<string>());
                 }
             }
             finally {
@@ -311,13 +327,7 @@ namespace vFrame.Bundler.Editor
         private void AddDependenciesInfo(string bundleName, string relativePath, ref DependenciesInfo info,
             ref ReservedSharedBundleInfo reserved)
         {
-            var asset = AssetDatabase.LoadAssetAtPath(relativePath, typeof(Object));
-            var dependencies = EditorUtility.CollectDependencies(new[] {asset})
-                .Select(AssetDatabase.GetAssetPath)
-                .Where(v => !IsUnmanagedResources(v))
-                .Distinct()
-                .ToList();
-
+            var dependencies = CollectDependencies(relativePath);
             var deps = dependencies.ToList();
             deps.Add(relativePath);
 
@@ -350,24 +360,30 @@ namespace vFrame.Bundler.Editor
             return bundles;
         }
 
+        private static IEnumerable<string> CollectDependencies(string asset) {
+            var assetObj = AssetDatabase.LoadAssetAtPath<Object>(asset);
+            var dep1 = EditorUtility.CollectDependencies(new[] {assetObj});
+            var dep2 = dep1.Select(AssetDatabase.GetAssetPath).ToArray();
+            var dep3 = dep2.Where(v => v != asset).ToArray();
+            var dep4 = dep3.Where(v => !IsUnmanagedResources(v)).ToArray();
+            var dep5 = dep4.Distinct().ToArray();
+            return dep5;
+        }
+
         private void ResolveBundleDependencies(ref BundlesInfo bundlesInfo) {
             var info = bundlesInfo;
             foreach (var kv in bundlesInfo) {
+                //Debug.Log(string.Format("Resolving bundle dependency: {0}", kv.Key));
+
                 var bundleInfo = kv.Value;
                 bundleInfo.dependencies.Clear();
 
                 void ResolveAssetDependency(string asset) {
-                    var dependencies = AssetDatabase.GetDependencies(asset, false);
+                    var dependencies = CollectDependencies(asset);
                     foreach (var dependencyAsset in dependencies) {
                         // Which bundle contains this asset?
                         var depBundle = info.FirstOrDefault(
                             v => v.Value.assets.Contains(dependencyAsset)).Key;
-
-                        // Scriptable object need to resolve recursive
-                        if (IsScriptableObject(dependencyAsset)) {
-                            ResolveAssetDependency(dependencyAsset);
-                            continue;
-                        }
 
                         if (string.IsNullOrEmpty(depBundle)) {
                             continue;
@@ -384,11 +400,64 @@ namespace vFrame.Bundler.Editor
                     ResolveAssetDependency(asset);
                 }
             }
+
+            // Filter out redundant dependencies.
+            var bsInfo = bundlesInfo;
+            foreach (var kv in bundlesInfo) {
+                var bundleInfo = kv.Value;
+
+                bool IsDependencyInBundle(string bundleName, BundleInfo bInfo) {
+                    foreach (var dependency in bInfo.dependencies) {
+                        if (dependency == bundleName) {
+                            return true;
+                        }
+
+                        if (!bsInfo.ContainsKey(dependency))
+                            continue;
+
+                        if (IsDependencyInBundle(bundleName, bsInfo[dependency])) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                bool IsReferenceInDependencies(string toCheck, BundleInfo bInfo) {
+                    //Debug.Log(string.Format("Checking dependency: {0}", toCheck));
+                    foreach (var dependency in bInfo.dependencies) {
+                        if (dependency == toCheck) {
+                            continue;
+                        }
+
+                        if (!bsInfo.ContainsKey(dependency))
+                            continue;
+
+                        if (IsDependencyInBundle(toCheck, bsInfo[dependency])) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                //Debug.Log(string.Format("Checking redundant dependency: {0}", kv.Key));
+
+                var toRemove = ListPool<string>.Get();
+                foreach (var dependency in bundleInfo.dependencies) {
+                    if (IsReferenceInDependencies(dependency, bundleInfo)) {
+                        toRemove.Add(dependency);
+                    }
+                }
+                toRemove.ForEach(v => {
+                    //Debug.Log(string.Format("Dependency redundant, removed: {0}, in bundle: {1}", v, kv.Key));
+                    bundleInfo.dependencies.Remove(v);
+                });
+                ListPool<string>.Return(toRemove);
+            }
         }
 
         private BundlesInfo ParseSharedBundleInfo(ref DependenciesInfo depsInfo, ref ReservedSharedBundleInfo reserved)
         {
-            var sharedDict = new Dictionary<HashSet<string>, string>(new StringHashSetComparer());
+            var sharedDict = new Dictionary<string, string>();
 
             var index = 0;
             // Determine shared bundles
@@ -408,32 +477,29 @@ namespace vFrame.Bundler.Editor
                     continue;
 
                 // Otherwise, assets which depended by the same bundles will be separated to shared bundle.
-                if (BundlerBuildSettings.kCombineSharedAssets) {
-                    if (sharedDict.ContainsKey(depSet.referenceInBundles))
-                    {
-                        depSet.bundle = sharedDict[depSet.referenceInBundles];
-                        continue;
-                    }
-                    sharedDict.Add(depSet.referenceInBundles,
-                        depSet.bundle = string.Format(BundlerBuildSettings.kSharedBundleFormatter,
-                            (++index).ToString()));
-                }
-                else {
-                    depSet.bundle = string.Format(BundlerBuildSettings.kSharedBundleFormatter,
+                if (!sharedDict.ContainsKey(asset)) {
+                    sharedDict[asset] = string.Format(BundlerBuildSettings.kSharedBundleFormatter,
                         (++index).ToString());
+
+                    // Sub-assets dependencies.
+                    var deps = CollectDependencies(asset);
+                    foreach (var dep in deps) {
+                        if (reserved.ContainsKey(dep))
+                            continue;
+                        sharedDict[dep] = string.Format(BundlerBuildSettings.kSharedBundleFormatter,
+                            (++index).ToString());
+                    }
                 }
             }
 
             // Collect shared bundles info
             var bundlesInfo = new BundlesInfo();
-            foreach (var kv in depsInfo)
-            {
-                var name = kv.Value.bundle;
-                if (string.IsNullOrEmpty(name))
-                    continue;
+            foreach (var kv in sharedDict) {
+                var name = sharedDict[kv.Key];
+                if (bundlesInfo.ContainsKey(name))
+                    throw new BundleException("Shared bundle duplicated: " + name);
 
-                if (!bundlesInfo.ContainsKey(name))
-                    bundlesInfo.Add(name, new BundleInfo());
+                bundlesInfo[name] = new BundleInfo();
                 bundlesInfo[name].assets.Add(kv.Key);
             }
 
@@ -444,17 +510,22 @@ namespace vFrame.Bundler.Editor
                 var assets = kv.Value.assets.ToList();
                 assets.Sort((a, b) => string.Compare(a, b, StringComparison.Ordinal));
 
-                var name = string.Join("-", assets.ToArray());
-                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(name)))
-                {
-                    var nameHash = CalculateMd5(stream);
-                    var uniqueName = string.Format(BundlerBuildSettings.kSharedBundleFormatter, nameHash);
-
-                    var bundleInfo = new BundleInfo();
-                    foreach (var asset in kv.Value.assets)
-                        bundleInfo.assets.Add(asset);
-                    sharedBundle.Add(uniqueName, bundleInfo);
+                var bundleName = string.Join("-", assets.ToArray());
+                if (BundlerBuildSettings.kHashSharedBundle) {
+                    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(bundleName)))
+                    {
+                        var nameHash = CalculateMd5(stream);
+                        bundleName = string.Format(BundlerBuildSettings.kSharedBundleFormatter, nameHash);
+                    }
                 }
+                else {
+                    bundleName = string.Format(BundlerBuildSettings.kSharedBundleFormatter, bundleName.ToLower());
+                }
+
+                var bundleInfo = new BundleInfo();
+                foreach (var asset in kv.Value.assets)
+                    bundleInfo.assets.Add(asset);
+                sharedBundle.Add(bundleName, bundleInfo);
             }
 
             // Add reserved shared bundles info
@@ -466,8 +537,6 @@ namespace vFrame.Bundler.Editor
                     sharedBundle.Add(bundle, new BundleInfo());
                 sharedBundle[bundle].assets.Add(assetName);
             }
-
-            // Resolve shared bundles dependencies
 
             return sharedBundle;
         }
@@ -550,7 +619,9 @@ namespace vFrame.Bundler.Editor
                 foreach (var asset in assets)
                 {
                     if (manifest.assets.ContainsKey(asset))
-                        throw new BundleException(string.Format("Asset duplicated: {0}", asset));
+                        throw new BundleException(string.Format(
+                            "Asset duplicated: {0}, already reference in bundle: {1}, conflict with: {2}",
+                            asset, manifest.assets[asset].bundle, bundleName));
 
                     var assetData = new AssetData
                     {
@@ -648,7 +719,6 @@ namespace vFrame.Bundler.Editor
         private class DependencyInfo
         {
             public readonly HashSet<string> referenceInBundles = new HashSet<string>();
-            public string bundle;
         }
 
         // Bundle name -> assets in this bundle + bundle dependencies

@@ -81,6 +81,13 @@ namespace vFrame.Bundler.Editor
             RegenerateAssetBundle(path, BuildTarget.StandaloneOSX);
         }
 
+        public static void ValidateBundleDependencies(string manifestPath, string bundlePath)
+        {
+            var manifestText = File.ReadAllText(manifestPath);
+            var manifest = JsonUtility.FromJson<BundlerManifest>(manifestText);
+            BundlerGenerator.Instance.ValidateBundleDependencies(manifest, bundlePath);
+        }
+
         private static void GenerateAssetBundles(BuildTarget platform)
         {
             var manifestFile =
