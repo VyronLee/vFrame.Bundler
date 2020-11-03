@@ -19,7 +19,6 @@ namespace vFrame.Bundler.Interface
         Object GetAsset();
         GameObject InstantiateGameObject();
         void DestroyGameObject(GameObject gameObject);
-        void SetTo(Component target, string propName);
         void SetTo<T1, T2, TSetter>(T1 target)
             where T1 : Component
             where T2 : Object

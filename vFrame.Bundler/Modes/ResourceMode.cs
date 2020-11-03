@@ -32,6 +32,10 @@ namespace vFrame.Bundler.Modes
             return new LoadRequestAsync(this, path, null);
         }
 
+        public override void Destroy() {
+
+        }
+
         public override IAsset GetAsset(LoadRequest request, Type type)
         {
             return new ResourceAssetSync(request.AssetPath, type);

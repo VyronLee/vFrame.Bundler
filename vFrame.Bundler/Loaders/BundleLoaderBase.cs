@@ -21,7 +21,7 @@ namespace vFrame.Bundler.Loaders
 {
     public abstract class BundleLoaderBase : Reference
     {
-        protected static readonly Dictionary<string, AssetBundle> AssetBundleCache =
+        public static readonly Dictionary<string, AssetBundle> AssetBundleCache =
             new Dictionary<string, AssetBundle>();
 
         protected AssetBundle _assetBundle;
@@ -59,7 +59,7 @@ namespace vFrame.Bundler.Loaders
         {
             if (AssetBundleCache.TryGetValue(_path, out _assetBundle))
             {
-                Logs.Logger.LogInfo("Load assetbundle from cache: {0}", _path);
+                Logger.LogInfo("Load assetbundle from cache: {0}", _path);
                 IsDone = true;
                 return;
             }
@@ -70,7 +70,7 @@ namespace vFrame.Bundler.Loaders
             if (!(IsDone = LoadProcess()))
                 return;
 
-            Logs.Logger.LogInfo("Add assetbundle to cache: {0}", _path);
+            Logger.LogInfo("Add assetbundle to cache: {0}", _path);
 
             if (AssetBundleCache.ContainsKey(_path))
                 throw new System.Exception("Assetbundle already in cache: " + _path);
@@ -79,13 +79,12 @@ namespace vFrame.Bundler.Loaders
 
         public void Unload()
         {
-            Logs.Logger.LogInfo("Unload assetbundle: {0}", _path);
+            Logger.LogInfo("Unload assetbundle: {0}", _path);
 
             if (_references > 0)
                 throw new BundleException("Cannot unload, references: " + _references);
 
-            if (_assetBundle)
-            {
+            if (_assetBundle) {
                 _assetBundle.Unload(true);
                 _assetBundle = null;
             }
@@ -106,6 +105,28 @@ namespace vFrame.Bundler.Loaders
             ListPool<BundleLoaderBase>.Return(Dependencies);
         }
 
+        public void ForceUnload() {
+            Logger.LogVerbose("ForceUnload - {0}", _path);
+
+            if (_assetBundle) {
+                _assetBundle.Unload(true);
+                _assetBundle = null;
+            }
+
+            if (null != _fileStream) {
+                _fileStream.Close();
+                _fileStream.Dispose();
+                _fileStream = null;
+            }
+
+            AssetBundleCache.Remove(_path);
+
+            foreach (var loader in Dependencies)
+                loader.ForceUnload();
+
+            ListPool<BundleLoaderBase>.Return(Dependencies);
+        }
+
         public override void Retain()
         {
             foreach (var loader in Dependencies)
@@ -113,7 +134,7 @@ namespace vFrame.Bundler.Loaders
 
             base.Retain();
 
-            Logs.Logger.LogVerbose("Retain loader: {0}, ref: {1}", _path, _references);
+            Logger.LogVerbose("Retain loader: {0}, ref: {1}", _path, _references);
         }
 
         public override void Release()
@@ -123,7 +144,7 @@ namespace vFrame.Bundler.Loaders
 
             base.Release();
 
-            Logs.Logger.LogVerbose("Release loader: {0}, ref: {1}", _path, _references);
+            Logger.LogVerbose("Release loader: {0}, ref: {1}", _path, _references);
         }
 
         protected abstract bool LoadProcess();

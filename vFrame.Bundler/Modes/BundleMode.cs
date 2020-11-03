@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using vFrame.Bundler.Assets.Bundle;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
@@ -170,6 +171,24 @@ namespace vFrame.Bundler.Modes
             Collect();
         }
 
+        public override void Destroy() {
+            DeepCollect();
+            Collect();
+
+            ForceUnloadLoaders();
+        }
+
+        private void ForceUnloadLoaders() {
+            foreach (var kv in _loaderCache) {
+                kv.Value.ForceUnload();
+            }
+            _loaderCache.Clear();
+            _loadRequestCache.Clear();
+            _loadRequestAsyncCache.Clear();
+            _assetCache.Clear();
+            _assetAsyncCache.Clear();
+        }
+
         public override IAsset GetAsset(LoadRequest request, Type type) {
             Dictionary<Type, IAsset> assetCache;
             if (!_assetCache.TryGetValue(request, out assetCache)) {
@@ -195,6 +214,10 @@ namespace vFrame.Bundler.Modes
                 asset = assetCache[type] = new BundleAssetAsync(request.AssetPath, type, request.Loader);
             }
             return asset;
+        }
+
+        public override List<BundleLoaderBase> GetLoaders() {
+            return _loaderCache.Select(v => v.Value).ToList();
         }
     }
 }

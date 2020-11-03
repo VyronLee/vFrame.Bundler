@@ -35,6 +35,14 @@ namespace vFrame.Bundler.Assets
 
         private static readonly Dictionary<string, string> _assetNameCache = new Dictionary<string, string>(2048);
 
+        public string AssetPath {
+            get { return _path; }
+        }
+
+        public BundleLoaderBase Loader {
+            get { return _loader; }
+        }
+
         protected AssetBase(string path, Type type, BundleLoaderBase target)
         {
             _loader = target;
@@ -112,20 +120,6 @@ namespace vFrame.Bundler.Assets
             Object.Destroy(gameObject);
         }
 
-        public void SetTo(Component target, string propName)
-        {
-            if (!IsDone)
-                throw new BundleAssetNotReadyException("Asset not ready: " + _path);
-
-            var property = GetProperty(target, propName);
-            if (property != null)
-                property.SetValue(target, GetAsset(), null);
-            else
-                throw new ArgumentOutOfRangeException("Unknown property: " + propName);
-
-            SubscribeDestroyedMessenger(target.gameObject);
-        }
-
         public void SetTo<T1, T2, TSetter>(T1 target)
             where T1: Component
             where T2: Object
@@ -138,7 +132,7 @@ namespace vFrame.Bundler.Assets
             setter.Set(target, GetAsset() as T2);
             ObjectPool<TSetter>.Return(setter);
 
-            SubscribeDestroyedMessenger(target.gameObject);
+            SubscribeDestroyedMessenger<TSetter>(target.gameObject);
         }
 
         private static PropertyInfo GetProperty(Component target, string propertyName) {
@@ -162,6 +156,15 @@ namespace vFrame.Bundler.Assets
                 messenger = gameObject.AddComponent<BundlerMessenger>();
 
             messenger.RetainRef(this);
+        }
+
+        private void SubscribeDestroyedMessenger<TSetter>(GameObject gameObject)
+        {
+            var messenger = gameObject.GetComponent<BundlerMessenger>();
+            if (!messenger)
+                messenger = gameObject.AddComponent<BundlerMessenger>();
+
+            messenger.RetainRef<TSetter>(this);
         }
 
         private void UnsubscribeDestroyedMessenger(GameObject gameObject)

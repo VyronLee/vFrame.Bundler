@@ -112,6 +112,8 @@
     <Compile Include="Scenes\SceneBase.cs" />
     <Compile Include="Scenes\SceneSync.cs" />
     <Compile Include="Utils\PathUtility.cs" />
+    <Compile Include="Utils\Pools\DictionaryAllocator.cs" />
+    <Compile Include="Utils\Pools\DictionaryPool.cs" />
     <Compile Include="Utils\Pools\HashSetAllocator.cs" />
     <Compile Include="Utils\Pools\HashSetPool.cs" />
     <Compile Include="Utils\Pools\ListAllocator.cs" />

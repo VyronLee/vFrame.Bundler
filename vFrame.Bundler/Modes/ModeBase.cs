@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using vFrame.Bundler.Interface;
+using vFrame.Bundler.Loaders;
 using vFrame.Bundler.LoadRequests;
 using vFrame.Bundler.Scenes;
 
@@ -37,6 +38,12 @@ namespace vFrame.Bundler.Modes
 
         public virtual void DeepCollect()
         {
+        }
+
+        public abstract void Destroy();
+
+        public virtual List<BundleLoaderBase> GetLoaders() {
+            return new List<BundleLoaderBase>();
         }
 
         public virtual IScene GetScene(LoadRequest request, LoadSceneMode mode)

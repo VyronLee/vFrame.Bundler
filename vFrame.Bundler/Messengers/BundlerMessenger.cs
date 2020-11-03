@@ -8,10 +8,13 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using vFrame.Bundler.Assets;
 using vFrame.Bundler.Utils.Pools;
+using Logger = vFrame.Bundler.Logs.Logger;
 
 namespace vFrame.Bundler.Messengers
 {
@@ -20,6 +23,20 @@ namespace vFrame.Bundler.Messengers
         public static readonly HashSet<BundlerMessenger> Messengers = new HashSet<BundlerMessenger>();
 
         private HashSet<AssetBase> _assets;
+        private Dictionary<Type, AssetBase> _typedAssets;
+
+        private bool _recovered;
+
+        public List<AssetBase> GetAssets() {
+            var assets = new List<AssetBase>();
+            if (null != _assets) {
+                assets.AddRange(_assets.ToList());
+            }
+            if (null != _typedAssets) {
+                assets.AddRange(_typedAssets.Select(v => v.Value));
+            }
+            return assets;
+        }
 
         private void Awake()
         {
@@ -31,11 +48,22 @@ namespace vFrame.Bundler.Messengers
 
         private void RecoverRefs()
         {
-            if (null == _assets)
+            if (_recovered) {
                 return;
+            }
+            _recovered = true;
 
-            foreach (var assetBase in _assets)
-                assetBase.Retain();
+            Logger.LogVerbose("Recover ref, messenger instance: {0}", GetInstanceID());
+
+            if (null != _assets) {
+                foreach (var assetBase in _assets)
+                    assetBase.Retain();
+            }
+
+            if (null != _typedAssets) {
+                foreach (var kv in _typedAssets)
+                    kv.Value.Retain();
+            }
 
             Messengers.Add(this);
         }
@@ -47,13 +75,17 @@ namespace vFrame.Bundler.Messengers
 
         public void ReleaseRef()
         {
-            if (null == _assets)
-                return;
+            if (null != _assets) {
+                foreach (var assetBase in _assets)
+                    assetBase.Release();
+                HashSetPool<AssetBase>.Return(_assets);
+            }
 
-            foreach (var assetBase in _assets)
-                assetBase.Release();
-
-            HashSetPool<AssetBase>.Return(_assets);
+            if (null != _typedAssets) {
+                foreach (var kv in _typedAssets)
+                    kv.Value.Release();
+                DictionaryPool<Type, AssetBase>.Return(_typedAssets);
+            }
 
             Messengers.Remove(this);
         }
@@ -66,6 +98,24 @@ namespace vFrame.Bundler.Messengers
             if (_assets.Contains(assetBase))
                 return;
             _assets.Add(assetBase);
+
+            assetBase.Retain();
+
+            Messengers.Add(this);
+        }
+
+        public void RetainRef<TSetter>(AssetBase assetBase) {
+            if (null == _typedAssets)
+                _typedAssets = DictionaryPool<Type, AssetBase>.Get();
+
+            var type = typeof(TSetter);
+            if (_typedAssets.ContainsKey(type)) {
+                Logger.LogVerbose("Setter exist: {0}, release previous asset: {1}",
+                    type.FullName, _typedAssets[type].AssetPath);
+
+                _typedAssets[type].Release();
+            }
+            _typedAssets[type] = assetBase;
 
             assetBase.Retain();
 

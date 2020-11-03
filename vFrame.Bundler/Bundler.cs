@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
+using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Modes;
 using Logger = vFrame.Bundler.Logs.Logger;
 
@@ -28,6 +29,8 @@ namespace vFrame.Bundler
         private BundleModeType _modeType;
         private BundlerManifest _manifest;
 
+        public static Bundler Instance { get; private set; }
+
         public Bundler(string json)
         {
             BundlerManifest manifest = null;
@@ -41,8 +44,9 @@ namespace vFrame.Bundler
             Initialize(manifest);
         }
 
-        private void Initialize(BundlerManifest manifest)
-        {
+        private void Initialize(BundlerManifest manifest) {
+            Instance = this;
+
             _manifest = manifest;
 
             _modes = new Dictionary<BundleModeType, ModeBase>(2);
@@ -66,6 +70,10 @@ namespace vFrame.Bundler
             }
             SetMode(BundleModeType.Resource);
             SetLogLevel(logLevel);
+        }
+
+        public void Destroy() {
+            CurrentMode.Destroy();
         }
 
         private ModeBase CurrentMode
@@ -101,6 +109,10 @@ namespace vFrame.Bundler
         public void DeepCollect()
         {
             CurrentMode.DeepCollect();
+        }
+
+        public List<BundleLoaderBase> GetLoaders() {
+            return CurrentMode.GetLoaders();
         }
 
         public void SetMode(BundleModeType type)
