@@ -25,14 +25,14 @@ namespace vFrame.Bundler
     public class AssetData
     {
         public string bundle;
-        public string name;
+        //public string name;  // Memory optimized
     }
 
     [Serializable]
     public class BundleData
     {
         public List<string> dependencies = new List<string>();
-        public string name;
+        //public string name; // Memory optimized
     }
 
     [Serializable]

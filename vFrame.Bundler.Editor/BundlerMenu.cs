@@ -8,10 +8,12 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 using vFrame.Bundler.Utils;
+using Debug = UnityEngine.Debug;
 
 namespace vFrame.Bundler.Editor
 {
@@ -20,6 +22,9 @@ namespace vFrame.Bundler.Editor
         [MenuItem("Assets/vFrame.Bundler/Generate Manifest")]
         public static void GenerateManifest()
         {
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             var buildRuleFile = PathUtility.RelativeDataPathToAbsolutePath(BundlerBuildSettings.kBuildRuleFilePath);
             var relativeBuildRuleFile = PathUtility.AbsolutePathToRelativeProjectPath(buildRuleFile);
             var buildRuleAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(relativeBuildRuleFile);
@@ -27,6 +32,33 @@ namespace vFrame.Bundler.Editor
 
             BundlerGenerator.Instance.GenerateManifest(buildRule,
                 PathUtility.Combine(BundlerBuildSettings.kBundlePath, BundlerBuildSettings.kManifestFileName));
+
+            stopWatch.Stop();
+            Debug.Log(string.Format("Generate manifest finished, cost: {0}s", stopWatch.Elapsed.TotalSeconds));
+        }
+
+        public static void StripUnmanagedFiles() {
+            var buildRuleFile = PathUtility.RelativeDataPathToAbsolutePath(BundlerBuildSettings.kBuildRuleFilePath);
+            var relativeBuildRuleFile = PathUtility.AbsolutePathToRelativeProjectPath(buildRuleFile);
+            var buildRuleAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(relativeBuildRuleFile);
+            var buildRule = JsonUtility.FromJson<BundlerBuildRule>(buildRuleAsset.text);
+
+            var manifestFile =
+                PathUtility.Combine(BundlerBuildSettings.kBundlePath, BundlerBuildSettings.kManifestFileName);
+            var manifestFileFullPath = PathUtility.Combine(Application.streamingAssetsPath, manifestFile);
+
+            if (!File.Exists(manifestFileFullPath))
+            {
+                EditorUtility.DisplayDialog("Error", "Please generate bundler manifest first.", "OK");
+                return;
+            }
+
+            var manifestText = File.ReadAllText(manifestFileFullPath);
+            var manifest = JsonUtility.FromJson<BundlerManifest>(manifestText);
+
+            BundlerGenerator.Instance.StripUnmanagedFiles(buildRule, manifest);
+            manifestText = JsonUtility.ToJson(manifest);
+            File.WriteAllText(manifestFileFullPath, manifestText);
         }
 
         [MenuItem("Assets/vFrame.Bundler/Generate AssetBundles(iOS)")]

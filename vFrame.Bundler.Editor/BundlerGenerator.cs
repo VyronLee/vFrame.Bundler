@@ -87,6 +87,19 @@ namespace vFrame.Bundler.Editor
             ResolveBundleDependencies(ref bundlesInfo);
             var manifest = GenerateBundlerManifest(ref bundlesInfo);
             SaveManifest(ref manifest, outputPath);
+            Resources.UnloadUnusedAssets();
+        }
+
+        public void StripUnmanagedFiles(BundlerBuildRule buildRule, BundlerManifest manifest) {
+            var managedFiles = GetManagedFilesByRules(buildRule);
+            var toRemoved = new List<string>();
+            foreach (var kv in manifest.assets) {
+                if (!managedFiles.Contains(kv.Key)) {
+                    toRemoved.Add(kv.Key);
+                }
+            }
+            toRemoved.ForEach(v => manifest.assets.Remove(v));
+            Debug.Log(string.Format("{0} unmanaged files removed from manifest.", toRemoved.Count));
         }
 
         public void GenerateAssetBundles(BundlerManifest manifest, BuildTarget platform) {
@@ -113,7 +126,7 @@ namespace vFrame.Bundler.Editor
 
             var build = new AssetBundleBuild
             {
-                assetNames = assets.Select(v => v.Value.name).ToArray(),
+                assetNames = assets.Select(v => v.Key).ToArray(),
                 assetBundleName = bundleName
             };
             BuildPipeline.BuildAssetBundles(outputPath, new[] {build}, kAssetBundleBuildOptions, platform);
@@ -311,7 +324,45 @@ namespace vFrame.Bundler.Editor
                 finally {
                     EditorUtility.ClearProgressBar();
                 }
+            }
+        }
 
+        private string[] GetManagedFilesByRules(BundlerBuildRule rules) {
+            var files = new List<string>();
+            rules.rules.ForEach(v => files.AddRange(GetFileListByRule(v)));
+            return files.ToArray();
+        }
+
+        private string[] GetFileListByRule(BundleRule rule) {
+            var excludePattern = rule.excludePattern;
+            var searchPath = PathUtility.RelativeDataPathToAbsolutePath(rule.path);
+            switch (rule.packType) {
+                case PackType.PackByFile:
+                case PackType.PackByDirectory: {
+                    return Directory.GetFiles(searchPath, rule.searchPattern, SearchOption.AllDirectories)
+                        .Where(v => !IsUnmanagedResources(v))
+                        .Where(v => !IsExclude(v, excludePattern))
+                        .Select(v => PathUtility.AbsolutePathToRelativeProjectPath(v))
+                        .ToArray();
+                }
+                case PackType.PackBySubDirectory: {
+                    var subDirectories = Directory.GetDirectories(searchPath, "*.*", (SearchOption) rule.depth)
+                        .Where(v => !IsExclude(v, excludePattern))
+                        .ToArray();
+
+                    var files = new List<string>();
+                    foreach (var subDirectory in subDirectories) {
+                        var filesInDir = Directory
+                            .GetFiles(subDirectory, rule.searchPattern, SearchOption.AllDirectories)
+                            .Where(v => !IsUnmanagedResources(v))
+                            .Where(v => !IsExclude(v, excludePattern))
+                            .Select(v => PathUtility.AbsolutePathToRelativeProjectPath(v));
+                        files.AddRange(filesInDir);
+                    }
+                    return files.ToArray();
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -625,7 +676,7 @@ namespace vFrame.Bundler.Editor
 
                     var assetData = new AssetData
                     {
-                        name = asset,
+                        //name = asset,
                         bundle = bundleName
                     };
                     manifest.assets.Add(asset, assetData);
@@ -635,7 +686,7 @@ namespace vFrame.Bundler.Editor
                 if (manifest.bundles.ContainsKey(bundleName))
                     throw new BundleException(string.Format("Bundle duplicated: {0}", bundleName));
 
-                manifest.bundles.Add(bundleName, new BundleData {name = bundleName});
+                manifest.bundles.Add(bundleName, new BundleData()); // {name = bundleName});
                 foreach (var depName in dependencies)
                     manifest.bundles[bundleName].dependencies.Add(depName);
             }
@@ -663,7 +714,7 @@ namespace vFrame.Bundler.Editor
                 if (!bundles.ContainsKey(kv.Value.bundle))
                     bundles.Add(kv.Value.bundle, new HashSet<string>());
 
-                bundles[kv.Value.bundle].Add(kv.Value.name);
+                bundles[kv.Value.bundle].Add(kv.Key);
             }
 
             var builds = new List<AssetBundleBuild>();
