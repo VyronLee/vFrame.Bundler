@@ -39,7 +39,7 @@ namespace vFrame.Bundler.Modes
         private readonly Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>> _assetAsyncCache
             = new Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>>();
 
-        public BundleMode(BundlerManifest manifest, List<string> searchPaths) : base(manifest, searchPaths)
+        public BundleMode(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options) : base(manifest, searchPaths, options)
         {
         }
 
@@ -48,7 +48,7 @@ namespace vFrame.Bundler.Modes
             if (_loadRequestCache.TryGetValue(path, out loadRequest))
                 return loadRequest;
 
-            var loader = CreateLoaderByAssetPath<BundleLoaderSync>(path);
+            var loader = CreateLoaderByAssetPath(path, false);
             loadRequest = _loadRequestCache[path] = new LoadRequestSync(this, path, loader);
             return loadRequest;
         }
@@ -59,13 +59,12 @@ namespace vFrame.Bundler.Modes
                 return loadRequestAsync;
             }
 
-            var loader = CreateLoaderByAssetPath<BundleLoaderAsync>(path);
+            var loader = CreateLoaderByAssetPath(path, true);
             loadRequestAsync = _loadRequestAsyncCache[path] = new LoadRequestAsync(this, path, loader);
             return loadRequestAsync;
         }
 
-        private BundleLoaderBase CreateLoaderByAssetPath<TLoader>(string assetPath)
-            where TLoader : BundleLoaderBase, new()
+        private BundleLoaderBase CreateLoaderByAssetPath(string assetPath, bool async)
         {
             assetPath = PathUtility.NormalizePath(assetPath);
 
@@ -73,20 +72,25 @@ namespace vFrame.Bundler.Modes
                 throw new BundleNoneConfigurationException("Asset path not specified: " + assetPath);
 
             var assetData = _manifest.assets[assetPath];
-            return CreateLoader<TLoader>(assetData.bundle);
+            return CreateLoader(assetData.bundle, async);
         }
 
-        private BundleLoaderBase CreateLoader<TLoader>(string bundlePath) where TLoader : BundleLoaderBase, new()
+        private BundleLoaderBase CreateLoader(string bundlePath, bool async)
         {
             BundleLoaderBase bundleLoader;
             if (!_loaderCache.TryGetValue(bundlePath, out bundleLoader))
             {
                 var bundleData = _manifest.bundles[bundlePath];
                 var dependencies = new List<BundleLoaderBase>();
-                bundleData.dependencies.ForEach(v => dependencies.Add(CreateLoader<TLoader>(v)));
+                bundleData.dependencies.ForEach(v => dependencies.Add(CreateLoader(v, async)));
 
-                bundleLoader = new TLoader();
-                bundleLoader.Initialize(bundlePath, _searchPaths);
+                if (async) {
+                    bundleLoader = _options.LoaderFactory.CreateLoaderAsync();
+                }
+                else {
+                    bundleLoader = _options.LoaderFactory.CreateLoader();
+                }
+                bundleLoader.Initialize(bundlePath, _searchPaths, _options);
                 bundleLoader.Dependencies = dependencies;
 
                 _loaderCache.Add(bundlePath, bundleLoader);
@@ -197,7 +201,7 @@ namespace vFrame.Bundler.Modes
 
             IAsset asset;
             if (!assetCache.TryGetValue(type, out asset)) {
-                asset = assetCache[type] = new BundleAssetSync(request.AssetPath, type, request.Loader);
+                asset = assetCache[type] = new BundleAssetSync(request.AssetPath, type, request.Loader, _options);
             }
             return asset;
         }
@@ -211,7 +215,7 @@ namespace vFrame.Bundler.Modes
 
             IAssetAsync asset;
             if (!assetCache.TryGetValue(type, out asset)) {
-                asset = assetCache[type] = new BundleAssetAsync(request.AssetPath, type, request.Loader);
+                asset = assetCache[type] = new BundleAssetAsync(request.AssetPath, type, request.Loader, _options);
             }
             return asset;
         }

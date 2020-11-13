@@ -18,7 +18,7 @@ namespace vFrame.Bundler.Modes
 {
     public class ResourceMode : ModeBase
     {
-        public ResourceMode(BundlerManifest manifest, List<string> searchPaths) : base(manifest, searchPaths)
+        public ResourceMode(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options) : base(manifest, searchPaths, options)
         {
         }
 
@@ -38,12 +38,12 @@ namespace vFrame.Bundler.Modes
 
         public override IAsset GetAsset(LoadRequest request, Type type)
         {
-            return new ResourceAssetSync(request.AssetPath, type);
+            return new ResourceAssetSync(request.AssetPath, type, _options);
         }
 
         public override IAssetAsync GetAssetAsync(LoadRequest request, Type type)
         {
-            return new ResourceAssetAsync(request.AssetPath, type);
+            return new ResourceAssetAsync(request.AssetPath, type, _options);
         }
     }
 }

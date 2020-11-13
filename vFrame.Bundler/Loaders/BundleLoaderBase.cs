@@ -8,9 +8,7 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using vFrame.Bundler.Base;
 using vFrame.Bundler.Exception;
@@ -25,10 +23,11 @@ namespace vFrame.Bundler.Loaders
             new Dictionary<string, AssetBundle>();
 
         protected AssetBundle _assetBundle;
-        protected Stream _fileStream;
 
         protected string _path;
         protected List<string> _searchPaths;
+
+        protected BundlerOptions Options { get; private set; }
 
         public virtual AssetBundle AssetBundle
         {
@@ -46,12 +45,13 @@ namespace vFrame.Bundler.Loaders
 
         public virtual bool IsDone { get; protected set; }
 
-        public void Initialize(string path, List<string> searchPaths)
+        public void Initialize(string path, List<string> searchPaths, BundlerOptions options)
         {
             _path = path;
             _searchPaths = searchPaths;
             _assetBundle = null;
 
+            Options = options;
             Dependencies = ListPool<BundleLoaderBase>.Get();
         }
 
@@ -89,12 +89,6 @@ namespace vFrame.Bundler.Loaders
                 _assetBundle = null;
             }
 
-            if (null != _fileStream) {
-                _fileStream.Close();
-                _fileStream.Dispose();
-                _fileStream = null;
-            }
-
             AssetBundleCache.Remove(_path);
 
             IsDone = !UnloadProcess();
@@ -111,12 +105,6 @@ namespace vFrame.Bundler.Loaders
             if (_assetBundle) {
                 _assetBundle.Unload(true);
                 _assetBundle = null;
-            }
-
-            if (null != _fileStream) {
-                _fileStream.Close();
-                _fileStream.Dispose();
-                _fileStream = null;
             }
 
             AssetBundleCache.Remove(_path);

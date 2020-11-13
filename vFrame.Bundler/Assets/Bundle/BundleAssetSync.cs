@@ -17,7 +17,7 @@ namespace vFrame.Bundler.Assets.Bundle
 {
     public sealed class BundleAssetSync : AssetBase
     {
-        public BundleAssetSync(string path, Type type, BundleLoaderBase target) : base(path, type, target)
+        public BundleAssetSync(string path, Type type, BundleLoaderBase target, BundlerOptions options) : base(path, type, target, options)
         {
         }
 

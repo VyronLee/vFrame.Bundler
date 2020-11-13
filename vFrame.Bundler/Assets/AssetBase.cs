@@ -28,6 +28,7 @@ namespace vFrame.Bundler.Assets
         protected readonly string _path;
         protected readonly BundleLoaderBase _loader;
         protected readonly Type _type;
+        protected readonly BundlerOptions _options;
         protected Object _asset;
 
         private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _propertiesCache
@@ -43,11 +44,12 @@ namespace vFrame.Bundler.Assets
             get { return _loader; }
         }
 
-        protected AssetBase(string path, Type type, BundleLoaderBase target)
+        protected AssetBase(string path, Type type, BundleLoaderBase target, BundlerOptions options)
         {
             _loader = target;
             _path = path;
             _type = type;
+            _options = options;
 
             if (target != null && !target.IsDone)
                 throw new BundleException("Loader hasn't finished: " + target.AssetBundlePath);

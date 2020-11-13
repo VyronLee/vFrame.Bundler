@@ -39,22 +39,9 @@ namespace vFrame.Bundler.Loaders
                         continue;
                     }
 
-                    if (BundlerCustomSettings.kCustomFileReader == null)
-                    {
-                        Profiler.BeginSample("BundleLoader:LoadProcess - AssetBundle.LoadFromFile");
-                        _assetBundle = AssetBundle.LoadFromFile(path);
-                        Profiler.EndSample();
-                    }
-                    else
-                    {
-                        Profiler.BeginSample("BundleLoader:LoadProcess - ReadAllBytes");
-                        var bytes = BundlerCustomSettings.kCustomFileReader.ReadAllBytes(path);
-                        Profiler.EndSample();
-
-                        Profiler.BeginSample("BundleLoader:LoadProcess - AssetBundle.LoadFromMemory");
-                        _assetBundle = AssetBundle.LoadFromMemory(bytes);
-                        Profiler.EndSample();
-                    }
+                    Profiler.BeginSample("BundleLoader:LoadProcess - AssetBundle.LoadFromFile");
+                    _assetBundle = LoadAssetBundle(path);
+                    Profiler.EndSample();
 
                     if (_assetBundle)
                     {
@@ -79,6 +66,10 @@ namespace vFrame.Bundler.Loaders
 
             Profiler.EndSample();
             return IsDone;
+        }
+
+        protected virtual AssetBundle LoadAssetBundle(string path) {
+            return AssetBundle.LoadFromFile(path);
         }
     }
 }

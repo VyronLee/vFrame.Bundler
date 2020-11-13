@@ -13,7 +13,6 @@ using System.IO;
 using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
-using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Utils;
 using vFrame.Bundler.Utils.Pools;
 using Object = UnityEngine.Object;
@@ -29,8 +28,8 @@ namespace vFrame.Bundler.Assets.Resource
     {
         private ResourceAsyncRequest _request;
 
-        public ResourceAssetAsync(string assetName, Type type, BundleLoaderBase target = null) : base(assetName, type,
-            target)
+        public ResourceAssetAsync(string assetName, Type type, BundlerOptions options)
+            : base(assetName, type, null, options)
         {
         }
 
@@ -75,7 +74,7 @@ namespace vFrame.Bundler.Assets.Resource
             Logs.Logger.LogInfo("Start asynchronously loading asset: {0}", _path);
 
 #if UNITY_EDITOR
-            if (BundlerCustomSettingsInEditorMode.kUseAssetDatabaseInsteadOfResources)
+            if (_options.UseAssetDatabaseInsteadOfResources)
             {
                 _request = new AssetDatabaseAsync();
                 _request.LoadAssetAtPath(_path, _type);

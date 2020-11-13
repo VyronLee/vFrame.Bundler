@@ -22,8 +22,8 @@ namespace vFrame.Bundler.Assets.Resource
 {
     public sealed class ResourceAssetSync : AssetBase
     {
-        public ResourceAssetSync(string assetName, Type type)
-            : base(assetName, type, null)
+        public ResourceAssetSync(string assetName, Type type, BundlerOptions options)
+            : base(assetName, type, null, options)
         {
         }
 
@@ -32,7 +32,7 @@ namespace vFrame.Bundler.Assets.Resource
             Logs.Logger.LogInfo("Start synchronously loading asset: {0}", _path);
 
 #if UNITY_EDITOR
-            if (BundlerCustomSettingsInEditorMode.kUseAssetDatabaseInsteadOfResources)
+            if (_options.UseAssetDatabaseInsteadOfResources)
             {
                 _asset = AssetDatabase.LoadAssetAtPath(_path, _type);
                 if (!_asset)

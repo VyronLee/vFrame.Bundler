@@ -21,7 +21,7 @@ namespace vFrame.Bundler.Assets.Bundle
     {
         private AssetBundleRequest _request;
 
-        public BundleAssetAsync(string path, Type type, BundleLoaderBase target) : base(path, type, target)
+        public BundleAssetAsync(string path, Type type, BundleLoaderBase target, BundlerOptions options) : base(path, type, target, options)
         {
         }
 

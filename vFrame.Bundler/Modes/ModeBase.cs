@@ -22,11 +22,13 @@ namespace vFrame.Bundler.Modes
     {
         protected readonly BundlerManifest _manifest;
         protected readonly List<string> _searchPaths;
+        protected readonly BundlerOptions _options;
 
-        protected ModeBase(BundlerManifest manifest, List<string> searchPaths)
+        protected ModeBase(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options)
         {
             _manifest = manifest;
             _searchPaths = searchPaths;
+            _options = options;
         }
 
         public abstract ILoadRequest Load(string path);

@@ -75,7 +75,7 @@
     <Compile Include="Assets\Resource\ResourceAssetSync.cs" />
     <Compile Include="Base\PropertySetterProxy.cs" />
     <Compile Include="Base\Reference.cs" />
-    <Compile Include="BunderCustomSettings.cs" />
+    <Compile Include="BundleOptions.cs" />
     <Compile Include="Bundler.cs" />
     <Compile Include="BundlerManifest.cs" />
     <Compile Include="Exception\BundlerException.cs" />
@@ -89,8 +89,7 @@
     <Compile Include="Interface\IAsync.cs" />
     <Compile Include="Interface\IBundler.cs" />
     <Compile Include="Interface\ICloneable.cs" />
-    <Compile Include="Interface\IFileReader.cs" />
-    <Compile Include="Interface\IFileReaderAsync.cs" />
+    <Compile Include="Interface\ILoaderFactory.cs" />
     <Compile Include="Interface\ILoadRequest.cs" />
     <Compile Include="Interface\ILoadRequestAsync.cs" />
     <Compile Include="Interface\IPoolObjectAllocator.cs" />
@@ -99,6 +98,7 @@
     <Compile Include="Loaders\BundleLoaderAsync.cs" />
     <Compile Include="Loaders\BundleLoaderBase.cs" />
     <Compile Include="Loaders\BundleLoaderSync.cs" />
+    <Compile Include="Loaders\DefaultBundleLoaderFactory.cs" />
     <Compile Include="LoadRequests\LoadRequest.cs" />
     <Compile Include="LoadRequests\LoadRequestAsync.cs" />
     <Compile Include="LoadRequests\LoadRequestSync.cs" />

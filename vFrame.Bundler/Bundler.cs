@@ -28,30 +28,34 @@ namespace vFrame.Bundler
         private readonly List<string> _searchPaths = new List<string>();
         private BundleModeType _modeType;
         private BundlerManifest _manifest;
+        private BundlerOptions _options;
 
         public static Bundler Instance { get; private set; }
 
-        public Bundler(string json)
+        public Bundler(string json, BundlerOptions options = null)
         {
             BundlerManifest manifest = null;
             if (!string.IsNullOrEmpty(json))
                 manifest = JsonUtility.FromJson<BundlerManifest>(json);
-            Initialize(manifest);
+            Initialize(manifest, options);
         }
 
-        public Bundler(BundlerManifest manifest = null)
-        {
-            Initialize(manifest);
+        public Bundler(BundlerManifest manifest = null, BundlerOptions options = null) {
+            options = options ?? new BundlerOptions {
+                LoaderFactory = new DefaultBundleLoaderFactory()
+            };
+            Initialize(manifest, options);
         }
 
-        private void Initialize(BundlerManifest manifest) {
+        private void Initialize(BundlerManifest manifest, BundlerOptions options) {
             Instance = this;
 
             _manifest = manifest;
+            _options = options;
 
             _modes = new Dictionary<BundleModeType, ModeBase>(2);
-            _modes[BundleModeType.Bundle] = new BundleMode(manifest, _searchPaths);
-            _modes[BundleModeType.Resource] = new ResourceMode(manifest, _searchPaths);
+            _modes[BundleModeType.Bundle] = new BundleMode(manifest, _searchPaths, options);
+            _modes[BundleModeType.Resource] = new ResourceMode(manifest, _searchPaths, options);
 
             var bundleMode = true;
             var logLevel = Logger.LogLevel.ERROR;
