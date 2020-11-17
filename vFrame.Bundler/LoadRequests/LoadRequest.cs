@@ -31,7 +31,8 @@ namespace vFrame.Bundler.LoadRequests
             _bundleLoader = bundleLoader;
 
             _finished = _bundleLoader == null;
-            if (!_finished) LoadInternal();
+            if (!_finished)
+                LoadInternal();
         }
 
         public BundleLoaderBase Loader

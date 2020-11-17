@@ -29,7 +29,6 @@ namespace vFrame.Bundler.LoadRequests
         protected override void LoadInternal()
         {
             LoadRecursive(_bundleLoader);
-            _bundleLoader.Release();
         }
 
         private void LoadRecursive(BundleLoaderBase bundleLoader)
@@ -41,7 +40,7 @@ namespace vFrame.Bundler.LoadRequests
             // Load target at last
             if (bundleLoader is BundleLoaderAsync)
                 if (!bundleLoader.IsDone) {
-                    throw new BundleMixLoaderException("Mix using async and sync loader is not supported.");
+                    throw new BundleMixLoaderException(bundleLoader.AssetBundlePath);
                 }
             bundleLoader.Load();
         }

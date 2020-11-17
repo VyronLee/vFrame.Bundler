@@ -19,6 +19,7 @@ using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Messengers;
 using vFrame.Bundler.Utils;
 using vFrame.Bundler.Utils.Pools;
+using Logger = vFrame.Bundler.Logs.Logger;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Assets
@@ -42,6 +43,12 @@ namespace vFrame.Bundler.Assets
 
         public BundleLoaderBase Loader {
             get { return _loader; }
+        }
+
+        public string LoaderPath {
+            get {
+                return null != _loader ? _loader.AssetBundlePath : "null";
+            }
         }
 
         protected AssetBase(string path, Type type, BundleLoaderBase target, BundlerOptions options)
@@ -103,6 +110,8 @@ namespace vFrame.Bundler.Assets
                 throw new BundleAssetTypeNotMatchException("Asset not typeof GameObject");
 
             var go = Object.Instantiate(prefab);
+
+            Logger.LogVerbose("Instantiate gameObject: {0}, from bundle: {1}", AssetPath, LoaderPath);
 
             SubscribeDestroyedMessenger(go);
 

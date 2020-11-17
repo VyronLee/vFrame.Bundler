@@ -9,7 +9,6 @@
 //============================================================
 
 using System.Collections.Generic;
-using UnityEngine;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Modes;
@@ -27,6 +26,8 @@ namespace vFrame.Bundler.LoadRequests
         private Node _root;
         private int _total;
 
+        private bool _started;
+
         public LoadRequestAsync(ModeBase mode, string path, BundleLoaderBase bundleLoader)
             : base(mode, path, bundleLoader)
         {
@@ -38,11 +39,20 @@ namespace vFrame.Bundler.LoadRequests
             if (_finished)
                 return false;
 
+            if (!_started) {
+                _root.Loader.Retain();
+            }
+            _started = true;
+
             if (TravelAndLoadLeaf(_root)) {
                 return true;
             }
 
+            if (!_finished) {
+                _root.Loader.Release();
+            }
             _finished = true;
+
             return false;
         }
 

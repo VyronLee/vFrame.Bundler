@@ -27,6 +27,9 @@ namespace vFrame.Bundler.Loaders
         protected string _path;
         protected List<string> _searchPaths;
 
+        private bool _started;
+        private bool _unloaded;
+
         protected BundlerOptions Options { get; private set; }
 
         public virtual AssetBundle AssetBundle
@@ -64,8 +67,9 @@ namespace vFrame.Bundler.Loaders
                 return;
             }
 
-            if (IsLoading)
+            if (IsLoading) {
                 return;
+            }
 
             if (!(IsDone = LoadProcess()))
                 return;
@@ -92,9 +96,6 @@ namespace vFrame.Bundler.Loaders
             AssetBundleCache.Remove(_path);
 
             IsDone = !UnloadProcess();
-
-            foreach (var loader in Dependencies)
-                loader.Release();
 
             ListPool<BundleLoaderBase>.Return(Dependencies);
         }
@@ -135,11 +136,21 @@ namespace vFrame.Bundler.Loaders
             Logger.LogVerbose("Release loader: {0}, ref: {1}", _path, _references);
         }
 
-        protected abstract bool LoadProcess();
-
-        protected virtual bool UnloadProcess()
-        {
-            return true;
+        private bool LoadProcess() {
+            return OnLoadProcess();
         }
+
+        private bool UnloadProcess()
+        {
+            if (!_unloaded) {
+                Release();
+            }
+            _unloaded = true;
+
+            return OnUnloadProcess();
+        }
+
+        protected abstract bool OnLoadProcess();
+        protected abstract bool OnUnloadProcess();
     }
 }

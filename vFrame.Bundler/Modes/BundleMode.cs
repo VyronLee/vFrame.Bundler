@@ -95,8 +95,6 @@ namespace vFrame.Bundler.Modes
 
                 _loaderCache.Add(bundlePath, bundleLoader);
             }
-
-            bundleLoader.Retain();
             return bundleLoader;
         }
 

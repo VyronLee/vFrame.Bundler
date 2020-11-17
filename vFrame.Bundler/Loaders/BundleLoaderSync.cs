@@ -19,7 +19,7 @@ namespace vFrame.Bundler.Loaders
 {
     public class BundleLoaderSync : BundleLoaderBase
     {
-        protected override bool LoadProcess()
+        protected override bool OnLoadProcess()
         {
             Logger.LogInfo("Start synchronously loading process: {0}", _path);
 
@@ -66,6 +66,10 @@ namespace vFrame.Bundler.Loaders
 
             Profiler.EndSample();
             return IsDone;
+        }
+
+        protected override bool OnUnloadProcess() {
+            return true;
         }
 
         protected virtual AssetBundle LoadAssetBundle(string path) {

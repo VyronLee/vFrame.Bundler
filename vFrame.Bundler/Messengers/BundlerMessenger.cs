@@ -53,17 +53,29 @@ namespace vFrame.Bundler.Messengers
             }
             _recovered = true;
 
-            Logger.LogVerbose("Recover ref, messenger instance: {0}", GetInstanceID());
+            Logger.LogVerbose("Recover ref, messenger: {0}, {1}", gameObject.name, GetInstanceID());
 
             if (null != _assets) {
-                foreach (var assetBase in _assets)
+                foreach (var assetBase in _assets) {
+                    Logger.LogVerbose("Recover ref, messenger: {0}, {1}, loader: {2}",
+                        gameObject.name, GetInstanceID(), assetBase.LoaderPath);
                     assetBase.Retain();
+                    Logger.LogVerbose("Recover ref, messenger: {0}, {1}, loader: {2}, finished!",
+                        gameObject.name, GetInstanceID(), assetBase.LoaderPath);
+                }
             }
 
             if (null != _typedAssets) {
-                foreach (var kv in _typedAssets)
+                foreach (var kv in _typedAssets) {
+                    Logger.LogVerbose("Recover ref, messenger: {0}, {1}, loader: {2}",
+                        gameObject.name, GetInstanceID(), kv.Value.LoaderPath);
                     kv.Value.Retain();
+                    Logger.LogVerbose("Recover ref, messenger: {0}, {1}, loader: {2}, finished",
+                        gameObject.name, GetInstanceID(), kv.Value.LoaderPath);
+                }
             }
+
+            Logger.LogVerbose("Recover ref, messenger: {0}, {1}, finished!", gameObject.name, GetInstanceID());
 
             Messengers.Add(this);
         }
@@ -76,35 +88,51 @@ namespace vFrame.Bundler.Messengers
         public void ReleaseRef()
         {
             if (null != _assets) {
-                foreach (var assetBase in _assets)
-                    assetBase.Release();
+                foreach (var asset in _assets) {
+                    Logger.LogVerbose("Release ref from messenger: {0}, {1}, loader: {2}",
+                        gameObject.name, GetInstanceID(), asset.LoaderPath);
+                    asset.Release();
+                    Logger.LogVerbose("Release ref from messenger: {0}, {1}, loader: {2}, finished!",
+                        gameObject.name, GetInstanceID(), asset.LoaderPath);
+                }
                 HashSetPool<AssetBase>.Return(_assets);
             }
 
             if (null != _typedAssets) {
-                foreach (var kv in _typedAssets)
+                foreach (var kv in _typedAssets) {
+                    Logger.LogVerbose("Release ref from messenger: {0}, {1}, loader: {2}",
+                        gameObject.name, GetInstanceID(), kv.Value.LoaderPath);
                     kv.Value.Release();
+                    Logger.LogVerbose("Release ref from messenger: {0}, {1}, loader: {2}, finished!",
+                        gameObject.name, GetInstanceID(), kv.Value.LoaderPath);
+                }
                 DictionaryPool<Type, AssetBase>.Return(_typedAssets);
             }
 
             Messengers.Remove(this);
         }
 
-        public void RetainRef(AssetBase assetBase)
+        public void RetainRef(AssetBase asset)
         {
             if (null == _assets)
                 _assets = HashSetPool<AssetBase>.Get();
 
-            if (_assets.Contains(assetBase))
+            if (_assets.Contains(asset))
                 return;
-            _assets.Add(assetBase);
+            _assets.Add(asset);
 
-            assetBase.Retain();
+            Logger.LogVerbose("Retain ref from messenger: {0}, {1}, loader: {2}",
+                gameObject.name, GetInstanceID(), asset.LoaderPath);
+
+            asset.Retain();
+
+            Logger.LogVerbose("Retain ref from messenger: {0}, {1}, loader: {2}, finished!",
+                gameObject.name, GetInstanceID(), asset.LoaderPath);
 
             Messengers.Add(this);
         }
 
-        public void RetainRef<TSetter>(AssetBase assetBase) {
+        public void RetainRef<TSetter>(AssetBase asset) {
             if (null == _typedAssets)
                 _typedAssets = DictionaryPool<Type, AssetBase>.Get();
 
@@ -114,10 +142,19 @@ namespace vFrame.Bundler.Messengers
                     type.FullName, _typedAssets[type].AssetPath);
 
                 _typedAssets[type].Release();
-            }
-            _typedAssets[type] = assetBase;
 
-            assetBase.Retain();
+                Logger.LogVerbose("Setter exist: {0}, release previous asset: {1}, finished!",
+                    type.FullName, _typedAssets[type].AssetPath);
+            }
+            _typedAssets[type] = asset;
+
+            Logger.LogVerbose("Retain ref from messenger: {0}, {1}, loader: {2}",
+                gameObject.name, GetInstanceID(), asset.LoaderPath);
+
+            asset.Retain();
+
+            Logger.LogVerbose("Retain ref from messenger: {0}, {1}, loader: {2}, finished!",
+                gameObject.name, GetInstanceID(), asset.LoaderPath);
 
             Messengers.Add(this);
         }

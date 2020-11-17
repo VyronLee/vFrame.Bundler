@@ -92,6 +92,7 @@ namespace vFrame.Bundler.Loaders
 
             IsLoading = false;
             Profiler.EndSample();
+
             return false;
         }
 
@@ -101,13 +102,17 @@ namespace vFrame.Bundler.Loaders
 
         public object Current { get; private set; }
 
-        protected override bool LoadProcess()
+        protected override bool OnLoadProcess()
         {
             Logger.LogInfo("Start asynchronously loading process: {0}", _path);
 
             IsLoading = true;
 
             return false;
+        }
+
+        protected override bool OnUnloadProcess() {
+            return true;
         }
 
         private AssetBundleCreateRequest CreateBundleLoadRequest()
