@@ -13,7 +13,7 @@ using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
-using vFrame.Bundler.Utils;
+using Logger = vFrame.Bundler.Logs.Logger;
 
 namespace vFrame.Bundler.Assets.Bundle
 {
@@ -35,10 +35,15 @@ namespace vFrame.Bundler.Assets.Bundle
 
             _asset = _request.asset;
 
-            Logs.Logger.LogInfo("End asynchronously loading asset from bundle: {0}", _path);
+            Logger.LogInfo("End asynchronously loading asset from bundle: {0}, object: {1}", _path, _asset);
 
-            // Must release reference after assets loaded.
-            _loader.Release();
+            if (null == _asset) {
+                Logger.LogError("End asynchronously loading asset, but asset == null! path: {0}", _path);
+            }
+            else {
+                // Must release reference after assets loaded.
+                _loader.Release();
+            }
 
             return false;
         }

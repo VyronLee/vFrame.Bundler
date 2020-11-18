@@ -118,8 +118,7 @@ namespace vFrame.Bundler.Loaders
 
         public override void Retain()
         {
-            foreach (var loader in Dependencies)
-                loader.Retain();
+            RetainDependencies();
 
             base.Retain();
 
@@ -128,22 +127,36 @@ namespace vFrame.Bundler.Loaders
 
         public override void Release()
         {
-            foreach (var loader in Dependencies)
-                loader.Release();
+            ReleaseDependencies();
 
             base.Release();
 
             Logger.LogVerbose("Release loader: {0}, ref: {1}", _path, _references);
         }
 
+        protected void RetainDependencies() {
+            foreach (var loader in Dependencies)
+                loader.Retain();
+        }
+
+        protected void ReleaseDependencies() {
+            foreach (var loader in Dependencies)
+                loader.Release();
+        }
+
         private bool LoadProcess() {
+            if (!_started) {
+                RetainDependencies();
+            }
+            _started = true;
+
             return OnLoadProcess();
         }
 
         private bool UnloadProcess()
         {
             if (!_unloaded) {
-                Release();
+                ReleaseDependencies();
             }
             _unloaded = true;
 

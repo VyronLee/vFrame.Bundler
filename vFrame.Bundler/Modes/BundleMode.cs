@@ -16,6 +16,7 @@ using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.LoadRequests;
+using vFrame.Bundler.Logs;
 using vFrame.Bundler.Messengers;
 using vFrame.Bundler.Utils;
 using vFrame.Bundler.Utils.Pools;
@@ -158,10 +159,10 @@ namespace vFrame.Bundler.Modes
 
             // "OnDestroy will only be called on game objects that have previously been active."
             // In this case we can only use "NullReference" to check whether game object is alive or not
-            foreach (var messenger in BundlerMessenger.Messengers)
-            {
-                if (messenger == null)
-                    deadMessengers.Add(messenger);
+            foreach (var messenger in BundlerMessenger.Messengers) {
+                if (messenger.Alive)
+                    continue;
+                deadMessengers.Add(messenger);
             }
 
             foreach (var messenger in deadMessengers)
