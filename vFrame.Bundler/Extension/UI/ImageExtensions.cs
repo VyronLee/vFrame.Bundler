@@ -42,13 +42,11 @@ namespace vFrame.Bundler.Extension.UI
             asset.SetTo<Image, Sprite, SpriteSetter>(target);
         }
 
-        public static void SetOverrideSprite(this Image target, IAsset asset)
-        {
+        public static void SetOverrideSprite(this Image target, IAsset asset) {
             asset.SetTo<Image, Sprite, OverrideSpriteSetter>(target);
         }
 
-        public static void SetMaterial(this Image target, IAsset asset)
-        {
+        public static void SetMaterial(this Image target, IAsset asset) {
             asset.SetTo<Image, Material, MaterialSetter>(target);
         }
     }

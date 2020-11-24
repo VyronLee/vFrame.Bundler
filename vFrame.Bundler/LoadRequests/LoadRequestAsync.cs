@@ -8,7 +8,9 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System.Collections;
 using System.Collections.Generic;
+using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Modes;
@@ -26,49 +28,28 @@ namespace vFrame.Bundler.LoadRequests
         private Node _root;
         private int _total;
 
-        private bool _started;
-
-        public LoadRequestAsync(ModeBase mode, string path, BundleLoaderBase bundleLoader)
-            : base(mode, path, bundleLoader)
-        {
-
+        public LoadRequestAsync(ModeBase mode, BundlerOptions options, string path, BundleLoaderBase bundleLoader)
+            : base(mode, options, path, bundleLoader) {
         }
 
-        public bool MoveNext()
-        {
+        public IEnumerator Await() {
             if (_finished)
-                return false;
+                yield break;
 
-            if (!_started) {
+            if (!IsStarted)
                 _root.Loader.Retain();
-            }
-            _started = true;
+            IsStarted = true;
 
-            if (TravelAndLoadLeaf(_root)) {
-                return true;
-            }
+            yield return TravelAndLoadLeaf(_root);
 
-            if (!_finished) {
+            if (!_finished)
                 _root.Loader.Release();
-            }
             _finished = true;
-
-            return false;
         }
 
-        public void Reset()
-        {
-        }
+        public bool IsStarted { get; private set; }
 
-        public object Current { get; private set; }
-
-        public override bool IsDone
-        {
-            get { return !MoveNext(); }
-        }
-
-        public float Progress
-        {
+        public float Progress {
             get {
                 var progress = CalculateLoadingProgress();
                 return progress / _total;
@@ -91,7 +72,7 @@ namespace vFrame.Bundler.LoadRequests
         private static void BuildTree(Node parent, IEnumerable<BundleLoaderBase> children, ref int count) {
             foreach (var child in children) {
                 var node = new Node {
-                    Loader = child,
+                    Loader = child
                 };
                 BuildTree(node, child.Dependencies, ref count);
                 count += 1;
@@ -100,24 +81,34 @@ namespace vFrame.Bundler.LoadRequests
             }
         }
 
-        private bool TravelAndLoadLeaf(Node node) {
-            var loading = false;
+        private IEnumerator TravelAndLoadLeaf(Node node) {
             foreach (var child in node.Children) {
-                var ret = TravelAndLoadLeaf(child);
-                loading |= ret;
-            }
-
-            if (loading) {
-                return true;
-            }
-
-            if (!node.Loader.IsDone) {
-                if (!node.Loader.IsLoading) {
-                    node.Loader.Load();
+                // Run child loader parallel.
+                var enumerators = ListPool<IEnumerator>.Get();
+                enumerators.Add(TravelAndLoadLeaf(child));
+                foreach (var enumerator in enumerators) {
+                    yield return enumerator;
                 }
-                return true;
+                ListPool<IEnumerator>.Return(enumerators);
             }
-            return false;
+
+            var loader = node.Loader;
+
+            if (loader.IsDone)
+                yield break;
+
+            if (!loader.IsStarted) {
+                loader.Load();
+
+                var async = node.Loader as BundleLoaderAsync;
+                if (async != null) {
+                    yield return async.Await();
+                }
+            }
+
+            while (loader.IsLoading) {
+                yield return null;
+            }
         }
 
         private float CalculateLoadingProgress() {
@@ -127,18 +118,14 @@ namespace vFrame.Bundler.LoadRequests
         }
 
         private void CalculateNodeProgress(Node node, ref float progress) {
-            foreach (var child in node.Children) {
+            foreach (var child in node.Children)
                 CalculateNodeProgress(child, ref progress);
-            }
 
             var loaderAsync = node.Loader as BundleLoaderAsync;
-            if (null != loaderAsync) {
+            if (null != loaderAsync)
                 progress += loaderAsync.Progress;
-            }
-            else {
+            else
                 progress += 1;
-            }
         }
-
     }
 }

@@ -11,18 +11,17 @@
 using System.Collections.Generic;
 using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Utils.Pools
+namespace vFrame.Bundler.Base.Pools
 {
-    public abstract class ObjectPool<TClass, TAllocator>
-        where TClass: class, new()
-        where TAllocator: IPoolObjectAllocator<TClass>, new()
+    internal abstract class ObjectPool<TClass, TAllocator>
+        where TClass : class, new()
+        where TAllocator : IPoolObjectAllocator<TClass>, new()
     {
         private const int Capacity = 128;
         private static readonly Stack<TClass> Objects;
         private static readonly TAllocator Allocator;
 
-        static ObjectPool()
-        {
+        static ObjectPool() {
             Objects = new Stack<TClass>(Capacity);
             Allocator = new TAllocator();
 
@@ -30,13 +29,11 @@ namespace vFrame.Bundler.Utils.Pools
                 Objects.Push(Allocator.Alloc());
         }
 
-        public static TClass Get()
-        {
+        public static TClass Get() {
             return Objects.Count > 0 ? Objects.Pop() : Allocator.Alloc();
         }
 
-        public static void Return(TClass obj)
-        {
+        public static void Return(TClass obj) {
             Allocator.Reset(obj);
 
             if (Objects.Contains(obj))
@@ -54,9 +51,8 @@ namespace vFrame.Bundler.Utils.Pools
         }
 
         public static void Return(TClass obj) {
-            if (Objects.Contains(obj)) {
+            if (Objects.Contains(obj))
                 return;
-            }
             Objects.Push(obj);
         }
     }

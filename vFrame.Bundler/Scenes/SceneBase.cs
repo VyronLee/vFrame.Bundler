@@ -23,8 +23,7 @@ namespace vFrame.Bundler.Scenes
         protected readonly string _path;
         protected readonly string _scenePath;
 
-        protected SceneBase(string path, LoadSceneMode mode, BundleLoaderBase bundleLoader = null)
-        {
+        protected SceneBase(string path, LoadSceneMode mode, BundleLoaderBase bundleLoader = null) {
             _path = path;
             _mode = mode;
             _bundleLoader = bundleLoader;
@@ -40,14 +39,12 @@ namespace vFrame.Bundler.Scenes
 
         public virtual bool IsDone { get; protected set; }
 
-        public void Unload()
-        {
+        public void Unload() {
             SceneManager.UnloadSceneAsync(_scenePath);
             Release();
         }
 
-        public void Activate()
-        {
+        public void Activate() {
             var scene = SceneManager.GetSceneByPath(_path);
             if (scene == null)
                 throw new BundleInstanceNotFoundException("No such scene instance: " + _path);
@@ -57,14 +54,14 @@ namespace vFrame.Bundler.Scenes
 
         protected abstract void LoadInternal();
 
-        public void Retain()
-        {
-            if (_bundleLoader != null) _bundleLoader.Retain();
+        public void Retain() {
+            if (_bundleLoader != null)
+                _bundleLoader.Retain();
         }
 
-        public void Release()
-        {
-            if (_bundleLoader != null) _bundleLoader.Release();
+        public void Release() {
+            if (_bundleLoader != null)
+                _bundleLoader.Release();
         }
     }
 }

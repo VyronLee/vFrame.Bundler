@@ -8,6 +8,7 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -22,27 +23,18 @@ namespace vFrame.Bundler.Loaders
     {
         private AssetBundleCreateRequest _bundleLoadRequest;
 
-        private static int _assetbundleRequestParallelsCount = 0;
-
-        public override AssetBundle AssetBundle
-        {
-            get
-            {
-                if (!_assetBundle)
-                    _assetBundle = _bundleLoadRequest.assetBundle;
+        public override AssetBundle AssetBundle {
+            get {
+                if (!_assetBundle) {
+                    throw new BundleLoadNotFinishedException(
+                        string.Format("Bundle Loader has not finished: {0}", _path));
+                }
                 return _assetBundle;
             }
         }
 
-        public override bool IsDone
-        {
-            get { return !MoveNext(); }
-        }
-
-        public float Progress
-        {
-            get
-            {
+        public float Progress {
+            get {
                 if (_bundleLoadRequest == null)
                     return 0f;
 
@@ -53,34 +45,21 @@ namespace vFrame.Bundler.Loaders
             }
         }
 
-        public bool MoveNext()
-        {
+        public IEnumerator Await() {
             if (_assetBundle)
-                return false;
+                yield break;
+
+            Profiler.BeginSample("BundleLoaderAsync:Await");
 
             if (_bundleLoadRequest == null) {
-                Profiler.BeginSample("BundleLoaderAsync:MoveNext");
-                if (_assetbundleRequestParallelsCount >= Options.AssetBundleRequestParallelsCount) {
-                    Profiler.EndSample();
-                    return true;
-                }
-                _assetbundleRequestParallelsCount++;
-
                 _bundleLoadRequest = CreateBundleLoadRequest();
             }
 
-            if (!_bundleLoadRequest.isDone || _bundleLoadRequest.progress < 1f)
-            {
-                Logger.LogInfo("Bundle load request does not finished: {0}, progress: {1:0.00}",
-                    _path, _bundleLoadRequest.progress);
-                Profiler.EndSample();
-                return true;
-            }
+            yield return _bundleLoadRequest;
 
             Logger.LogInfo("Bundle load request finished: {0}", _path);
 
             _assetBundle = _bundleLoadRequest.assetBundle;
-            _assetbundleRequestParallelsCount--;
 
             Logger.LogInfo("Add assetbundle to cache: {0}", _path);
 
@@ -91,19 +70,12 @@ namespace vFrame.Bundler.Loaders
             Logger.LogInfo("AssetBundle asynchronously loading finished, path: {0}", _path);
 
             IsLoading = false;
+            IsDone = true;
+
             Profiler.EndSample();
-
-            return false;
         }
 
-        public void Reset()
-        {
-        }
-
-        public object Current { get; private set; }
-
-        protected override bool OnLoadProcess()
-        {
+        protected override bool OnLoadProcess() {
             Logger.LogInfo("Start asynchronously loading process: {0}", _path);
 
             IsLoading = true;
@@ -115,20 +87,16 @@ namespace vFrame.Bundler.Loaders
             return true;
         }
 
-        private AssetBundleCreateRequest CreateBundleLoadRequest()
-        {
+        private AssetBundleCreateRequest CreateBundleLoadRequest() {
             Logger.LogInfo("Bundle load request does not exist, create it from file: {0}", _path);
 
-            foreach (var basePath in _searchPaths)
-            {
+            foreach (var basePath in _searchPaths) {
                 var path = Path.Combine(basePath, _path);
                 path = PathUtility.NormalizePath(path);
 
-                try
-                {
+                try {
                     // Avoid throwing error messages.
-                    if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path))
-                    {
+                    if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path)) {
                         Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                         continue;
                     }
@@ -136,13 +104,13 @@ namespace vFrame.Bundler.Loaders
                     Profiler.BeginSample("BundleLoaderAsync:CreateBuiltinBundleLoadRequest - AssetBundle.LoadFromFileAsync");
                     var bundleLoadRequest = LoadAssetBundleAsync(path);
                     Profiler.EndSample();
+
                     if (bundleLoadRequest != null)
                         return bundleLoadRequest;
 
                     Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                 }
-                catch
-                {
+                catch {
                     Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                 }
             }

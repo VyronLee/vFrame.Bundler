@@ -16,7 +16,7 @@ namespace vFrame.Bundler.Interface
 {
     public interface ILoadRequest
     {
-        IAsset GetAsset<T>() where T: Object;
+        IAsset GetAsset<T>() where T : Object;
         IAsset GetAsset(Type type);
         IScene GetScene(LoadSceneMode mode);
 

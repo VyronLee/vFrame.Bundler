@@ -18,31 +18,26 @@ namespace vFrame.Bundler.Modes
 {
     public class ResourceMode : ModeBase
     {
-        public ResourceMode(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options) : base(manifest, searchPaths, options)
-        {
+        public ResourceMode(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options) : base(manifest,
+            searchPaths, options) {
         }
 
-        public override ILoadRequest Load(string path)
-        {
-            return new LoadRequest(this, path, null);
+        public override ILoadRequest Load(string path) {
+            return new LoadRequest(this, _options, path, null);
         }
 
-        public override ILoadRequestAsync LoadAsync(string path)
-        {
-            return new LoadRequestAsync(this, path, null);
+        public override ILoadRequestAsync LoadAsync(string path) {
+            return new LoadRequestAsync(this, _options, path, null);
         }
 
         public override void Destroy() {
-
         }
 
-        public override IAsset GetAsset(LoadRequest request, Type type)
-        {
+        public override IAsset GetAsset(LoadRequest request, Type type) {
             return new ResourceAssetSync(request.AssetPath, type, _options);
         }
 
-        public override IAssetAsync GetAssetAsync(LoadRequest request, Type type)
-        {
+        public override IAssetAsync GetAssetAsync(LoadRequest request, Type type) {
             return new ResourceAssetAsync(request.AssetPath, type, _options);
         }
     }

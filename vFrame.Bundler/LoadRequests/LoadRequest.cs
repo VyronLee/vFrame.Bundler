@@ -21,12 +21,13 @@ namespace vFrame.Bundler.LoadRequests
     {
         protected readonly BundleLoaderBase _bundleLoader;
         protected readonly ModeBase _mode;
+        protected readonly BundlerOptions _options;
         protected readonly string _path;
         protected bool _finished;
 
-        public LoadRequest(ModeBase mode, string path, BundleLoaderBase bundleLoader)
-        {
+        public LoadRequest(ModeBase mode, BundlerOptions options, string path, BundleLoaderBase bundleLoader) {
             _path = path;
+            _options = options;
             _mode = mode;
             _bundleLoader = bundleLoader;
 
@@ -35,53 +36,43 @@ namespace vFrame.Bundler.LoadRequests
                 LoadInternal();
         }
 
-        public BundleLoaderBase Loader
-        {
+        public BundleLoaderBase Loader {
             get { return _bundleLoader; }
         }
 
-        public string AssetPath
-        {
+        public string AssetPath {
             get { return _path; }
         }
 
-        public virtual bool IsDone
-        {
+        public virtual bool IsDone {
             get { return _bundleLoader == null || _bundleLoader.IsDone; }
         }
 
-        public IAsset GetAsset<T>() where T: Object
-        {
+        public IAsset GetAsset<T>() where T : Object {
             return _mode.GetAsset(this, typeof(T));
         }
 
-        public IAsset GetAsset(Type type)
-        {
+        public IAsset GetAsset(Type type) {
             return _mode.GetAsset(this, type);
         }
 
-        public IScene GetScene(LoadSceneMode mode)
-        {
+        public IScene GetScene(LoadSceneMode mode) {
             return _mode.GetScene(this, mode);
         }
 
-        public IAssetAsync GetAssetAsync<T>() where T: Object
-        {
+        public IAssetAsync GetAssetAsync<T>() where T : Object {
             return _mode.GetAssetAsync(this, typeof(T));
         }
 
-        public IAssetAsync GetAssetAsync(Type type)
-        {
+        public IAssetAsync GetAssetAsync(Type type) {
             return _mode.GetAssetAsync(this, type);
         }
 
-        public ISceneAsync GetSceneAsync(LoadSceneMode mode)
-        {
+        public ISceneAsync GetSceneAsync(LoadSceneMode mode) {
             return _mode.GetSceneAsync(this, mode);
         }
 
-        protected virtual void LoadInternal()
-        {
+        protected virtual void LoadInternal() {
         }
     }
 }

@@ -73,6 +73,15 @@
     <Compile Include="Assets\Bundle\BundleAssetSync.cs" />
     <Compile Include="Assets\Resource\ResourceAssetAsync.cs" />
     <Compile Include="Assets\Resource\ResourceAssetSync.cs" />
+    <Compile Include="Base\Pools\DictionaryAllocator.cs" />
+    <Compile Include="Base\Pools\DictionaryPool.cs" />
+    <Compile Include="Base\Pools\HashSetAllocator.cs" />
+    <Compile Include="Base\Pools\HashSetPool.cs" />
+    <Compile Include="Base\Pools\ListAllocator.cs" />
+    <Compile Include="Base\Pools\ListPool.cs" />
+    <Compile Include="Base\Pools\ObjectPool.cs" />
+    <Compile Include="Base\Pools\StringBuilderAllocator.cs" />
+    <Compile Include="Base\Pools\StringBuilderPool.cs" />
     <Compile Include="Base\PropertySetterProxy.cs" />
     <Compile Include="Base\Reference.cs" />
     <Compile Include="BundleOptions.cs" />
@@ -112,15 +121,6 @@
     <Compile Include="Scenes\SceneBase.cs" />
     <Compile Include="Scenes\SceneSync.cs" />
     <Compile Include="Utils\PathUtility.cs" />
-    <Compile Include="Utils\Pools\DictionaryAllocator.cs" />
-    <Compile Include="Utils\Pools\DictionaryPool.cs" />
-    <Compile Include="Utils\Pools\HashSetAllocator.cs" />
-    <Compile Include="Utils\Pools\HashSetPool.cs" />
-    <Compile Include="Utils\Pools\ListAllocator.cs" />
-    <Compile Include="Utils\Pools\ListPool.cs" />
-    <Compile Include="Utils\Pools\StringBuilderPool.cs" />
-    <Compile Include="Utils\Pools\ObjectPool.cs" />
-    <Compile Include="Utils\Pools\StringBuilderAllocator.cs" />
     <Compile Include="Utils\SerializableDictionary.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -12,17 +12,19 @@ using System;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Logs;
+using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Assets.Bundle
 {
     public sealed class BundleAssetSync : AssetBase
     {
-        public BundleAssetSync(string path, Type type, BundleLoaderBase target, BundlerOptions options) : base(path, type, target, options)
-        {
+        public BundleAssetSync(string path, Type type, BundleLoaderBase target, BundlerOptions options)
+            : base(path, type, target, options) {
         }
 
-        protected override void LoadAssetInternal()
-        {
+        protected override Object _asset { get; set; }
+
+        protected override void LoadAssetInternal() {
             Logger.LogInfo("Start synchronously loading asset from bundle: {0}", _path);
 
             var name = GetAssetName();

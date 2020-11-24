@@ -9,11 +9,13 @@
 //============================================================
 
 using System;
+using System.Collections;
 using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using Logger = vFrame.Bundler.Logs.Logger;
+using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Assets.Bundle
 {
@@ -21,52 +23,46 @@ namespace vFrame.Bundler.Assets.Bundle
     {
         private AssetBundleRequest _request;
 
-        public BundleAssetAsync(string path, Type type, BundleLoaderBase target, BundlerOptions options) : base(path, type, target, options)
-        {
+        public BundleAssetAsync(string path, Type type, BundleLoaderBase target, BundlerOptions options)
+            : base(path, type, target, options) {
         }
 
-        public bool MoveNext()
-        {
-            if (_asset)
-                return false;
+        public IEnumerator Await() {
+            if (_request == null)
+                yield break;
 
-            if (_request == null || _request.progress < 1f || !_request.isDone)
-                return true;
+            if (IsStarted) {
+                while (!IsDone) {
+                    yield return null;
+                }
+                yield break;
+            }
 
+            IsStarted = true;
+            yield return _request;
             _asset = _request.asset;
 
             Logger.LogInfo("End asynchronously loading asset from bundle: {0}, object: {1}", _path, _asset);
 
-            if (null == _asset) {
+            if (null == _asset)
                 Logger.LogError("End asynchronously loading asset, but asset == null! path: {0}", _path);
-            }
-            else {
-                // Must release reference after assets loaded.
+            else // Must release reference after assets loaded.
                 _loader.Release();
-            }
 
-            return false;
+            IsDone = true;
         }
 
-        public void Reset()
-        {
-        }
+        public bool IsStarted { get; private set; }
+        public override bool IsDone { get; set; }
 
-        public object Current { get; private set; }
-
-        public override bool IsDone
-        {
-            get { return !MoveNext(); }
-        }
-
-        public float Progress
-        {
+        public float Progress {
             get { return _request == null ? 0f : _request.progress; }
         }
 
-        protected override void LoadAssetInternal()
-        {
-            Logs.Logger.LogInfo("Start asynchronously loading asset from bundle: {0}", _path);
+        protected override Object _asset { get; set; }
+
+        protected override void LoadAssetInternal() {
+            Logger.LogInfo("Start asynchronously loading asset from bundle: {0}", _path);
 
             var name = GetAssetName();
             _request = _loader.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);

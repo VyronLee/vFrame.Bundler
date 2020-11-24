@@ -7,22 +7,21 @@
 //    Modified:  2019-07-09 19:27
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
+
 using System.Text;
 using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Utils.Pools
+namespace vFrame.Bundler.Base.Pools
 {
-    public class StringBuilderAllocator : IPoolObjectAllocator<StringBuilder>
+    internal class StringBuilderAllocator : IPoolObjectAllocator<StringBuilder>
     {
         public static int BuilderLength = 1024;
 
-        public StringBuilder Alloc()
-        {
+        public StringBuilder Alloc() {
             return new StringBuilder(BuilderLength);
         }
 
-        public void Reset(StringBuilder obj)
-        {
+        public void Reset(StringBuilder obj) {
             obj.Length = 0;
         }
     }

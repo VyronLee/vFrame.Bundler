@@ -11,8 +11,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using vFrame.Bundler.Base;
+using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Exception;
-using vFrame.Bundler.Utils.Pools;
 using Logger = vFrame.Bundler.Logs.Logger;
 
 namespace vFrame.Bundler.Loaders
@@ -32,13 +32,11 @@ namespace vFrame.Bundler.Loaders
 
         protected BundlerOptions Options { get; private set; }
 
-        public virtual AssetBundle AssetBundle
-        {
+        public virtual AssetBundle AssetBundle {
             get { return _assetBundle; }
         }
 
-        public string AssetBundlePath
-        {
+        public string AssetBundlePath {
             get { return _path; }
         }
 
@@ -48,8 +46,13 @@ namespace vFrame.Bundler.Loaders
 
         public virtual bool IsDone { get; protected set; }
 
-        public void Initialize(string path, List<string> searchPaths, BundlerOptions options)
-        {
+        public bool IsStarted {
+            get {
+                return _started;
+            }
+        }
+
+        public void Initialize(string path, List<string> searchPaths, BundlerOptions options) {
             _path = path;
             _searchPaths = searchPaths;
             _assetBundle = null;
@@ -58,18 +61,15 @@ namespace vFrame.Bundler.Loaders
             Dependencies = ListPool<BundleLoaderBase>.Get();
         }
 
-        public void Load()
-        {
-            if (AssetBundleCache.TryGetValue(_path, out _assetBundle))
-            {
+        public void Load() {
+            if (AssetBundleCache.TryGetValue(_path, out _assetBundle)) {
                 Logger.LogInfo("Load assetbundle from cache: {0}", _path);
                 IsDone = true;
                 return;
             }
 
-            if (IsLoading) {
+            if (IsLoading)
                 return;
-            }
 
             if (!(IsDone = LoadProcess()))
                 return;
@@ -81,8 +81,7 @@ namespace vFrame.Bundler.Loaders
             AssetBundleCache.Add(_path, _assetBundle);
         }
 
-        public void Unload()
-        {
+        public void Unload() {
             Logger.LogInfo("Unload assetbundle: {0}", _path);
 
             if (_references > 0)
@@ -116,8 +115,7 @@ namespace vFrame.Bundler.Loaders
             ListPool<BundleLoaderBase>.Return(Dependencies);
         }
 
-        public override void Retain()
-        {
+        public override void Retain() {
             RetainDependencies();
 
             base.Retain();
@@ -125,8 +123,7 @@ namespace vFrame.Bundler.Loaders
             Logger.LogVerbose("Retain loader: {0}, ref: {1}", _path, _references);
         }
 
-        public override void Release()
-        {
+        public override void Release() {
             ReleaseDependencies();
 
             base.Release();
@@ -145,19 +142,16 @@ namespace vFrame.Bundler.Loaders
         }
 
         private bool LoadProcess() {
-            if (!_started) {
+            if (!_started)
                 RetainDependencies();
-            }
             _started = true;
 
             return OnLoadProcess();
         }
 
-        private bool UnloadProcess()
-        {
-            if (!_unloaded) {
+        private bool UnloadProcess() {
+            if (!_unloaded)
                 ReleaseDependencies();
-            }
             _unloaded = true;
 
             return OnUnloadProcess();

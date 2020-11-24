@@ -7,6 +7,7 @@
 //    Modified:  2019-07-09 19:19
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
+
 namespace vFrame.Bundler.Interface
 {
     public interface IPoolObjectAllocator<T>

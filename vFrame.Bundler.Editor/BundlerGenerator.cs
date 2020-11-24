@@ -16,9 +16,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Utils;
-using vFrame.Bundler.Utils.Pools;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Editor
@@ -492,7 +492,7 @@ namespace vFrame.Bundler.Editor
 
                 //Debug.Log(string.Format("Checking redundant dependency: {0}", kv.Key));
 
-                var toRemove = ListPool<string>.Get();
+                var toRemove = new List<string>();
                 foreach (var dependency in bundleInfo.dependencies) {
                     if (IsReferenceInDependencies(dependency, bundleInfo)) {
                         toRemove.Add(dependency);
@@ -502,7 +502,6 @@ namespace vFrame.Bundler.Editor
                     //Debug.Log(string.Format("Dependency redundant, removed: {0}, in bundle: {1}", v, kv.Key));
                     bundleInfo.dependencies.Remove(v);
                 });
-                ListPool<string>.Return(toRemove);
             }
         }
 

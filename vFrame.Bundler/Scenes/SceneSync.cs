@@ -15,12 +15,10 @@ namespace vFrame.Bundler.Scenes
 {
     public class SceneSync : SceneBase
     {
-        public SceneSync(string path, LoadSceneMode mode, BundleLoaderBase loader) : base(path, mode, loader)
-        {
+        public SceneSync(string path, LoadSceneMode mode, BundleLoaderBase loader) : base(path, mode, loader) {
         }
 
-        protected override void LoadInternal()
-        {
+        protected override void LoadInternal() {
             SceneManager.LoadScene(_scenePath, _mode);
         }
     }
