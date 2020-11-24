@@ -56,7 +56,7 @@ namespace vFrame.Bundler.Assets
             _options = options;
 
             if (target != null && !target.IsDone)
-                throw new BundleException("Loader hasn't finished: " + target.AssetBundlePath);
+                throw new BundleException(string.Format("Loader hasn't finished: {0}, asset path: {1}", target, _path));
 
             LoadAsset();
         }
@@ -88,13 +88,15 @@ namespace vFrame.Bundler.Assets
 
         public Object GetAsset() {
             if (!_asset)
-                throw new BundleAssetNotReadyException("Asset has not loaded, path: " + _path);
+                throw new BundleAssetNotReadyException(
+                    string.Format("Asset has not loaded, path: {0}, loader: {1}", _path, _loader));
             return _asset;
         }
 
         public GameObject InstantiateGameObject() {
             if (!IsDone)
-                throw new BundleAssetNotReadyException("Asset not ready: " + _path);
+                throw new BundleAssetNotReadyException(
+                    string.Format("Asset not ready, path: {0}, _loader: {1}", _path, _loader));
 
             var prefab = GetAsset() as GameObject;
             if (!prefab)
@@ -126,7 +128,8 @@ namespace vFrame.Bundler.Assets
             where T2 : Object
             where TSetter : PropertySetterProxy<T1, T2>, new() {
             if (!IsDone)
-                throw new BundleAssetNotReadyException("Asset not ready: " + _path);
+                throw new BundleAssetNotReadyException(
+                    string.Format("Asset not ready: {0}, loader: {1}", _path, _loader));
 
             var setter = ObjectPool<TSetter>.Get();
             setter.Set(target, GetAsset() as T2);

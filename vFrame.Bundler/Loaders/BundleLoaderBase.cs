@@ -159,5 +159,10 @@ namespace vFrame.Bundler.Loaders
 
         protected abstract bool OnLoadProcess();
         protected abstract bool OnUnloadProcess();
+
+        public override string ToString() {
+            return string.Format("Loader: [path: {0}, started: {1}, done: {2}, unloaded: {3}]",
+                _path, IsStarted, IsDone, _unloaded);
+        }
     }
 }
