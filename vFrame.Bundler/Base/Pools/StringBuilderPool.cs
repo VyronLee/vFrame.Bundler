@@ -10,9 +10,9 @@
 
 using System.Text;
 
-namespace vFrame.Bundler.Utils.Pools
+namespace vFrame.Bundler.Base.Pools
 {
-    public class StringBuilderPool : ObjectPool<StringBuilder, StringBuilderAllocator>
+    internal class StringBuilderPool : ObjectPool<StringBuilder, StringBuilderAllocator>
     {
     }
 }

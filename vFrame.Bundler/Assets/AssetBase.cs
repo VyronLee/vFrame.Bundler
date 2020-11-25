@@ -13,12 +13,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using vFrame.Bundler.Base;
+using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Messengers;
 using vFrame.Bundler.Utils;
-using vFrame.Bundler.Utils.Pools;
 using Logger = vFrame.Bundler.Logs.Logger;
 using Object = UnityEngine.Object;
 
@@ -30,7 +30,7 @@ namespace vFrame.Bundler.Assets
         protected readonly BundleLoaderBase _loader;
         protected readonly Type _type;
         protected readonly BundlerOptions _options;
-        protected Object _asset;
+        protected abstract Object _asset { get; set; }
 
         private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _propertiesCache
             = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
@@ -46,26 +46,22 @@ namespace vFrame.Bundler.Assets
         }
 
         public string LoaderPath {
-            get {
-                return null != _loader ? _loader.AssetBundlePath : "null";
-            }
+            get { return null != _loader ? _loader.AssetBundlePath : "null"; }
         }
 
-        protected AssetBase(string path, Type type, BundleLoaderBase target, BundlerOptions options)
-        {
+        protected AssetBase(string path, Type type, BundleLoaderBase target, BundlerOptions options) {
             _loader = target;
             _path = path;
             _type = type;
             _options = options;
 
             if (target != null && !target.IsDone)
-                throw new BundleException("Loader hasn't finished: " + target.AssetBundlePath);
+                throw new BundleException(string.Format("Loader hasn't finished: {0}, asset path: {1}", target, _path));
 
             LoadAsset();
         }
 
-        private void LoadAsset()
-        {
+        private void LoadAsset() {
             LoadAssetInternal();
         }
 
@@ -73,37 +69,34 @@ namespace vFrame.Bundler.Assets
 
         public virtual bool IsDone { get; set; }
 
-        public void Retain()
-        {
+        public void Retain() {
             if (_loader != null)
                 _loader.Retain();
         }
 
-        public void Release()
-        {
+        public void Release() {
             if (_loader != null)
                 _loader.Release();
         }
 
         protected string GetAssetName() {
             string assetName;
-            if (!_assetNameCache.TryGetValue(_path, out assetName)) {
+            if (!_assetNameCache.TryGetValue(_path, out assetName))
                 assetName = _assetNameCache[_path] = PathUtility.GetAssetName(_path);
-            }
             return assetName;
         }
 
-        public virtual Object GetAsset()
-        {
+        public Object GetAsset() {
             if (!_asset)
-                throw new BundleAssetNotReadyException("Asset has not loaded, path: " + _path);
+                throw new BundleAssetNotReadyException(
+                    string.Format("Asset has not loaded, path: {0}, loader: {1}", _path, _loader));
             return _asset;
         }
 
-        public GameObject InstantiateGameObject()
-        {
+        public GameObject InstantiateGameObject() {
             if (!IsDone)
-                throw new BundleAssetNotReadyException("Asset not ready: " + _path);
+                throw new BundleAssetNotReadyException(
+                    string.Format("Asset not ready, path: {0}, loader: {1}", _path, _loader));
 
             var prefab = GetAsset() as GameObject;
             if (!prefab)
@@ -118,8 +111,7 @@ namespace vFrame.Bundler.Assets
             return go;
         }
 
-        public void DestroyGameObject(GameObject gameObject)
-        {
+        public void DestroyGameObject(GameObject gameObject) {
             // Unsubscribe parent node
             UnsubscribeDestroyedMessenger(gameObject);
 
@@ -132,12 +124,12 @@ namespace vFrame.Bundler.Assets
         }
 
         public void SetTo<T1, T2, TSetter>(T1 target)
-            where T1: Component
-            where T2: Object
-            where TSetter: PropertySetterProxy<T1, T2>, new() {
-
+            where T1 : Component
+            where T2 : Object
+            where TSetter : PropertySetterProxy<T1, T2>, new() {
             if (!IsDone)
-                throw new BundleAssetNotReadyException("Asset not ready: " + _path);
+                throw new BundleAssetNotReadyException(
+                    string.Format("Asset not ready: {0}, loader: {1}", _path, _loader));
 
             var setter = ObjectPool<TSetter>.Get();
             setter.Set(target, GetAsset() as T2);
@@ -149,19 +141,16 @@ namespace vFrame.Bundler.Assets
         private static PropertyInfo GetProperty(Component target, string propertyName) {
             Dictionary<string, PropertyInfo> propertyDict;
             var typeInfo = target.GetType();
-            if (!_propertiesCache.TryGetValue(typeInfo, out propertyDict)) {
+            if (!_propertiesCache.TryGetValue(typeInfo, out propertyDict))
                 propertyDict = _propertiesCache[typeInfo] = new Dictionary<string, PropertyInfo>();
-            }
 
             PropertyInfo propertyInfo;
-            if (!propertyDict.TryGetValue(propertyName, out propertyInfo)) {
+            if (!propertyDict.TryGetValue(propertyName, out propertyInfo))
                 propertyInfo = propertyDict[propertyName] = target.GetType().GetProperty(propertyName);
-            }
             return propertyInfo;
         }
 
-        private void SubscribeDestroyedMessenger(GameObject gameObject)
-        {
+        private void SubscribeDestroyedMessenger(GameObject gameObject) {
             var messenger = gameObject.GetComponent<BundlerMessenger>();
             if (!messenger)
                 messenger = gameObject.AddComponent<BundlerMessenger>();
@@ -169,8 +158,7 @@ namespace vFrame.Bundler.Assets
             messenger.RetainRef(this);
         }
 
-        private void SubscribeDestroyedMessenger<TSetter>(GameObject gameObject)
-        {
+        private void SubscribeDestroyedMessenger<TSetter>(GameObject gameObject) {
             var messenger = gameObject.GetComponent<BundlerMessenger>();
             if (!messenger)
                 messenger = gameObject.AddComponent<BundlerMessenger>();
@@ -178,8 +166,7 @@ namespace vFrame.Bundler.Assets
             messenger.RetainRef<TSetter>(this);
         }
 
-        private void UnsubscribeDestroyedMessenger(GameObject gameObject)
-        {
+        private void UnsubscribeDestroyedMessenger(GameObject gameObject) {
             var messenger = gameObject.GetComponent<BundlerMessenger>();
             if (!messenger)
                 return;

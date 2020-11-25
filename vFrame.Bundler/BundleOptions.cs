@@ -15,7 +15,6 @@ namespace vFrame.Bundler
     public class BundlerOptions
     {
         public ILoaderFactory LoaderFactory = null;
-        public int AssetBundleRequestParallelsCount = 5;
         public bool UseAssetDatabaseInsteadOfResources = true;
     }
 }

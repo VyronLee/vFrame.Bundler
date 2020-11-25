@@ -24,8 +24,7 @@ namespace vFrame.Bundler.Modes
         protected readonly List<string> _searchPaths;
         protected readonly BundlerOptions _options;
 
-        protected ModeBase(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options)
-        {
+        protected ModeBase(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options) {
             _manifest = manifest;
             _searchPaths = searchPaths;
             _options = options;
@@ -34,12 +33,10 @@ namespace vFrame.Bundler.Modes
         public abstract ILoadRequest Load(string path);
         public abstract ILoadRequestAsync LoadAsync(string path);
 
-        public virtual void Collect()
-        {
+        public virtual void Collect() {
         }
 
-        public virtual void DeepCollect()
-        {
+        public virtual void DeepCollect() {
         }
 
         public abstract void Destroy();
@@ -48,13 +45,11 @@ namespace vFrame.Bundler.Modes
             return new List<BundleLoaderBase>();
         }
 
-        public virtual IScene GetScene(LoadRequest request, LoadSceneMode mode)
-        {
+        public virtual IScene GetScene(LoadRequest request, LoadSceneMode mode) {
             return new SceneSync(request.AssetPath, mode, request.Loader);
         }
 
-        public virtual ISceneAsync GetSceneAsync(LoadRequest request, LoadSceneMode mode)
-        {
+        public virtual ISceneAsync GetSceneAsync(LoadRequest request, LoadSceneMode mode) {
             return new SceneAsync(request.AssetPath, mode, request.Loader);
         }
 

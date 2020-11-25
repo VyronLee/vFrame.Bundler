@@ -12,9 +12,12 @@ using System.Collections;
 
 namespace vFrame.Bundler.Interface
 {
-    public interface IAsync : IEnumerator
+    public interface IAsync
     {
+        bool IsStarted { get; }
         bool IsDone { get; }
         float Progress { get; }
+
+        IEnumerator Await();
     }
 }

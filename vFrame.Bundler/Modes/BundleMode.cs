@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using vFrame.Bundler.Assets.Bundle;
+using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
@@ -19,7 +20,6 @@ using vFrame.Bundler.LoadRequests;
 using vFrame.Bundler.Logs;
 using vFrame.Bundler.Messengers;
 using vFrame.Bundler.Utils;
-using vFrame.Bundler.Utils.Pools;
 
 namespace vFrame.Bundler.Modes
 {
@@ -40,8 +40,8 @@ namespace vFrame.Bundler.Modes
         private readonly Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>> _assetAsyncCache
             = new Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>>();
 
-        public BundleMode(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options) : base(manifest, searchPaths, options)
-        {
+        public BundleMode(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options)
+            : base(manifest, searchPaths, options) {
         }
 
         public override ILoadRequest Load(string path) {
@@ -50,23 +50,21 @@ namespace vFrame.Bundler.Modes
                 return loadRequest;
 
             var loader = CreateLoaderByAssetPath(path, false);
-            loadRequest = _loadRequestCache[path] = new LoadRequestSync(this, path, loader);
+            loadRequest = _loadRequestCache[path] = new LoadRequestSync(this, _options, path, loader);
             return loadRequest;
         }
 
         public override ILoadRequestAsync LoadAsync(string path) {
             LoadRequestAsync loadRequestAsync;
-            if (_loadRequestAsyncCache.TryGetValue(path, out loadRequestAsync)) {
+            if (_loadRequestAsyncCache.TryGetValue(path, out loadRequestAsync))
                 return loadRequestAsync;
-            }
 
             var loader = CreateLoaderByAssetPath(path, true);
-            loadRequestAsync = _loadRequestAsyncCache[path] = new LoadRequestAsync(this, path, loader);
+            loadRequestAsync = _loadRequestAsyncCache[path] = new LoadRequestAsync(this, _options, path, loader);
             return loadRequestAsync;
         }
 
-        private BundleLoaderBase CreateLoaderByAssetPath(string assetPath, bool async)
-        {
+        private BundleLoaderBase CreateLoaderByAssetPath(string assetPath, bool async) {
             assetPath = PathUtility.NormalizePath(assetPath);
 
             if (!_manifest.assets.ContainsKey(assetPath))
@@ -76,42 +74,36 @@ namespace vFrame.Bundler.Modes
             return CreateLoader(assetData.bundle, async);
         }
 
-        private BundleLoaderBase CreateLoader(string bundlePath, bool async)
-        {
+        private BundleLoaderBase CreateLoader(string bundlePath, bool async) {
             BundleLoaderBase bundleLoader;
-            if (!_loaderCache.TryGetValue(bundlePath, out bundleLoader))
-            {
+            if (!_loaderCache.TryGetValue(bundlePath, out bundleLoader)) {
                 var bundleData = _manifest.bundles[bundlePath];
                 var dependencies = new List<BundleLoaderBase>();
                 bundleData.dependencies.ForEach(v => dependencies.Add(CreateLoader(v, async)));
 
-                if (async) {
+                if (async)
                     bundleLoader = _options.LoaderFactory.CreateLoaderAsync();
-                }
-                else {
+                else
                     bundleLoader = _options.LoaderFactory.CreateLoader();
-                }
                 bundleLoader.Initialize(bundlePath, _searchPaths, _options);
                 bundleLoader.Dependencies = dependencies;
 
                 _loaderCache.Add(bundlePath, bundleLoader);
             }
+
             return bundleLoader;
         }
 
-        public override void Collect()
-        {
+        public override void Collect() {
             var unused = ListPool<string>.Get();
 
-            foreach (var kv in _loaderCache)
-            {
+            foreach (var kv in _loaderCache) {
                 var loader = kv.Value;
                 if (loader.GetReferences() <= 0)
                     unused.Add(kv.Key);
             }
 
-            foreach (var name in unused)
-            {
+            foreach (var name in unused) {
                 var loader = _loaderCache[name];
                 if (loader.IsLoading)
                     continue;
@@ -153,8 +145,7 @@ namespace vFrame.Bundler.Modes
             ListPool<string>.Return(unused);
         }
 
-        public override void DeepCollect()
-        {
+        public override void DeepCollect() {
             var deadMessengers = ListPool<BundlerMessenger>.Get();
 
             // "OnDestroy will only be called on game objects that have previously been active."
@@ -182,9 +173,8 @@ namespace vFrame.Bundler.Modes
         }
 
         private void ForceUnloadLoaders() {
-            foreach (var kv in _loaderCache) {
+            foreach (var kv in _loaderCache)
                 kv.Value.ForceUnload();
-            }
             _loaderCache.Clear();
             _loadRequestCache.Clear();
             _loadRequestAsyncCache.Clear();
@@ -194,28 +184,23 @@ namespace vFrame.Bundler.Modes
 
         public override IAsset GetAsset(LoadRequest request, Type type) {
             Dictionary<Type, IAsset> assetCache;
-            if (!_assetCache.TryGetValue(request, out assetCache)) {
+            if (!_assetCache.TryGetValue(request, out assetCache))
                 assetCache = _assetCache[request] = new Dictionary<Type, IAsset>();
-            }
 
             IAsset asset;
-            if (!assetCache.TryGetValue(type, out asset)) {
+            if (!assetCache.TryGetValue(type, out asset))
                 asset = assetCache[type] = new BundleAssetSync(request.AssetPath, type, request.Loader, _options);
-            }
             return asset;
         }
 
-        public override IAssetAsync GetAssetAsync(LoadRequest request, Type type)
-        {
+        public override IAssetAsync GetAssetAsync(LoadRequest request, Type type) {
             Dictionary<Type, IAssetAsync> assetCache;
-            if (!_assetAsyncCache.TryGetValue(request, out assetCache)) {
+            if (!_assetAsyncCache.TryGetValue(request, out assetCache))
                 assetCache = _assetAsyncCache[request] = new Dictionary<Type, IAssetAsync>();
-            }
 
             IAssetAsync asset;
-            if (!assetCache.TryGetValue(type, out asset)) {
+            if (!assetCache.TryGetValue(type, out asset))
                 asset = assetCache[type] = new BundleAssetAsync(request.AssetPath, type, request.Loader, _options);
-            }
             return asset;
         }
 

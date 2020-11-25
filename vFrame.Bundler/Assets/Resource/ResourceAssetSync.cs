@@ -11,9 +11,10 @@
 using System;
 using System.IO;
 using UnityEngine;
+using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Utils;
-using vFrame.Bundler.Utils.Pools;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -23,17 +24,16 @@ namespace vFrame.Bundler.Assets.Resource
     public sealed class ResourceAssetSync : AssetBase
     {
         public ResourceAssetSync(string assetName, Type type, BundlerOptions options)
-            : base(assetName, type, null, options)
-        {
+            : base(assetName, type, null, options) {
         }
 
-        protected override void LoadAssetInternal()
-        {
+        protected override Object _asset { get; set; }
+
+        protected override void LoadAssetInternal() {
             Logs.Logger.LogInfo("Start synchronously loading asset: {0}", _path);
 
 #if UNITY_EDITOR
-            if (_options.UseAssetDatabaseInsteadOfResources)
-            {
+            if (_options.UseAssetDatabaseInsteadOfResources) {
                 _asset = AssetDatabase.LoadAssetAtPath(_path, _type);
                 if (!_asset)
                     throw new BundleAssetLoadFailedException("Could not load asset from AssetDatabase: " + _path);

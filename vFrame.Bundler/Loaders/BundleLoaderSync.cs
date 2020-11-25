@@ -19,21 +19,17 @@ namespace vFrame.Bundler.Loaders
 {
     public class BundleLoaderSync : BundleLoaderBase
     {
-        protected override bool OnLoadProcess()
-        {
+        protected override bool OnLoadProcess() {
             Logger.LogInfo("Start synchronously loading process: {0}", _path);
 
             Profiler.BeginSample("BundleLoaderSync:LoadProcess");
-            foreach (var basePath in _searchPaths)
-            {
+            foreach (var basePath in _searchPaths) {
                 var path = Path.Combine(basePath, _path);
                 path = PathUtility.NormalizePath(path);
 
-                try
-                {
+                try {
                     // Avoid throwing error messages.
-                    if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path))
-                    {
+                    if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path)) {
                         IsDone = false;
                         Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                         continue;
@@ -43,8 +39,7 @@ namespace vFrame.Bundler.Loaders
                     _assetBundle = LoadAssetBundle(path);
                     Profiler.EndSample();
 
-                    if (_assetBundle)
-                    {
+                    if (_assetBundle) {
                         IsDone = true;
                         Logger.LogInfo("AssetBundle synchronously loading finished, path: {0}", _path);
                         break;
@@ -53,8 +48,7 @@ namespace vFrame.Bundler.Loaders
                     IsDone = false;
                     Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                 }
-                catch (System.Exception)
-                {
+                catch (System.Exception) {
                     Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
                 }
             }

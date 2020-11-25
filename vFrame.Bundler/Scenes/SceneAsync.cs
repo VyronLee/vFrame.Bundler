@@ -8,6 +8,7 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using vFrame.Bundler.Exception;
@@ -18,50 +19,38 @@ namespace vFrame.Bundler.Scenes
 {
     public class SceneAsync : SceneBase, ISceneAsync
     {
-        private bool _finished;
-
         public SceneAsync(string path, LoadSceneMode mode, BundleLoaderBase loader)
-            : base(path, mode, loader)
-        {
+            : base(path, mode, loader) {
         }
 
         private AsyncOperation Operation { get; set; }
 
-        public bool MoveNext()
-        {
-            if (_finished)
-                return false;
+        public IEnumerator Await() {
+            if (IsStarted) {
+                while (!IsDone) {
+                    yield return null;
+                }
+                yield break;
+            }
 
-            if (Operation == null || !Operation.isDone)
-                return true;
-
-            _finished = true;
-            return false;
+            IsStarted = true;
+            yield return Operation;
+            IsDone = true;
         }
 
-        public void Reset()
-        {
-        }
-
-        public object Current { get; private set; }
-
-        public float Progress
-        {
+        public float Progress {
             get { return Operation != null ? Operation.progress : 0f; }
         }
 
-        public override bool IsDone
-        {
-            get { return !MoveNext(); }
-        }
+        public bool IsStarted { get; private set; }
 
-        protected override void LoadInternal()
-        {
+        public override bool IsDone { get; protected set; }
+
+        protected override void LoadInternal() {
             Operation = SceneManager.LoadSceneAsync(_scenePath, _mode);
             if (Operation == null)
                 throw new BundleSceneLoadFailedException("Could not load scene asynchronously: " + _path);
 
-            _finished = false;
             Operation.allowSceneActivation = true;
         }
     }

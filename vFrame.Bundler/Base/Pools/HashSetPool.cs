@@ -7,12 +7,12 @@
 //    Modified:  2020-06-12 20:48
 //   Copyright:  Copyright (c) 2020, VyronLee
 //============================================================
+
 using System.Collections.Generic;
 
-namespace vFrame.Bundler.Utils.Pools
+namespace vFrame.Bundler.Base.Pools
 {
-    public class HashSetPool<T> : ObjectPool<HashSet<T>, HashSetAllocator<T>>
+    internal class HashSetPool<T> : ObjectPool<HashSet<T>, HashSetAllocator<T>>
     {
-
     }
 }

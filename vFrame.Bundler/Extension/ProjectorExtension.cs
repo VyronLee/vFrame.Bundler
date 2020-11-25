@@ -13,8 +13,7 @@ namespace vFrame.Bundler.Extension
             }
         }
 
-        public static void SetMaterial(this Projector target, IAsset asset)
-        {
+        public static void SetMaterial(this Projector target, IAsset asset) {
             asset.SetTo<Projector, Material, MaterialSetter>(target);
         }
     }

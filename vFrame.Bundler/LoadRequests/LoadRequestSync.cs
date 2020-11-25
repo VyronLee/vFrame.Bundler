@@ -16,32 +16,27 @@ namespace vFrame.Bundler.LoadRequests
 {
     public sealed class LoadRequestSync : LoadRequest
     {
-        public LoadRequestSync(ModeBase mode, string path, BundleLoaderBase bundleLoader)
-            : base(mode, path, bundleLoader)
-        {
+        public LoadRequestSync(ModeBase mode, BundlerOptions options, string path, BundleLoaderBase bundleLoader)
+            : base(mode, options, path, bundleLoader) {
         }
 
-        public override bool IsDone
-        {
+        public override bool IsDone {
             get { return _bundleLoader == null || _bundleLoader.IsDone; }
         }
 
-        protected override void LoadInternal()
-        {
+        protected override void LoadInternal() {
             LoadRecursive(_bundleLoader);
         }
 
-        private void LoadRecursive(BundleLoaderBase bundleLoader)
-        {
+        private void LoadRecursive(BundleLoaderBase bundleLoader) {
             // Load dependencies at first
             foreach (var dependency in bundleLoader.Dependencies)
                 LoadRecursive(dependency);
 
             // Load target at last
             if (bundleLoader is BundleLoaderAsync)
-                if (!bundleLoader.IsDone) {
+                if (!bundleLoader.IsDone)
                     throw new BundleMixLoaderException(bundleLoader.AssetBundlePath);
-                }
             bundleLoader.Load();
         }
     }
