@@ -7,9 +7,12 @@
 //    Modified:  2019-02-15 20:02
 //   Copyright:  Copyright (c) 2018, VyronLee
 //============================================================
+
+using vFrame.Bundler.Interface;
+
 namespace vFrame.Bundler.Base
 {
-    public class Reference
+    public class Reference : IReference
     {
         protected int _references;
 

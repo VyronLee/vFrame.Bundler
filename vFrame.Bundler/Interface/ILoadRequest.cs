@@ -14,7 +14,7 @@ using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Interface
 {
-    public interface ILoadRequest
+    public interface ILoadRequest : IReference
     {
         IAsset GetAsset<T>() where T : Object;
         IAsset GetAsset(Type type);

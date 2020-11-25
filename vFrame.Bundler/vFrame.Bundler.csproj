@@ -102,6 +102,7 @@
     <Compile Include="Interface\ILoadRequest.cs" />
     <Compile Include="Interface\ILoadRequestAsync.cs" />
     <Compile Include="Interface\IPoolObjectAllocator.cs" />
+    <Compile Include="Interface\IReference.cs" />
     <Compile Include="Interface\IScene.cs" />
     <Compile Include="Interface\ISceneAsync.cs" />
     <Compile Include="Loaders\BundleLoaderAsync.cs" />

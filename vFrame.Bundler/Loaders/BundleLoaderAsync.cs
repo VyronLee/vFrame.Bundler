@@ -79,7 +79,6 @@ namespace vFrame.Bundler.Loaders
             Logger.LogInfo("Start asynchronously loading process: {0}", _path);
 
             IsLoading = true;
-
             return false;
         }
 

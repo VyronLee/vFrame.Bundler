@@ -96,7 +96,7 @@ namespace vFrame.Bundler.Assets
         public GameObject InstantiateGameObject() {
             if (!IsDone)
                 throw new BundleAssetNotReadyException(
-                    string.Format("Asset not ready, path: {0}, _loader: {1}", _path, _loader));
+                    string.Format("Asset not ready, path: {0}, loader: {1}", _path, _loader));
 
             var prefab = GetAsset() as GameObject;
             if (!prefab)

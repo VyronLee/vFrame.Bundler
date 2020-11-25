@@ -10,6 +10,7 @@
 
 using System;
 using UnityEngine.SceneManagement;
+using vFrame.Bundler.Base;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Modes;
@@ -17,7 +18,7 @@ using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.LoadRequests
 {
-    public class LoadRequest : ILoadRequest
+    public class LoadRequest : Reference, ILoadRequest
     {
         protected readonly BundleLoaderBase _bundleLoader;
         protected readonly ModeBase _mode;
@@ -34,6 +35,21 @@ namespace vFrame.Bundler.LoadRequests
             _finished = _bundleLoader == null;
             if (!_finished)
                 LoadInternal();
+        }
+
+        public override void Retain() {
+            base.Retain();
+
+            if (null != Loader) {
+                Loader.Retain();
+            }
+        }
+
+        public override void Release() {
+            if (null != Loader) {
+                Loader.Release();
+            }
+            base.Release();
         }
 
         public BundleLoaderBase Loader {
