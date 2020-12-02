@@ -104,9 +104,9 @@ namespace vFrame.Bundler.Editor
 
         public void GenerateAssetBundles(BundlerManifest manifest, BuildTarget platform) {
             var outputPath = PathUtility.Combine(Application.streamingAssetsPath, BundlerBuildSettings.kBundlePath);
-            Debug.Log(string.Format("Generate asset bundles to path: {0}", outputPath));
-
             var builds = GenerateAssetBundleBuilds(manifest);
+
+            Debug.Log(string.Format("Generate asset bundles to path: {0}, build count: {1}", outputPath, builds.Length));
             BuildPipeline.BuildAssetBundles(outputPath, builds, kAssetBundleBuildOptions, platform);
         }
 
