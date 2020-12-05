@@ -9,7 +9,9 @@
 //============================================================
 
 using System;
+using System.Collections;
 using UnityEngine.SceneManagement;
+using vFrame.Bundler.Base.Coroutine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
@@ -18,6 +20,12 @@ namespace vFrame.Bundler.Scenes
 {
     public abstract class SceneBase : IScene
     {
+        private static CoroutinePool _coroutinePool;
+
+        private static CoroutinePool CoroutinePool {
+            get { return _coroutinePool ?? (_coroutinePool = new CoroutinePool("BundleScene")); }
+        }
+
         private readonly BundleLoaderBase _bundleLoader;
         protected readonly LoadSceneMode _mode;
         protected readonly string _path;
@@ -40,7 +48,11 @@ namespace vFrame.Bundler.Scenes
         public virtual bool IsDone { get; protected set; }
 
         public void Unload() {
-            SceneManager.UnloadSceneAsync(_scenePath);
+            CoroutinePool.StartCoroutine(UnloadInternal());
+        }
+
+        private IEnumerator UnloadInternal() {
+            yield return SceneManager.UnloadSceneAsync(_scenePath);
             Release();
         }
 

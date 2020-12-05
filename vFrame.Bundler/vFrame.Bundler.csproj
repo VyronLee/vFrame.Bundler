@@ -73,6 +73,11 @@
     <Compile Include="Assets\Bundle\BundleAssetSync.cs" />
     <Compile Include="Assets\Resource\ResourceAssetAsync.cs" />
     <Compile Include="Assets\Resource\ResourceAssetSync.cs" />
+    <Compile Include="Base\Coroutine\CoroutineBehaviour.cs" />
+    <Compile Include="Base\Coroutine\CoroutinePool.cs" />
+    <Compile Include="Base\Coroutine\CoroutinePoolBehaviour.cs" />
+    <Compile Include="Base\Coroutine\CoroutineState.cs" />
+    <Compile Include="Base\Coroutine\CoroutineTask.cs" />
     <Compile Include="Base\Pools\DictionaryAllocator.cs" />
     <Compile Include="Base\Pools\DictionaryPool.cs" />
     <Compile Include="Base\Pools\HashSetAllocator.cs" />
