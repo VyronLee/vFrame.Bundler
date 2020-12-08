@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 //
@@ -44,12 +45,9 @@ namespace vFrame.Bundler.Utils
 
         // Before the serialization we fill these lists
         public void OnBeforeSerialize() {
-            _keys = new List<TKey>(Count);
-            _values = new List<TValue>(Count);
-            foreach (var kvp in this) {
-                _keys.Add(kvp.Key);
-                _values.Add(kvp.Value);
-            }
+            _keys = Keys.ToList();
+            _keys.Sort(); // Sort Keys
+            _values = _keys.ConvertAll(v => this[v]);
         }
 
         // After the serialization we create the dictionary from the two lists
