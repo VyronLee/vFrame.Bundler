@@ -16,27 +16,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Utils;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Editor
 {
-    public class BundlerGenerator
+    public static class BundlerGenerator
     {
-        private static BundlerGenerator _instance;
-
-        private static readonly BuildAssetBundleOptions kAssetBundleBuildOptions =
-            BuildAssetBundleOptions.ChunkBasedCompression |
-            BuildAssetBundleOptions.DeterministicAssetBundle |
-            BuildAssetBundleOptions.StrictMode;
-
-        public static BundlerGenerator Instance
-        {
-            get { return _instance = _instance ?? new BundlerGenerator(); }
-        }
-
         private static bool IsUnmanagedResources(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -79,18 +66,24 @@ namespace vFrame.Bundler.Editor
             return !string.IsNullOrEmpty(pattern) && Regex.IsMatch(path, pattern);
         }
 
-        public void GenerateManifest(BundlerBuildRule buildRule, string outputPath)
+        public static void GenerateManifestToFile(BundlerBuildRule buildRule, string outputPath)
+        {
+            var manifest = GenerateManifest(buildRule);
+            SaveManifest(ref manifest, outputPath);
+        }
+
+        public static BundlerManifest GenerateManifest(BundlerBuildRule buildRule)
         {
             var reservedSharedBundle = new ReservedSharedBundleInfo();
             var depsInfo = ParseBundleDependenciesFromRules(buildRule, ref reservedSharedBundle);
             var bundlesInfo = GenerateBundlesInfo(ref depsInfo, ref reservedSharedBundle);
             ResolveBundleDependencies(ref bundlesInfo);
             var manifest = GenerateBundlerManifest(ref bundlesInfo);
-            SaveManifest(ref manifest, outputPath);
             Resources.UnloadUnusedAssets();
+            return manifest;
         }
 
-        public void StripUnmanagedFiles(BundlerBuildRule buildRule, BundlerManifest manifest) {
+        public static void StripUnmanagedFiles(BundlerBuildRule buildRule, BundlerManifest manifest) {
             var managedFiles = GetManagedFilesByRules(buildRule);
             var toRemoved = new List<string>();
             foreach (var kv in manifest.assets) {
@@ -102,12 +95,10 @@ namespace vFrame.Bundler.Editor
             Debug.Log(string.Format("{0} unmanaged files removed from manifest.", toRemoved.Count));
         }
 
-        public void GenerateAssetBundles(BundlerManifest manifest, BuildTarget platform) {
-            var outputPath = PathUtility.Combine(Application.streamingAssetsPath, BundlerBuildSettings.kBundlePath);
+        public static void GenerateAssetBundles(BundlerManifest manifest, BuildTarget platform, string outputPath) {
             var builds = GenerateAssetBundleBuilds(manifest);
-
             Debug.Log(string.Format("Generate asset bundles to path: {0}, build count: {1}", outputPath, builds.Length));
-            BuildPipeline.BuildAssetBundles(outputPath, builds, kAssetBundleBuildOptions, platform);
+            BuildPipeline.BuildAssetBundles(outputPath, builds, BundlerBuildSettings.kAssetBundleBuildOptions, platform);
         }
 
         /// <summary>
@@ -117,7 +108,7 @@ namespace vFrame.Bundler.Editor
         /// <param name="path"></param>
         /// <param name="platform"></param>
         /// <param name="outputPath"></param>
-        public void RegenerateAssetBundle(BundlerManifest manifest, string path, BuildTarget platform,
+        public static void RegenerateAssetBundle(BundlerManifest manifest, string path, BuildTarget platform,
             string outputPath)
         {
             var bundleName = PathUtility.NormalizeAssetBundlePath(path);
@@ -129,7 +120,7 @@ namespace vFrame.Bundler.Editor
                 assetNames = assets.Select(v => v.Key).ToArray(),
                 assetBundleName = bundleName
             };
-            BuildPipeline.BuildAssetBundles(outputPath, new[] {build}, kAssetBundleBuildOptions, platform);
+            BuildPipeline.BuildAssetBundles(outputPath, new[] {build}, BundlerBuildSettings.kAssetBundleBuildOptions, platform);
         }
 
         /// <summary>
@@ -138,7 +129,7 @@ namespace vFrame.Bundler.Editor
         /// <param name="manifest"></param>
         /// <param name="outputPath"></param>
         /// <exception cref="BundleException"></exception>
-        public void ValidateBundleDependencies(BundlerManifest manifest, string outputPath) {
+        public static void ValidateBundleDependencies(BundlerManifest manifest, string outputPath) {
             var abManifestPath = string.Format("{0}/{1}", outputPath, new DirectoryInfo(outputPath).Name);
             var abManifestRelativePath = PathUtility.AbsolutePathToRelativeProjectPath(abManifestPath);
             var ab = AssetBundle.LoadFromFile(abManifestRelativePath);
@@ -191,7 +182,7 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private DependenciesInfo ParseBundleDependenciesFromRules(BundlerBuildRule buildRule,
+        private static DependenciesInfo ParseBundleDependenciesFromRules(BundlerBuildRule buildRule,
             ref ReservedSharedBundleInfo reserved)
         {
             var depsInfo = new DependenciesInfo();
@@ -214,7 +205,7 @@ namespace vFrame.Bundler.Editor
             return depsInfo;
         }
 
-        private void ParseBundleDependenciesByRuleOfPackByFile(BundleRule rule, ref DependenciesInfo depsInfo,
+        private static void ParseBundleDependenciesByRuleOfPackByFile(BundleRule rule, ref DependenciesInfo depsInfo,
             ref ReservedSharedBundleInfo reserved)
         {
             var excludePattern = rule.excludePattern;
@@ -249,7 +240,7 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private void ParseBundleDependenciesByRuleOfPackByDirectory(BundleRule rule, ref DependenciesInfo depsInfo,
+        private static void ParseBundleDependenciesByRuleOfPackByDirectory(BundleRule rule, ref DependenciesInfo depsInfo,
             ref ReservedSharedBundleInfo reserved) {
             var bundleName = PathUtility.NormalizeAssetBundlePath(rule.path);
             bundleName = string.Format(BundlerBuildSettings.kBundleFormatter, bundleName);
@@ -284,7 +275,7 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private void ParseBundleDependenciesByRuleOfPackBySubDirectory(BundleRule rule, ref DependenciesInfo depsInfo,
+        private static void ParseBundleDependenciesByRuleOfPackBySubDirectory(BundleRule rule, ref DependenciesInfo depsInfo,
             ref ReservedSharedBundleInfo reserved) {
             var excludePattern = rule.excludePattern;
 
@@ -327,13 +318,13 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private string[] GetManagedFilesByRules(BundlerBuildRule rules) {
+        private static string[] GetManagedFilesByRules(BundlerBuildRule rules) {
             var files = new List<string>();
             rules.rules.ForEach(v => files.AddRange(GetFileListByRule(v)));
             return files.ToArray();
         }
 
-        private string[] GetFileListByRule(BundleRule rule) {
+        private static string[] GetFileListByRule(BundleRule rule) {
             var excludePattern = rule.excludePattern;
             var searchPath = PathUtility.RelativeDataPathToAbsolutePath(rule.path);
             switch (rule.packType) {
@@ -366,7 +357,7 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private void TryAddToForceSharedBundle(string assetName, string bundleName, ref ReservedSharedBundleInfo reserved) {
+        private static void TryAddToForceSharedBundle(string assetName, string bundleName, ref ReservedSharedBundleInfo reserved) {
             if (reserved.ContainsKey(assetName)) {
                 throw new BundleRuleConflictException(
                     string.Format("Asset({0} has already contain in bundle: {1}, but trying add to new bundle: {2})",
@@ -375,7 +366,7 @@ namespace vFrame.Bundler.Editor
             reserved.Add(assetName, bundleName);
         }
 
-        private void AddDependenciesInfo(string bundleName, string relativePath, ref DependenciesInfo info,
+        private static void AddDependenciesInfo(string bundleName, string relativePath, ref DependenciesInfo info,
             ref ReservedSharedBundleInfo reserved)
         {
             var dependencies = CollectDependencies(relativePath);
@@ -397,7 +388,7 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private BundlesInfo GenerateBundlesInfo(ref DependenciesInfo depsInfo, ref ReservedSharedBundleInfo reserved)
+        private static BundlesInfo GenerateBundlesInfo(ref DependenciesInfo depsInfo, ref ReservedSharedBundleInfo reserved)
         {
             var sharedBundles = ParseSharedBundleInfo(ref depsInfo, ref reserved);
             var noneSharedBundles = ParseNoneSharedBundleInfo(ref depsInfo, ref sharedBundles);
@@ -421,7 +412,7 @@ namespace vFrame.Bundler.Editor
             return dep5;
         }
 
-        private void ResolveBundleDependencies(ref BundlesInfo bundlesInfo) {
+        private static void ResolveBundleDependencies(ref BundlesInfo bundlesInfo) {
             var info = bundlesInfo;
             foreach (var kv in bundlesInfo) {
                 //Debug.Log(string.Format("Resolving bundle dependency: {0}", kv.Key));
@@ -505,7 +496,7 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private BundlesInfo ParseSharedBundleInfo(ref DependenciesInfo depsInfo, ref ReservedSharedBundleInfo reserved)
+        private static BundlesInfo ParseSharedBundleInfo(ref DependenciesInfo depsInfo, ref ReservedSharedBundleInfo reserved)
         {
             var sharedDict = new Dictionary<string, string>();
 
@@ -591,7 +582,7 @@ namespace vFrame.Bundler.Editor
             return sharedBundle;
         }
 
-        private BundlesInfo ParseNoneSharedBundleInfo(ref DependenciesInfo depsInfo, ref BundlesInfo sharedBundles)
+        private static BundlesInfo ParseNoneSharedBundleInfo(ref DependenciesInfo depsInfo, ref BundlesInfo sharedBundles)
         {
             // Parse none shared bundle info
             var noneSharedBundles = new BundlesInfo();
@@ -651,7 +642,7 @@ namespace vFrame.Bundler.Editor
             return noneSharedBundles;
         }
 
-        private BundlerManifest GenerateBundlerManifest(ref BundlesInfo bundlesInfo)
+        private static BundlerManifest GenerateBundlerManifest(ref BundlesInfo bundlesInfo)
         {
             var manifest = new BundlerManifest();
 
@@ -693,18 +684,17 @@ namespace vFrame.Bundler.Editor
             return manifest;
         }
 
-        private void SaveManifest(ref BundlerManifest manifest, string outputPath)
+        private static void SaveManifest(ref BundlerManifest manifest, string outputPath)
         {
-            var fullPath = PathUtility.Combine(Application.streamingAssetsPath, outputPath);
-            var directory = Path.GetDirectoryName(fullPath);
-            if (!Directory.Exists(directory))
+            var directory = Path.GetDirectoryName(outputPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
             var jsonData = JsonUtility.ToJson(manifest);
-            File.WriteAllText(fullPath, jsonData);
+            File.WriteAllText(outputPath, jsonData);
         }
 
-        private AssetBundleBuild[] GenerateAssetBundleBuilds(BundlerManifest manifest)
+        private static AssetBundleBuild[] GenerateAssetBundleBuilds(BundlerManifest manifest)
         {
             var bundles = new Dictionary<string, HashSet<string>>();
 
@@ -733,7 +723,7 @@ namespace vFrame.Bundler.Editor
             return builds.ToArray();
         }
 
-        private string CalculateMd5(Stream stream)
+        private static string CalculateMd5(Stream stream)
         {
             using (var md5 = MD5.Create())
             {

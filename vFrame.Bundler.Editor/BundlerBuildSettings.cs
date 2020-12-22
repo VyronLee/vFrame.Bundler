@@ -7,6 +7,9 @@
 //    Modified:  2019-07-09 10:39
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
+
+using UnityEditor;
+
 namespace vFrame.Bundler.Editor
 {
     public static class BundlerBuildSettings
@@ -26,5 +29,10 @@ namespace vFrame.Bundler.Editor
 
         public static string kModePreferenceKey = "vFrameBundlerModePreferenceKey";
         public static string kLogLevelPreferenceKey = "vFrameBundlerLogLevelPreferenceKey";
+
+        public static readonly BuildAssetBundleOptions kAssetBundleBuildOptions =
+            BuildAssetBundleOptions.ChunkBasedCompression |
+            BuildAssetBundleOptions.DeterministicAssetBundle |
+            BuildAssetBundleOptions.StrictMode;
     }
 }

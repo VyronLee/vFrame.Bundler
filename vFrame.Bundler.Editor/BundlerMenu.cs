@@ -30,8 +30,10 @@ namespace vFrame.Bundler.Editor
             var buildRuleAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(relativeBuildRuleFile);
             var buildRule = JsonUtility.FromJson<BundlerBuildRule>(buildRuleAsset.text);
 
-            BundlerGenerator.Instance.GenerateManifest(buildRule,
-                PathUtility.Combine(BundlerBuildSettings.kBundlePath, BundlerBuildSettings.kManifestFileName));
+            var outputPath =
+                PathUtility.Combine(BundlerBuildSettings.kBundlePath, BundlerBuildSettings.kManifestFileName);
+            var fullPath = PathUtility.Combine(Application.streamingAssetsPath, outputPath);
+            BundlerGenerator.GenerateManifestToFile(buildRule, fullPath);
 
             stopWatch.Stop();
             Debug.Log(string.Format("Generate manifest finished, cost: {0}s", stopWatch.Elapsed.TotalSeconds));
@@ -56,7 +58,7 @@ namespace vFrame.Bundler.Editor
             var manifestText = File.ReadAllText(manifestFileFullPath);
             var manifest = JsonUtility.FromJson<BundlerManifest>(manifestText);
 
-            BundlerGenerator.Instance.StripUnmanagedFiles(buildRule, manifest);
+            BundlerGenerator.StripUnmanagedFiles(buildRule, manifest);
             manifestText = JsonUtility.ToJson(manifest);
             File.WriteAllText(manifestFileFullPath, manifestText);
         }
@@ -117,7 +119,7 @@ namespace vFrame.Bundler.Editor
         {
             var manifestText = File.ReadAllText(manifestPath);
             var manifest = JsonUtility.FromJson<BundlerManifest>(manifestText);
-            BundlerGenerator.Instance.ValidateBundleDependencies(manifest, bundlePath);
+            BundlerGenerator.ValidateBundleDependencies(manifest, bundlePath);
         }
 
         private static void GenerateAssetBundles(BuildTarget platform)
@@ -134,7 +136,8 @@ namespace vFrame.Bundler.Editor
 
             var manifestText = File.ReadAllText(manifestFileFullPath);
             var manifest = JsonUtility.FromJson<BundlerManifest>(manifestText);
-            BundlerGenerator.Instance.GenerateAssetBundles(manifest, platform);
+            var outputPath = PathUtility.Combine(Application.streamingAssetsPath, BundlerBuildSettings.kBundlePath);
+            BundlerGenerator.GenerateAssetBundles(manifest, platform, outputPath);
         }
 
         private static void RegenerateAssetBundle(string path, BuildTarget platform)
@@ -154,7 +157,7 @@ namespace vFrame.Bundler.Editor
                 return;
             }
 
-            BundlerGenerator.Instance.RegenerateAssetBundle(manifest, bundleName, platform, bundleOutputRelativePath);
+            BundlerGenerator.RegenerateAssetBundle(manifest, bundleName, platform, bundleOutputRelativePath);
         }
     }
 }
