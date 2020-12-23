@@ -28,6 +28,20 @@ namespace vFrame.Bundler.Utils
             return NormalizePath(value);
         }
 
+        public static string Combine(params string[] paths) {
+            if (null == paths) {
+                return null;
+            }
+            if (paths.Length <= 1) {
+                return NormalizePath(paths[0]);
+            }
+            var ret = paths[0];
+            for (var i = 1; i < paths.Length; i++) {
+                ret = Path.Combine(ret, paths[i]);
+            }
+            return NormalizePath(ret);
+        }
+
         public static string NormalizeAssetBundlePath(string value) {
             if (Path.IsPathRooted(value))
                 value = AbsolutePathToRelativeDataPath(value);

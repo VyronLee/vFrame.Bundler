@@ -666,7 +666,7 @@ namespace vFrame.Bundler.Editor
 
                     var assetData = new AssetData
                     {
-                        //name = asset,
+                        //name = asset, // Memory optimized
                         bundle = bundleName
                     };
                     manifest.assets.Add(asset, assetData);
@@ -676,7 +676,8 @@ namespace vFrame.Bundler.Editor
                 if (manifest.bundles.ContainsKey(bundleName))
                     throw new BundleException(string.Format("Bundle duplicated: {0}", bundleName));
 
-                manifest.bundles.Add(bundleName, new BundleData()); // {name = bundleName});
+                //manifest.bundles.Add(bundleName, new BundleData {name = bundleName}); // Memory optimized
+                manifest.bundles.Add(bundleName, new BundleData());
                 foreach (var depName in dependencies)
                     manifest.bundles[bundleName].dependencies.Add(depName);
             }
