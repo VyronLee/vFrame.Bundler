@@ -185,6 +185,8 @@ namespace vFrame.Bundler.Editor
         private static DependenciesInfo ParseBundleDependenciesFromRules(BundlerBuildRule buildRule,
             ref ReservedSharedBundleInfo reserved)
         {
+            buildRule.rules.Sort((a, b) => -a.shared.CompareTo(b.shared));
+
             var depsInfo = new DependenciesInfo();
             foreach (var rule in buildRule.rules)
                 switch (rule.packType)
@@ -209,7 +211,7 @@ namespace vFrame.Bundler.Editor
             ref ReservedSharedBundleInfo reserved)
         {
             var excludePattern = rule.excludePattern;
-            var searchPath = PathUtility.RelativeDataPathToAbsolutePath(rule.path);
+            var searchPath = PathUtility.RelativeProjectPathToAbsolutePath(rule.path);
             var files = Directory.GetFiles(searchPath, rule.searchPattern, SearchOption.AllDirectories)
                 .Where(v => !IsUnmanagedResources(v))
                 .Where(v => !IsExclude(v, excludePattern))
@@ -248,7 +250,7 @@ namespace vFrame.Bundler.Editor
                 ? PathUtility.HashPath(bundleName)
                 : bundleName;
 
-            var searchPath = PathUtility.RelativeDataPathToAbsolutePath(rule.path);
+            var searchPath = PathUtility.RelativeProjectPathToAbsolutePath(rule.path);
 
             var excludePattern = rule.excludePattern;
             var files = Directory.GetFiles(searchPath, rule.searchPattern, SearchOption.AllDirectories)
@@ -279,7 +281,7 @@ namespace vFrame.Bundler.Editor
             ref ReservedSharedBundleInfo reserved) {
             var excludePattern = rule.excludePattern;
 
-            var searchPath = PathUtility.RelativeDataPathToAbsolutePath(rule.path);
+            var searchPath = PathUtility.RelativeProjectPathToAbsolutePath(rule.path);
             var subDirectories = Directory.GetDirectories(searchPath, "*.*", (SearchOption) rule.depth)
                 .Where(v => !IsExclude(v, excludePattern))
                 .ToArray();
@@ -326,7 +328,7 @@ namespace vFrame.Bundler.Editor
 
         private static string[] GetFileListByRule(BundleRule rule) {
             var excludePattern = rule.excludePattern;
-            var searchPath = PathUtility.RelativeDataPathToAbsolutePath(rule.path);
+            var searchPath = PathUtility.RelativeProjectPathToAbsolutePath(rule.path);
             switch (rule.packType) {
                 case PackType.PackByFile:
                 case PackType.PackByDirectory: {

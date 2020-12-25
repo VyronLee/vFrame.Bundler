@@ -44,7 +44,7 @@ namespace vFrame.Bundler.Utils
 
         public static string NormalizeAssetBundlePath(string value) {
             if (Path.IsPathRooted(value))
-                value = AbsolutePathToRelativeDataPath(value);
+                value = AbsolutePathToRelativeProjectPath(value);
 
             value = value.ToLower();
             return NormalizePath(value);
@@ -59,8 +59,8 @@ namespace vFrame.Bundler.Utils
         public static string AbsolutePathToRelativeDataPath(string fullPath) {
             fullPath = NormalizePath(fullPath);
             var projDataFullPath = NormalizePath(Path.GetFullPath(Application.dataPath) + "/");
-            var relativaPath = fullPath.Replace(projDataFullPath, "");
-            return NormalizePath(relativaPath);
+            var relativePath = fullPath.Replace(projDataFullPath, "");
+            return NormalizePath(relativePath);
         }
 
         public static string AbsolutePathToRelativeResourcesPath(string fullPath) {
