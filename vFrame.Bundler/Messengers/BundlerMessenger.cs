@@ -56,7 +56,7 @@ namespace vFrame.Bundler.Messengers
             // Reference should be calculated when cloning from other instance
             RecoverRefs();
 
-            hideFlags = HideFlags.HideAndDontSave;
+            hideFlags = HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
         }
 
         private void RecoverRefs() {
