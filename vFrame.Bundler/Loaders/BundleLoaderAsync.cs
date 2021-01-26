@@ -51,6 +51,8 @@ namespace vFrame.Bundler.Loaders
 
             Profiler.BeginSample("BundleLoaderAsync:Await");
 
+            Logger.LogInfo("Bundle load async start: {0}", _path);
+
             if (_bundleLoadRequest == null) {
                 _bundleLoadRequest = CreateBundleLoadRequest();
             }
@@ -59,20 +61,37 @@ namespace vFrame.Bundler.Loaders
 
             Logger.LogInfo("Bundle load request finished: {0}", _path);
 
-            _assetBundle = _bundleLoadRequest.assetBundle;
-
-            Logger.LogInfo("Add assetbundle to cache: {0}", _path);
-
-            if (AssetBundleCache.ContainsKey(_path))
-                throw new System.Exception("Assetbundle already in cache: " + _path);
-            AssetBundleCache.Add(_path, _assetBundle);
+            LoadAndCache(_bundleLoadRequest);
 
             Logger.LogInfo("AssetBundle asynchronously loading finished, path: {0}", _path);
 
+            Profiler.EndSample();
+        }
+
+        public void ForceLoadComplete() {
+            if (_assetBundle) {
+                return;
+            }
+
+            Logger.LogInfo("Force load asset bundle: " + _path);
+
+            if (null == _bundleLoadRequest) {
+                Logger.LogInfo("Force load asset bundle, but load request not exist, create it: {0}", _path);
+                _bundleLoadRequest = CreateBundleLoadRequest();
+            }
+            LoadAndCache(_bundleLoadRequest);
+        }
+
+        private void LoadAndCache(AssetBundleCreateRequest assetBundleCreateRequest) {
+            _assetBundle = assetBundleCreateRequest.assetBundle;
+
+            if (!AssetBundleCache.ContainsKey(_path)) {
+                AssetBundleCache.Add(_path, _assetBundle);
+                Logger.LogInfo("Add assetbundle to cache: {0}", _path);
+            }
+
             IsLoading = false;
             IsDone = true;
-
-            Profiler.EndSample();
         }
 
         protected override bool OnLoadProcess() {

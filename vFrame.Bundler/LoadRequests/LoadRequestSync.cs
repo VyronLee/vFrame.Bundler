@@ -34,9 +34,10 @@ namespace vFrame.Bundler.LoadRequests
                 LoadRecursive(dependency);
 
             // Load target at last
-            if (bundleLoader is BundleLoaderAsync)
-                if (!bundleLoader.IsDone)
-                    throw new BundleMixLoaderException(bundleLoader.AssetBundlePath);
+            var async = bundleLoader as BundleLoaderAsync;
+            if (async != null && !async.IsDone) {
+                async.ForceLoadComplete();
+            }
             bundleLoader.Load();
         }
     }
