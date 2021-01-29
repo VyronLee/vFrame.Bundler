@@ -23,11 +23,15 @@ namespace vFrame.Bundler.Assets.Resource
 {
     public sealed class ResourceAssetSync : AssetBase
     {
+        private Object _asset;
+
         public ResourceAssetSync(string assetName, Type type, BundlerOptions options)
             : base(assetName, type, null, options) {
         }
 
-        protected override Object _asset { get; set; }
+        public override Object GetAsset() {
+            return _asset;
+        }
 
         protected override void LoadAssetInternal() {
             Logs.Logger.LogInfo("Start synchronously loading asset: {0}", _path);

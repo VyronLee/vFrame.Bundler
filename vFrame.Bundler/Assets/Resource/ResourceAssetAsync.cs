@@ -42,7 +42,6 @@ namespace vFrame.Bundler.Assets.Resource
 
             IsStarted = true;
             yield return _request.Await();
-            _asset = _request.asset;
 
             Logs.Logger.LogInfo("End asynchronously loading asset: {0}", _path);
             IsDone = true;
@@ -55,7 +54,9 @@ namespace vFrame.Bundler.Assets.Resource
             get { return _request == null ? 0f : _request.Progress; }
         }
 
-        protected override Object _asset { get; set; }
+        public override Object GetAsset() {
+            return null != _request ? _request.asset : null;
+        }
 
         protected override void LoadAssetInternal() {
             Logs.Logger.LogInfo("Start asynchronously loading asset: {0}", _path);

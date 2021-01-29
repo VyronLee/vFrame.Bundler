@@ -30,7 +30,6 @@ namespace vFrame.Bundler.Assets
         protected readonly BundleLoaderBase _loader;
         protected readonly Type _type;
         protected readonly BundlerOptions _options;
-        protected abstract Object _asset { get; set; }
 
         private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _propertiesCache
             = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
@@ -86,12 +85,7 @@ namespace vFrame.Bundler.Assets
             return assetName;
         }
 
-        public Object GetAsset() {
-            if (!_asset)
-                throw new BundleAssetNotReadyException(
-                    string.Format("Asset has not loaded, path: {0}, loader: {1}", _path, _loader));
-            return _asset;
-        }
+        public abstract Object GetAsset();
 
         public GameObject InstantiateGameObject() {
             if (!IsDone)

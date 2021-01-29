@@ -73,7 +73,7 @@ namespace vFrame.Bundler.Loaders
                 return;
             }
 
-            Logger.LogInfo("Force load asset bundle: " + _path);
+            Logger.LogInfo("Force load asset bundle: {0}", _path);
 
             if (null == _bundleLoadRequest) {
                 Logger.LogInfo("Force load asset bundle, but load request not exist, create it: {0}", _path);
@@ -94,24 +94,21 @@ namespace vFrame.Bundler.Loaders
             IsDone = true;
         }
 
-        protected override bool OnLoadProcess() {
+        protected override void OnLoadProcess() {
             Logger.LogInfo("Start asynchronously loading process: {0}", _path);
 
             IsLoading = true;
-            return false;
         }
 
-        protected override bool OnUnloadProcess() {
-            return true;
+        protected override void OnUnloadProcess() {
+
         }
 
         private AssetBundleCreateRequest CreateBundleLoadRequest() {
             Logger.LogInfo("Bundle load request does not exist, create it from file: {0}", _path);
 
             foreach (var basePath in _searchPaths) {
-                var path = Path.Combine(basePath, _path);
-                path = PathUtility.NormalizePath(path);
-
+                var path = PathUtility.Combine(basePath, _path);
                 try {
                     // Avoid throwing error messages.
                     if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path)) {

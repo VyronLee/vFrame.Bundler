@@ -62,23 +62,15 @@ namespace vFrame.Bundler.Loaders
         }
 
         public void Load() {
-            if (AssetBundleCache.TryGetValue(_path, out _assetBundle)) {
-                Logger.LogInfo("Load assetbundle from cache: {0}", _path);
-                IsDone = true;
+            if (IsDone || IsLoading) {
                 return;
             }
 
-            if (IsLoading)
-                return;
+            if (AssetBundleCache.ContainsKey(_path)) {
+                throw new BundleException("AssetBundle already in cache: " + _path);
+            }
 
-            if (!(IsDone = LoadProcess()))
-                return;
-
-            Logger.LogInfo("Add assetbundle to cache: {0}", _path);
-
-            if (AssetBundleCache.ContainsKey(_path))
-                throw new System.Exception("Assetbundle already in cache: " + _path);
-            AssetBundleCache.Add(_path, _assetBundle);
+            LoadProcess();
         }
 
         public void Unload() {
@@ -92,9 +84,14 @@ namespace vFrame.Bundler.Loaders
                 _assetBundle = null;
             }
 
+            if (!AssetBundleCache.ContainsKey(_path)) {
+                throw new BundleException("AssetBundle does not in cache: " + _path);
+            }
             AssetBundleCache.Remove(_path);
 
-            IsDone = !UnloadProcess();
+            UnloadProcess();
+
+            IsDone = false;
 
             ListPool<BundleLoaderBase>.Return(Dependencies);
         }
@@ -141,24 +138,24 @@ namespace vFrame.Bundler.Loaders
                 loader.Release();
         }
 
-        private bool LoadProcess() {
+        private void LoadProcess() {
             if (!_started)
                 RetainDependencies();
             _started = true;
 
-            return OnLoadProcess();
+            OnLoadProcess();
         }
 
-        private bool UnloadProcess() {
+        private void UnloadProcess() {
             if (!_unloaded)
                 ReleaseDependencies();
             _unloaded = true;
 
-            return OnUnloadProcess();
+            OnUnloadProcess();
         }
 
-        protected abstract bool OnLoadProcess();
-        protected abstract bool OnUnloadProcess();
+        protected abstract void OnLoadProcess();
+        protected abstract void OnUnloadProcess();
 
         public override string ToString() {
             return string.Format("{4}: [path: {0}, started: {1}, done: {2}, unloaded: {3}]",

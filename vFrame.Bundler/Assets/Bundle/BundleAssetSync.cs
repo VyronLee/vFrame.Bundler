@@ -18,11 +18,11 @@ namespace vFrame.Bundler.Assets.Bundle
 {
     public sealed class BundleAssetSync : AssetBase
     {
+        private Object _asset;
+
         public BundleAssetSync(string path, Type type, BundleLoaderBase target, BundlerOptions options)
             : base(path, type, target, options) {
         }
-
-        protected override Object _asset { get; set; }
 
         protected override void LoadAssetInternal() {
             Logger.LogInfo("Start synchronously loading asset from bundle: {0}", _path);
@@ -36,6 +36,10 @@ namespace vFrame.Bundler.Assets.Bundle
             IsDone = true;
 
             Logger.LogInfo("End synchronously loading asset from bundle: {0}", _path);
+        }
+
+        public override Object GetAsset() {
+            return _asset;
         }
     }
 }

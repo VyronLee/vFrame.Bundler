@@ -8,7 +8,6 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
-using vFrame.Bundler.Exception;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Modes;
 
@@ -34,11 +33,15 @@ namespace vFrame.Bundler.LoadRequests
                 LoadRecursive(dependency);
 
             // Load target at last
+            if (!bundleLoader.IsStarted) {
+                bundleLoader.Load();
+            }
+
+            // Force load complete immediately if target is async loader.
             var async = bundleLoader as BundleLoaderAsync;
             if (async != null && !async.IsDone) {
                 async.ForceLoadComplete();
             }
-            bundleLoader.Load();
         }
     }
 }

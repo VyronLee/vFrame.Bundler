@@ -40,14 +40,11 @@ namespace vFrame.Bundler.Assets.Bundle
 
             IsStarted = true;
             yield return _request;
-            _asset = _request.asset;
 
-            Logger.LogInfo("End asynchronously loading asset from bundle: {0}, object: {1}", _path, _asset);
+            Logger.LogInfo("End asynchronously loading asset from bundle: {0}, object: {1}", _path, _request.asset);
 
-            if (null == _asset)
-                Logger.LogError("End asynchronously loading asset, but asset == null! path: {0}", _path);
-            else // Must release reference after assets loaded.
-                _loader.Release();
+            // Must release reference after assets loaded.
+            _loader.Release();
 
             IsDone = true;
         }
@@ -59,21 +56,34 @@ namespace vFrame.Bundler.Assets.Bundle
             get { return _request == null ? 0f : _request.progress; }
         }
 
-        protected override Object _asset { get; set; }
+        public override Object GetAsset() {
+            if (null == _request) {
+                _request = CreateLoadRequest();
+            }
+
+            if (!IsDone) {
+                Logger.LogError("Asset not loaded, force load complete: {0}", _path);
+            }
+            return _request.asset;
+        }
 
         protected override void LoadAssetInternal() {
             Logger.LogInfo("Start asynchronously loading asset from bundle: {0}", _path);
 
-            var name = GetAssetName();
-            _request = _loader.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);
-            _request.allowSceneActivation = true;
-
+            _request = CreateLoadRequest();
             if (_request == null)
                 throw new BundleAssetLoadFailedException(
-                    string.Format("Cannot load asset {0} from bundle: {1}", name, _path));
+                    string.Format("Cannot load asset {0} from bundle: {1}", GetAssetName(), _path));
 
             // Avoid releasing reference when loading assets.
             _loader.Retain();
+        }
+
+        private AssetBundleRequest CreateLoadRequest() {
+            var name = GetAssetName();
+            var request = _loader.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);
+            request.allowSceneActivation = true;
+            return request;
         }
     }
 }

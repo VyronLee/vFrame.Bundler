@@ -26,19 +26,19 @@ namespace vFrame.Bundler.Modes
     public class BundleMode : ModeBase
     {
         private readonly Dictionary<string, BundleLoaderBase> _loaderCache
-            = new Dictionary<string, BundleLoaderBase>();
+            = new Dictionary<string, BundleLoaderBase>(); // Bundle name <=> Loader
 
         private readonly Dictionary<string, LoadRequest> _loadRequestCache
-            = new Dictionary<string, LoadRequest>();
+            = new Dictionary<string, LoadRequest>(); // Bundle name <=> Load request
 
         private readonly Dictionary<string, LoadRequestAsync> _loadRequestAsyncCache
-            = new Dictionary<string, LoadRequestAsync>();
+            = new Dictionary<string, LoadRequestAsync>(); // Bundle name <=> Load request
 
         private readonly Dictionary<ILoadRequest, Dictionary<Type, IAsset>> _assetCache
-            = new Dictionary<ILoadRequest, Dictionary<Type, IAsset>>();
+            = new Dictionary<ILoadRequest, Dictionary<Type, IAsset>>(); // Load request <=> Asset typed dict.
 
         private readonly Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>> _assetAsyncCache
-            = new Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>>();
+            = new Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>>(); // Load request <=> Asset typed dict.
 
         public BundleMode(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options)
             : base(manifest, searchPaths, options) {
@@ -46,21 +46,27 @@ namespace vFrame.Bundler.Modes
 
         public override ILoadRequest Load(string path) {
             LoadRequest loadRequest;
-            if (_loadRequestCache.TryGetValue(path, out loadRequest))
+            if (_loadRequestCache.TryGetValue(path, out loadRequest)) {
+                Logger.LogInfo("Get sync load request from cache: {0}", path);
                 return loadRequest;
+            }
 
             var loader = CreateLoaderByAssetPath(path, false);
             loadRequest = _loadRequestCache[path] = new LoadRequestSync(this, _options, path, loader);
+            Logger.LogInfo("Add sync load request to cache: {0}", path);
             return loadRequest;
         }
 
         public override ILoadRequestAsync LoadAsync(string path) {
             LoadRequestAsync loadRequestAsync;
-            if (_loadRequestAsyncCache.TryGetValue(path, out loadRequestAsync))
+            if (_loadRequestAsyncCache.TryGetValue(path, out loadRequestAsync)) {
+                Logger.LogInfo("Get async load request from cache: {0}", path);
                 return loadRequestAsync;
+            }
 
             var loader = CreateLoaderByAssetPath(path, true);
             loadRequestAsync = _loadRequestAsyncCache[path] = new LoadRequestAsync(this, _options, path, loader);
+            Logger.LogInfo("Add async load request to cache: {0}", path);
             return loadRequestAsync;
         }
 
@@ -89,6 +95,11 @@ namespace vFrame.Bundler.Modes
                 bundleLoader.Dependencies = dependencies;
 
                 _loaderCache.Add(bundlePath, bundleLoader);
+
+                Logger.LogInfo("Add loader to cache: {0}", bundlePath);
+            }
+            else {
+                Logger.LogInfo("Get loader from cache: {0}", bundlePath);
             }
 
             return bundleLoader;
@@ -109,7 +120,11 @@ namespace vFrame.Bundler.Modes
                     continue;
 
                 loader.Unload();
-                _loaderCache.Remove(name);
+
+                if (_loaderCache.ContainsKey(name)) {
+                    Logger.LogInfo("Remove loader from cache: {0}", name);
+                    _loaderCache.Remove(name);
+                }
 
                 var toRemoveLoaderRequestName = ListPool<string>.Get();
                 var toRemoveLoaderRequest = ListPool<ILoadRequest>.Get();
@@ -129,8 +144,15 @@ namespace vFrame.Bundler.Modes
                 }
 
                 foreach (var v in toRemoveLoaderRequestName) {
-                    _loadRequestCache.Remove(v);
-                    _loadRequestAsyncCache.Remove(v);
+                    if (_loadRequestCache.ContainsKey(v)) {
+                        Logger.LogInfo("Remove sync load request from cache: {0}", v);
+                        _loadRequestCache.Remove(v);
+                    }
+
+                    if (_loadRequestAsyncCache.ContainsKey(v)) {
+                        Logger.LogInfo("Remove async load request from cache: {0}", v);
+                        _loadRequestAsyncCache.Remove(v);
+                    }
                 }
 
                 foreach (var v in toRemoveLoaderRequest) {
