@@ -78,6 +78,7 @@ namespace vFrame.Bundler.Editor
             var depsInfo = ParseBundleDependenciesFromRules(buildRule, ref reservedSharedBundle);
             var bundlesInfo = GenerateBundlesInfo(ref depsInfo, ref reservedSharedBundle);
             ResolveBundleDependencies(ref bundlesInfo);
+            //FilterRedundantDependencies(ref bundlesInfo);
             var manifest = GenerateBundlerManifest(ref bundlesInfo);
             Resources.UnloadUnusedAssets();
             return manifest;
@@ -153,14 +154,10 @@ namespace vFrame.Bundler.Editor
                 }
 
                 var dependencies = abManifest.GetDirectDependencies(assetBundle);
-                if (dependencies.Length != manifest.bundles[assetBundle].dependencies.Count) {
-                    throw new BundleException("Bundle dependencies count not match: " + assetBundle);
-                }
-
                 foreach (var dependency in dependencies) {
                     if (!manifest.bundles[assetBundle].dependencies.Contains(dependency)) {
                         throw new BundleException(string.Format(
-                            "Bundle dependencies does not equal: {0}, lost dependency: {1}", assetBundle, dependency));
+                            "Bundle dependencies lost, bundle name: {0}, dependency: {1}", assetBundle, dependency));
                     }
                     Debug.Log("Validating dependency: " + dependency);
                     ValidateBundle(dependency, validated);
@@ -405,13 +402,11 @@ namespace vFrame.Bundler.Editor
         }
 
         private static IEnumerable<string> CollectDependencies(string asset) {
-            var assetObj = AssetDatabase.LoadAssetAtPath<Object>(asset);
-            var dep1 = EditorUtility.CollectDependencies(new[] {assetObj});
-            var dep2 = dep1.Select(AssetDatabase.GetAssetPath).ToArray();
-            var dep3 = dep2.Where(v => v != asset).ToArray();
-            var dep4 = dep3.Where(v => !IsUnmanagedResources(v)).ToArray();
-            var dep5 = dep4.Distinct().ToArray();
-            return dep5;
+            var dep1 = AssetDatabase.GetDependencies(asset);
+            var dep2 = dep1.Where(v => v != asset).ToArray();
+            var dep3 = dep2.Where(v => !IsUnmanagedResources(v)).ToArray();
+            var dep4 = dep3.Distinct().ToArray();
+            return dep4;
         }
 
         private static void ResolveBundleDependencies(ref BundlesInfo bundlesInfo) {
@@ -436,6 +431,10 @@ namespace vFrame.Bundler.Editor
                         if (depBundle == kv.Key) {
                             continue;
                         }
+
+                        if (bundleInfo.dependencies.Contains(depBundle)) {
+                            continue;
+                        }
                         bundleInfo.dependencies.Add(depBundle);
                     }
                 }
@@ -444,7 +443,9 @@ namespace vFrame.Bundler.Editor
                     ResolveAssetDependency(asset);
                 }
             }
+        }
 
+        private static void FilterRedundantDependencies(ref BundlesInfo bundlesInfo) {
             // Filter out redundant dependencies.
             var bsInfo = bundlesInfo;
             foreach (var kv in bundlesInfo) {
