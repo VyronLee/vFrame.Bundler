@@ -10,6 +10,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
@@ -23,6 +24,7 @@ namespace vFrame.Bundler.LoadRequests
         {
             public BundleLoaderBase Loader;
             public readonly List<Node> Children = new List<Node>();
+            public float LaunchTime;
         }
 
         private Node _root;
@@ -40,7 +42,7 @@ namespace vFrame.Bundler.LoadRequests
                 _root.Loader.Retain();
             IsStarted = true;
 
-            yield return TravelAndLoadLeaf(_root);
+            yield return TravelAndLoad();
 
             if (!_finished)
                 _root.Loader.Release();
@@ -81,34 +83,53 @@ namespace vFrame.Bundler.LoadRequests
             }
         }
 
-        private IEnumerator TravelAndLoadLeaf(Node node) {
-            foreach (var child in node.Children) {
-                // Run child loader parallel.
-                var enumerators = ListPool<IEnumerator>.Get();
-                enumerators.Add(TravelAndLoadLeaf(child));
-                foreach (var enumerator in enumerators) {
-                    yield return enumerator;
+        private IEnumerator TravelAndLoad() {
+            var stack = StackPool<Node>.Get();
+            _root.LaunchTime = Time.realtimeSinceStartup;
+            stack.Push(_root);
+
+            while (stack.Count > 0) {
+                var ele = stack.Peek();
+
+                if (ele.Children.Count > 0) {
+                    var allVisited = true;
+                    foreach (var child in ele.Children) {
+                        if (child.LaunchTime > 0) {
+                            continue;
+                        }
+                        child.LaunchTime = Time.realtimeSinceStartup;
+                        stack.Push(child);
+                        allVisited = false;
+                    }
+
+                    if (!allVisited) {
+                        continue;
+                    }
                 }
-                ListPool<IEnumerator>.Return(enumerators);
-            }
 
-            var loader = node.Loader;
+                stack.Pop();
 
-            if (loader.IsDone)
-                yield break;
+                var loader = ele.Loader;
+                if (loader.IsDone)
+                    continue;
 
-            if (!loader.IsStarted) {
-                loader.Load();
+                if (!loader.IsStarted) {
+                    loader.Load();
 
-                var async = node.Loader as BundleLoaderAsync;
-                if (async != null) {
-                    yield return async.Await();
+                    var async = loader as BundleLoaderAsync;
+                    if (async != null) {
+                        yield return async.Await();
+                    }
                 }
-            }
 
-            while (loader.IsLoading) {
-                yield return null;
+                while (loader.IsLoading) {
+                    yield return null;
+                }
+
+                //Debug.LogWarningFormat("Load Node finished: {0}, cost: {1:N3}s",
+                //    ele.Loader, Time.realtimeSinceStartup - ele.LaunchTime);
             }
+            StackPool<Node>.Return(stack);
         }
 
         private float CalculateLoadingProgress() {

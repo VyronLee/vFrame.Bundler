@@ -85,6 +85,8 @@
     <Compile Include="Base\Pools\ListAllocator.cs" />
     <Compile Include="Base\Pools\ListPool.cs" />
     <Compile Include="Base\Pools\ObjectPool.cs" />
+    <Compile Include="Base\Pools\StackAllocator.cs" />
+    <Compile Include="Base\Pools\StackPool.cs" />
     <Compile Include="Base\Pools\StringBuilderAllocator.cs" />
     <Compile Include="Base\Pools\StringBuilderPool.cs" />
     <Compile Include="Base\PropertySetterProxy.cs" />
