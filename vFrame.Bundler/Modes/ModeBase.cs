@@ -46,11 +46,11 @@ namespace vFrame.Bundler.Modes
         }
 
         public virtual IScene GetScene(LoadRequest request, LoadSceneMode mode) {
-            return new SceneSync(request.AssetPath, mode, request.Loader);
+            return new SceneSync(request.AssetPath, mode, _options, request.Loader);
         }
 
         public virtual ISceneAsync GetSceneAsync(LoadRequest request, LoadSceneMode mode) {
-            return new SceneAsync(request.AssetPath, mode, request.Loader);
+            return new SceneAsync(request.AssetPath, mode, _options, request.Loader);
         }
 
         public abstract IAsset GetAsset(LoadRequest request, Type type);

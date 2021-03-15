@@ -63,7 +63,7 @@ namespace vFrame.Bundler.Assets.Resource
 
 #if UNITY_EDITOR
             if (_options.UseAssetDatabaseInsteadOfResources) {
-                _request = new AssetDatabaseAsync();
+                _request = new AssetDatabaseAsync(_options);
                 _request.LoadAssetAtPath(_path, _type);
                 return;
             }
@@ -142,6 +142,11 @@ namespace vFrame.Bundler.Assets.Resource
 
             private string _path;
             private Type _type;
+            private readonly BundlerOptions _options;
+
+            public AssetDatabaseAsync(BundlerOptions options) {
+                _options = options;
+            }
 
             public override IEnumerator Await() {
                 IsStarted = true;
@@ -159,7 +164,9 @@ namespace vFrame.Bundler.Assets.Resource
                 _path = path;
                 _type = type;
                 _startFrame = Time.frameCount;
-                _frameLength = Random.Range(6, 30);
+                _frameLength = Random.Range(
+                    _options.MinAsyncFrameCountWhenUsingAssetDatabase,
+                    _options.MaxAsyncFrameCountWhenUsingAssetDatabase);
             }
 
             public override Object asset {

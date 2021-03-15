@@ -16,5 +16,7 @@ namespace vFrame.Bundler
     {
         public ILoaderFactory LoaderFactory = null;
         public bool UseAssetDatabaseInsteadOfResources = true;
+        public int MinAsyncFrameCountWhenUsingAssetDatabase = 1;
+        public int MaxAsyncFrameCountWhenUsingAssetDatabase = 10;
     }
 }

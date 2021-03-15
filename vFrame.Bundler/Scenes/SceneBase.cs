@@ -16,6 +16,10 @@ using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace vFrame.Bundler.Scenes
 {
     public abstract class SceneBase : IScene
@@ -30,10 +34,14 @@ namespace vFrame.Bundler.Scenes
         protected readonly LoadSceneMode _mode;
         protected readonly string _path;
         protected readonly string _scenePath;
+        protected readonly BundlerOptions _options;
 
-        protected SceneBase(string path, LoadSceneMode mode, BundleLoaderBase bundleLoader = null) {
+        protected Scene Scene { get; set; }
+
+        protected SceneBase(string path, LoadSceneMode mode, BundlerOptions options, BundleLoaderBase bundleLoader = null) {
             _path = path;
             _mode = mode;
+            _options = options;
             _bundleLoader = bundleLoader;
 
             _scenePath = _path.Substring(7, _path.Length - 13); // Cut from "Assets/_____.unity"
@@ -48,23 +56,39 @@ namespace vFrame.Bundler.Scenes
         public virtual bool IsDone { get; protected set; }
 
         public void Unload() {
-            CoroutinePool.StartCoroutine(UnloadInternal());
+#if UNITY_EDITOR
+            if (!EditorApplication.isPlaying) {
+                UnloadInternalInEditMode();
+                return;
+            }
+#endif
+            CoroutinePool.StartCoroutine(UnloadInternalInPlayMode());
         }
 
-        private IEnumerator UnloadInternal() {
-            yield return SceneManager.UnloadSceneAsync(_scenePath);
+        private IEnumerator UnloadInternalInPlayMode() {
+            yield return OnUnload();
             Release();
         }
 
-        public void Activate() {
-            var scene = SceneManager.GetSceneByPath(_path);
-            if (scene == null)
-                throw new BundleInstanceNotFoundException("No such scene instance: " + _path);
+#if UNITY_EDITOR
+        private void UnloadInternalInEditMode() {
+            OnUnloadInEditMode();
+            Release();
+        }
+#endif
 
-            SceneManager.SetActiveScene(scene);
+        public void Activate() {
+            if (!Scene.IsValid())
+                throw new InvalidOperationException("Scene invalid: " + Scene.path);
+
+            SceneManager.SetActiveScene(Scene);
         }
 
         protected abstract void LoadInternal();
+        protected abstract IEnumerator OnUnload();
+#if UNITY_EDITOR
+        protected abstract void OnUnloadInEditMode();
+#endif
 
         public void Retain() {
             if (_bundleLoader != null)
