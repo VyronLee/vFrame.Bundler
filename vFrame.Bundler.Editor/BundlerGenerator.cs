@@ -402,10 +402,25 @@ namespace vFrame.Bundler.Editor
 
         private static IEnumerable<string> CollectDependencies(string asset) {
             var dep1 = AssetDatabase.GetDependencies(asset);
+
+            // On Unity 2018 or newer, LightingDataAsset depends on SceneAsset directly,
+            // which will lead to circular dependency
+            var obj = AssetDatabase.LoadMainAssetAtPath(asset);
+            if (obj is LightingDataAsset lightingDataAsset) {
+                dep1 = GetLightingDataValidDependencies(lightingDataAsset);
+            }
+
             var dep2 = dep1.Where(v => v != asset).ToArray();
             var dep3 = dep2.Where(v => !IsUnmanagedResources(v)).ToArray();
             var dep4 = dep3.Distinct().ToArray();
             return dep4;
+        }
+
+        private static string[] GetLightingDataValidDependencies(LightingDataAsset lightingDataAsset) {
+            var path = AssetDatabase.GetAssetPath(lightingDataAsset);
+            var dep1 = AssetDatabase.GetDependencies(path, false);
+            var dep2 = dep1.Where(v => !AssetDatabase.LoadAssetAtPath<SceneAsset>(v)).ToArray();
+            return dep2;
         }
 
         private static void ResolveBundleDependencies(ref BundlesInfo bundlesInfo) {
