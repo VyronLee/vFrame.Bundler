@@ -18,7 +18,6 @@ using UnityEditor;
 using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Utils;
-using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Editor
 {
@@ -32,7 +31,7 @@ namespace vFrame.Bundler.Editor
             var unmanaged = false;
             unmanaged |= Path.GetExtension(name) == ".meta";
             unmanaged |= Path.GetExtension(name) == ".cs";
-            unmanaged |= Path.GetExtension(name) == ".asset";
+            //unmanaged |= Path.GetExtension(name) == ".asset";
             unmanaged |= Path.GetExtension(name) == ".dll";
             unmanaged |= name.EndsWith("unity_builtin_extra");
             unmanaged |= name.EndsWith("unity default resources");
@@ -680,7 +679,7 @@ namespace vFrame.Bundler.Editor
                     throw new BundleException(string.Format("Bundle duplicated: {0}", bundleName));
 
                 //manifest.bundles.Add(bundleName, new BundleData {name = bundleName}); // Memory optimized
-                manifest.bundles.Add(bundleName, new BundleData());
+                manifest.bundles.Add(bundleName, new BundleData { assets = assets.ToList()});
                 foreach (var depName in dependencies)
                     manifest.bundles[bundleName].dependencies.Add(depName);
             }
