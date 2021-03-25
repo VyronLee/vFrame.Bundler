@@ -25,10 +25,11 @@ namespace vFrame.Bundler.Messengers
         private HashSet<AssetBase> _assets;
         private Dictionary<Type, AssetBase> _typedAssets;
 
-        private bool _recovered;
-
         private GameObject _targetObject;
         private string _targetName;
+
+        [SerializeField]
+        private string _instanceId;
 
         public List<AssetBase> GetAssets() {
             var assets = new List<AssetBase>();
@@ -42,7 +43,7 @@ namespace vFrame.Bundler.Messengers
         }
 
         public bool Alive {
-            get { return null != _targetObject; }
+            get { return null != this; }
         }
 
         public string TargetName {
@@ -53,55 +54,73 @@ namespace vFrame.Bundler.Messengers
             _targetObject = gameObject;
             _targetName = name;
 
-            // Reference should be calculated when cloning from other instance
-            RecoverRefs();
+            if (!string.IsNullOrEmpty(_instanceId)) {
+                if (!RecoverRefs()) {
+                    Logger.LogError("BundlerMessenger:Awake - Recover refs failed, see console output!");
+                }
+            }
+            _instanceId = GetInstanceID().ToString();
+
+            Logger.LogVerbose("BundlerMessenger::Awake: {0}", this);
 
             hideFlags = HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
         }
 
-        private void RecoverRefs() {
-            if (_recovered)
-                return;
-
-            _recovered = true;
-
-            Logger.LogVerbose("Recover ref, messenger: {0}, {1}", _targetName, GetInstanceID());
-
-            if (null != _assets)
-                foreach (var assetBase in _assets) {
-                    Logger.LogVerbose("Recover ref, messenger: {0}, {1}, loader: {2}",
-                        _targetName, GetInstanceID(), assetBase.LoaderPath);
-                    assetBase.Retain();
-                    Logger.LogVerbose("Recover ref, messenger: {0}, {1}, loader: {2}, finished!",
-                        _targetName, GetInstanceID(), assetBase.LoaderPath);
+        private static BundlerMessenger FindMessengerInstance(string instanceId) {
+            foreach (var bundlerMessenger in Messengers) {
+                if (bundlerMessenger._instanceId == instanceId) {
+                    return bundlerMessenger;
                 }
+            }
+            return null;
+        }
 
-            if (null != _typedAssets)
-                foreach (var kv in _typedAssets) {
-                    Logger.LogVerbose("Recover ref, messenger: {0}, {1}, loader: {2}",
-                        _targetName, GetInstanceID(), kv.Value.LoaderPath);
+        private bool RecoverRefs() {
+            Logger.LogVerbose("BundlerMessenger::RecoverRefs: {0}", this);
+
+            var clonedFromMessenger = FindMessengerInstance(_instanceId);
+            if (!clonedFromMessenger) {
+                Logger.LogError("BundlerMessenger::RecoverRefs: Messenger not found, instance id: {0}", _instanceId);
+                return false;
+            }
+
+            _assets = new HashSet<AssetBase>();
+            if (null != clonedFromMessenger._assets) {
+                foreach (var asset in clonedFromMessenger._assets) {
+                    Logger.LogVerbose("BundlerMessenger::RecoverRefs: {0}, loader: {1}", this, asset.Loader);
+                    asset.Retain();
+                    Logger.LogVerbose("BundlerMessenger::RecoverRefs: {0}, loader: {1}, finished!", this, asset.Loader);
+                    _assets.Add(asset);
+                }
+            }
+
+            _typedAssets = new Dictionary<Type, AssetBase>();
+            if (null != clonedFromMessenger._typedAssets) {
+                foreach (var kv in clonedFromMessenger._typedAssets) {
+                    Logger.LogVerbose("BundlerMessenger::RecoverRefs: {0}, loader: {1}", this, kv.Value.Loader);
                     kv.Value.Retain();
-                    Logger.LogVerbose("Recover ref, messenger: {0}, {1}, loader: {2}, finished",
-                        _targetName, GetInstanceID(), kv.Value.LoaderPath);
+                    Logger.LogVerbose("BundlerMessenger::RecoverRef: {0}, loader: {1}, finished", this, kv.Value.Loader);
+                    _typedAssets.Add(kv.Key, kv.Value);
                 }
+            }
 
-            Logger.LogVerbose("Recover ref, messenger: {0}, {1}, finished!", _targetName, GetInstanceID());
+            Logger.LogVerbose("BundlerMessenger::RecoverRef: {0}, finished!", this);
 
             Messengers.Add(this);
+            return true;
         }
 
         private void OnDestroy() {
+            Logger.LogVerbose("BundlerMessenger::OnDestroy: {0}", this);
             ReleaseRef();
         }
 
         public void ReleaseRef() {
             if (null != _assets) {
                 foreach (var asset in _assets) {
-                    Logger.LogVerbose("Release ref from messenger: {0}, {1}, loader: {2}",
-                        _targetName, GetInstanceID(), asset.LoaderPath);
+                    Logger.LogVerbose("BundlerMessenger::ReleaseRef: {0}, loader: {1}", this, asset.Loader);
                     asset.Release();
-                    Logger.LogVerbose("Release ref from messenger: {0}, {1}, loader: {2}, finished!",
-                        _targetName, GetInstanceID(), asset.LoaderPath);
+                    Logger.LogVerbose("BundlerMessenger::ReleaseRef: {0}, loader: {1}, finished!", this, asset.Loader);
                 }
 
                 HashSetPool<AssetBase>.Return(_assets);
@@ -109,11 +128,9 @@ namespace vFrame.Bundler.Messengers
 
             if (null != _typedAssets) {
                 foreach (var kv in _typedAssets) {
-                    Logger.LogVerbose("Release ref from messenger: {0}, {1}, loader: {2}",
-                        _targetName, GetInstanceID(), kv.Value.LoaderPath);
+                    Logger.LogVerbose("BundlerMessenger::ReleaseRef: {0}, loader: {1}", this, kv.Value.Loader);
                     kv.Value.Release();
-                    Logger.LogVerbose("Release ref from messenger: {0}, {1}, loader: {2}, finished!",
-                        _targetName, GetInstanceID(), kv.Value.LoaderPath);
+                    Logger.LogVerbose("BundlerMessenger::ReleaseRef: {0}, loader: {1}, finished!", this, kv.Value.Loader);
                 }
 
                 DictionaryPool<Type, AssetBase>.Return(_typedAssets);
@@ -130,13 +147,11 @@ namespace vFrame.Bundler.Messengers
                 return;
             _assets.Add(asset);
 
-            Logger.LogVerbose("Retain ref from messenger: {0}, {1}, loader: {2}",
-                _targetName, GetInstanceID(), asset.LoaderPath);
+            Logger.LogVerbose("BundlerMessenger::RetainRef: {0}, loader: {1}", this, asset.Loader);
 
             asset.Retain();
 
-            Logger.LogVerbose("Retain ref from messenger: {0}, {1}, loader: {2}, finished!",
-                _targetName, GetInstanceID(), asset.LoaderPath);
+            Logger.LogVerbose("BundlerMessenger::RetainRef: {0}, loader: {1}, finished!", this, asset.Loader);
 
             Messengers.Add(this);
         }
@@ -147,26 +162,29 @@ namespace vFrame.Bundler.Messengers
 
             var type = typeof(TSetter);
             if (_typedAssets.ContainsKey(type)) {
-                Logger.LogVerbose("Setter exist: {0}, release previous asset: {1}",
-                    type.FullName, _typedAssets[type].AssetPath);
+                Logger.LogVerbose("BundlerMessenger::RetainRef<T>: {0}, Setter exist: {1}, release previous asset: {2}",
+                    this, type.FullName, _typedAssets[type].AssetPath);
 
                 _typedAssets[type].Release();
 
-                Logger.LogVerbose("Setter exist: {0}, release previous asset: {1}, finished!",
-                    type.FullName, _typedAssets[type].AssetPath);
+                Logger.LogVerbose("BundlerMessenger::RetainRef<T>: {0}, Setter exist: {1}, release previous asset: {2}, finished!",
+                    this, type.FullName, _typedAssets[type].AssetPath);
             }
 
             _typedAssets[type] = asset;
 
-            Logger.LogVerbose("Retain ref from messenger: {0}, {1}, loader: {2}",
-                _targetName, GetInstanceID(), asset.LoaderPath);
+            Logger.LogVerbose("BundlerMessenger::RetainRef<T>: {0}, loader: {1}", this, asset.Loader);
 
             asset.Retain();
 
-            Logger.LogVerbose("Retain ref from messenger: {0}, {1}, loader: {2}, finished!",
-                _targetName, GetInstanceID(), asset.LoaderPath);
+            Logger.LogVerbose("BundlerMessenger::RetainRef<T>: {0}, loader: {1}, finished!", this, asset.Loader);
 
             Messengers.Add(this);
+        }
+
+        public override string ToString() {
+            return string.Format("[Messenger: {0}, TargetName: {1}, Target GameObject: {2}]",
+                GetInstanceID(), TargetName, null != _targetObject ? _targetObject.GetInstanceID().ToString() : "(null)");
         }
     }
 }

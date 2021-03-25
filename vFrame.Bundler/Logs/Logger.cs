@@ -46,7 +46,7 @@ namespace vFrame.Bundler.Logs
             if (_level > LogLevel.ERROR)
                 return;
 
-            Log(text, args);
+            Debug.LogError(string.Format(text, args));
         }
 
         public static class LogLevel

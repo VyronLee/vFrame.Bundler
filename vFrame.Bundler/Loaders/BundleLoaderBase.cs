@@ -158,8 +158,8 @@ namespace vFrame.Bundler.Loaders
         protected abstract void OnUnloadProcess();
 
         public override string ToString() {
-            return string.Format("{4}: [path: {0}, started: {1}, done: {2}, unloaded: {3}]",
-                _path, IsStarted, IsDone, _unloaded, GetType().Name);
+            return string.Format("{4}: [path: {0}, started: {1}, done: {2}, unloaded: {3}, refs: {5}]",
+                _path, IsStarted, IsDone, _unloaded, GetType().Name, GetReferences());
         }
     }
 }

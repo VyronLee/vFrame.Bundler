@@ -175,6 +175,7 @@ namespace vFrame.Bundler.Modes
             foreach (var messenger in BundlerMessenger.Messengers) {
                 if (messenger.Alive)
                     continue;
+                Logger.LogVerbose("Messenger has ben dead: {0}", messenger);
                 deadMessengers.Add(messenger);
             }
 

@@ -25,10 +25,13 @@ namespace vFrame.Bundler.Editor.Inspector
         private BundlerMessenger _messenger;
         private FieldInfo _assetsFieldInfo;
         private FieldInfo _typedAssetsFieldInfo;
+        private SerializedProperty _instanceId;
 
         private void OnEnable()
         {
             _messenger = (BundlerMessenger) target;
+
+            _instanceId = serializedObject.FindProperty("_instanceId");
 
             var tBundlerMessenger = typeof(BundlerMessenger);
             _assetsFieldInfo = tBundlerMessenger.GetField("_assets", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -38,6 +41,8 @@ namespace vFrame.Bundler.Editor.Inspector
         public override void OnInspectorGUI()
         {
             EditorGUILayout.BeginVertical();
+
+            EditorGUILayout.PropertyField(_instanceId);
 
             var assets = _assetsFieldInfo.GetValue(_messenger) as HashSet<AssetBase>;
             var typedAssets = _typedAssetsFieldInfo.GetValue(_messenger) as Dictionary<Type, AssetBase>;
