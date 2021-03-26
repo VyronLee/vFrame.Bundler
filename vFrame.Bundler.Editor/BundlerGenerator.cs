@@ -721,6 +721,10 @@ namespace vFrame.Bundler.Editor
                 if (!bundles.ContainsKey(kv.Value.bundle))
                     bundles.Add(kv.Value.bundle, new HashSet<string>());
 
+                // Editor only objects cannot be included in AssetBundles
+                if (kv.Key.EndsWith("LightingData.asset")) {
+                    continue;
+                }
                 bundles[kv.Value.bundle].Add(kv.Key);
             }
 
