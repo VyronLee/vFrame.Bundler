@@ -139,6 +139,7 @@ namespace vFrame.Bundler.Editor
 
             var abManifest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
             if (!abManifest) {
+                ab.Unload(true);
                 throw new BundleException("Load asset bundle manifest failed: " + abManifestPath);
             }
 
@@ -175,6 +176,8 @@ namespace vFrame.Bundler.Editor
             }
             finally {
                 EditorUtility.ClearProgressBar();
+                ab.Unload(true);
+                AssetBundle.UnloadAllAssetBundles(true);
             }
         }
 
@@ -409,6 +412,7 @@ namespace vFrame.Bundler.Editor
             if (obj is LightingDataAsset lightingDataAsset) {
                 dep1 = GetLightingDataValidDependencies(lightingDataAsset);
             }
+            Resources.UnloadAsset(obj);
 
             var dep2 = dep1.Where(v => v != asset).ToArray();
             var dep3 = dep2.Where(v => !IsUnmanagedResources(v)).ToArray();
@@ -419,7 +423,14 @@ namespace vFrame.Bundler.Editor
         private static string[] GetLightingDataValidDependencies(LightingDataAsset lightingDataAsset) {
             var path = AssetDatabase.GetAssetPath(lightingDataAsset);
             var dep1 = AssetDatabase.GetDependencies(path, false);
-            var dep2 = dep1.Where(v => !AssetDatabase.LoadAssetAtPath<SceneAsset>(v)).ToArray();
+            var dep2 = dep1.Where(v => {
+                var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(v);
+                var isSceneAsset = null != asset;
+                if (asset) {
+                    Resources.UnloadAsset(asset);
+                }
+                return !isSceneAsset;
+            }).ToArray();
             return dep2;
         }
 
