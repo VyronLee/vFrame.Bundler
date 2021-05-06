@@ -159,7 +159,7 @@ namespace vFrame.Bundler.Editor
                         throw new BundleException(string.Format(
                             "Bundle dependencies lost, bundle name: {0}, dependency: {1}", assetBundle, dependency));
                     }
-                    Debug.Log("Validating dependency: " + dependency);
+                    //Debug.Log("Validating dependency: " + dependency);
                     ValidateBundle(dependency, validated);
                 }
                 validated.Remove(assetBundle);
@@ -170,7 +170,7 @@ namespace vFrame.Bundler.Editor
             try {
                 foreach (var assetBundle in abs) {
                     EditorUtility.DisplayProgressBar("Validating asset bundle", assetBundle, index++/abs.Length);
-                    Debug.Log("Validating asset bundle: " + assetBundle);
+                    //Debug.Log("Validating asset bundle: " + assetBundle);
                     ValidateBundle(assetBundle, new List<string>());
                 }
             }
