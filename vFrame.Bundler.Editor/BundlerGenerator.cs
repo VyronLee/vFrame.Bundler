@@ -9,6 +9,7 @@
 //============================================================
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -18,11 +19,15 @@ using UnityEditor;
 using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Utils;
+using Debug = UnityEngine.Debug;
 
 namespace vFrame.Bundler.Editor
 {
     public static class BundlerGenerator
     {
+        private static string DependenciesCacheFilePath =>
+            PathUtility.RelativeProjectPathToAbsolutePath("Library/AssetDependenciesCache.json");
+
         private static bool IsUnmanagedResources(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -71,15 +76,16 @@ namespace vFrame.Bundler.Editor
             SaveManifest(ref manifest, outputPath);
         }
 
-        public static BundlerManifest GenerateManifest(BundlerBuildRule buildRule)
-        {
+        public static BundlerManifest GenerateManifest(BundlerBuildRule buildRule) {
+            var cache = LoadAssetDependenciesCache();
             var reservedSharedBundle = new ReservedSharedBundleInfo();
-            var depsInfo = ParseBundleDependenciesFromRules(buildRule, ref reservedSharedBundle);
-            var bundlesInfo = GenerateBundlesInfo(ref depsInfo, ref reservedSharedBundle);
-            ResolveBundleDependencies(ref bundlesInfo);
+            var depsInfo = ParseBundleDependenciesFromRules(buildRule, ref reservedSharedBundle, ref cache);
+            var bundlesInfo = GenerateBundlesInfo(ref depsInfo, ref reservedSharedBundle, ref cache);
+            ResolveBundleDependencies(ref bundlesInfo, ref cache);
             //FilterRedundantDependencies(ref bundlesInfo);
             var manifest = GenerateBundlerManifest(ref bundlesInfo);
             Resources.UnloadUnusedAssets();
+            SaveAssetDependenciesCache(cache);
             return manifest;
         }
 
@@ -181,8 +187,23 @@ namespace vFrame.Bundler.Editor
             }
         }
 
+        private static DependencyCache LoadAssetDependenciesCache() {
+            try {
+                var jsonData = File.ReadAllText(DependenciesCacheFilePath);
+                return JsonUtility.FromJson<DependencyCache>(jsonData);
+            }
+            catch {
+                return new DependencyCache();
+            }
+        }
+
+        private static void SaveAssetDependenciesCache(DependencyCache cache) {
+            var jsonData = JsonUtility.ToJson(cache);
+            File.WriteAllText(DependenciesCacheFilePath, jsonData);
+        }
+
         private static DependenciesInfo ParseBundleDependenciesFromRules(BundlerBuildRule buildRule,
-            ref ReservedSharedBundleInfo reserved)
+            ref ReservedSharedBundleInfo reserved, ref DependencyCache cache)
         {
             buildRule.rules.Sort((a, b) => -a.shared.CompareTo(b.shared));
 
@@ -191,13 +212,13 @@ namespace vFrame.Bundler.Editor
                 switch (rule.packType)
                 {
                     case PackType.PackByFile:
-                        ParseBundleDependenciesByRuleOfPackByFile(rule, ref depsInfo, ref reserved);
+                        ParseBundleDependenciesByRuleOfPackByFile(rule, ref depsInfo, ref reserved, ref cache);
                         break;
                     case PackType.PackByDirectory:
-                        ParseBundleDependenciesByRuleOfPackByDirectory(rule, ref depsInfo, ref reserved);
+                        ParseBundleDependenciesByRuleOfPackByDirectory(rule, ref depsInfo, ref reserved, ref cache);
                         break;
                     case PackType.PackBySubDirectory:
-                        ParseBundleDependenciesByRuleOfPackBySubDirectory(rule, ref depsInfo, ref reserved);
+                        ParseBundleDependenciesByRuleOfPackBySubDirectory(rule, ref depsInfo, ref reserved, ref cache);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -207,7 +228,7 @@ namespace vFrame.Bundler.Editor
         }
 
         private static void ParseBundleDependenciesByRuleOfPackByFile(BundleRule rule, ref DependenciesInfo depsInfo,
-            ref ReservedSharedBundleInfo reserved)
+            ref ReservedSharedBundleInfo reserved, ref DependencyCache cache)
         {
             var excludePattern = rule.excludePattern;
             var searchPath = PathUtility.RelativeProjectPathToAbsolutePath(rule.path);
@@ -233,7 +254,7 @@ namespace vFrame.Bundler.Editor
                     if (rule.shared)
                         TryAddToForceSharedBundle(relativePath, bundleName, ref reserved);
 
-                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved, ref cache);
                 }
             }
             finally {
@@ -242,7 +263,7 @@ namespace vFrame.Bundler.Editor
         }
 
         private static void ParseBundleDependenciesByRuleOfPackByDirectory(BundleRule rule, ref DependenciesInfo depsInfo,
-            ref ReservedSharedBundleInfo reserved) {
+            ref ReservedSharedBundleInfo reserved, ref DependencyCache cache) {
             var bundleName = PathUtility.NormalizeAssetBundlePath(rule.path);
             bundleName = string.Format(BundlerBuildSettings.kBundleFormatter, bundleName);
             bundleName = BundlerBuildSettings.kHashAssetBundlePath
@@ -268,7 +289,7 @@ namespace vFrame.Bundler.Editor
                     if (rule.shared)
                         TryAddToForceSharedBundle(relativePath, bundleName, ref reserved);
 
-                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                    AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved, ref cache);
                 }
             }
             finally {
@@ -277,7 +298,7 @@ namespace vFrame.Bundler.Editor
         }
 
         private static void ParseBundleDependenciesByRuleOfPackBySubDirectory(BundleRule rule, ref DependenciesInfo depsInfo,
-            ref ReservedSharedBundleInfo reserved) {
+            ref ReservedSharedBundleInfo reserved, ref DependencyCache cache) {
             var excludePattern = rule.excludePattern;
 
             var searchPath = PathUtility.RelativeProjectPathToAbsolutePath(rule.path);
@@ -310,7 +331,7 @@ namespace vFrame.Bundler.Editor
                         if (rule.shared)
                             TryAddToForceSharedBundle(relativePath, bundleName, ref reserved);
 
-                        AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved);
+                        AddDependenciesInfo(bundleName, relativePath, ref depsInfo, ref reserved, ref cache);
                     }
                 }
                 finally {
@@ -368,9 +389,9 @@ namespace vFrame.Bundler.Editor
         }
 
         private static void AddDependenciesInfo(string bundleName, string relativePath, ref DependenciesInfo info,
-            ref ReservedSharedBundleInfo reserved)
+            ref ReservedSharedBundleInfo reserved, ref DependencyCache cache)
         {
-            var dependencies = CollectDependencies(relativePath);
+            var dependencies = CollectDependencies(relativePath, ref cache);
             var deps = dependencies.ToList();
             deps.Add(relativePath);
 
@@ -389,9 +410,10 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private static BundlesInfo GenerateBundlesInfo(ref DependenciesInfo depsInfo, ref ReservedSharedBundleInfo reserved)
+        private static BundlesInfo GenerateBundlesInfo(ref DependenciesInfo depsInfo,
+            ref ReservedSharedBundleInfo reserved, ref DependencyCache cache)
         {
-            var sharedBundles = ParseSharedBundleInfo(ref depsInfo, ref reserved);
+            var sharedBundles = ParseSharedBundleInfo(ref depsInfo, ref reserved, ref cache);
             var noneSharedBundles = ParseNoneSharedBundleInfo(ref depsInfo, ref sharedBundles);
 
             var bundles = new BundlesInfo();
@@ -403,8 +425,21 @@ namespace vFrame.Bundler.Editor
             return bundles;
         }
 
-        private static IEnumerable<string> CollectDependencies(string asset) {
-            var dep1 = AssetDatabase.GetDependencies(asset);
+        private static IEnumerable<string> CollectDependencies(string asset, ref DependencyCache cache) {
+            // Try get dependencies from cache
+            if (cache.cacheData.TryGetValue(asset, out var cacheData)) {
+                if (cacheData.validated) {
+                    return cacheData.dependencies;
+                }
+
+                var hash = AssetDatabase.GetAssetDependencyHash(asset);
+                if (hash == cacheData.assetHash) {
+                    cacheData.validated = true;
+                    return cacheData.dependencies;
+                }
+            }
+
+            var dep1 = AssetDatabase.GetDependencies(asset, true); // Must recursive here.
 
             // On Unity 2018 or newer, LightingDataAsset depends on SceneAsset directly,
             // which will lead to circular dependency
@@ -417,6 +452,12 @@ namespace vFrame.Bundler.Editor
             var dep2 = dep1.Where(v => v != asset).ToArray();
             var dep3 = dep2.Where(v => !IsUnmanagedResources(v)).ToArray();
             var dep4 = dep3.Distinct().ToArray();
+
+            cache.cacheData[asset] = new DependencyCacheData {
+                assetHash = AssetDatabase.GetAssetDependencyHash(asset),
+                dependencies = dep4.ToList(),
+                validated = true,
+            };
             return dep4;
         }
 
@@ -434,8 +475,9 @@ namespace vFrame.Bundler.Editor
             return dep2;
         }
 
-        private static void ResolveBundleDependencies(ref BundlesInfo bundlesInfo) {
+        private static void ResolveBundleDependencies(ref BundlesInfo bundlesInfo, ref DependencyCache cache) {
             var info = bundlesInfo;
+            var cacheData = cache;
             foreach (var kv in bundlesInfo) {
                 //Debug.Log(string.Format("Resolving bundle dependency: {0}", kv.Key));
 
@@ -443,7 +485,7 @@ namespace vFrame.Bundler.Editor
                 bundleInfo.dependencies.Clear();
 
                 void ResolveAssetDependency(string asset) {
-                    var dependencies = CollectDependencies(asset);
+                    var dependencies = CollectDependencies(asset, ref cacheData);
                     foreach (var dependencyAsset in dependencies) {
                         // Which bundle contains this asset?
                         var depBundle = info.FirstOrDefault(
@@ -524,7 +566,8 @@ namespace vFrame.Bundler.Editor
             }
         }
 
-        private static BundlesInfo ParseSharedBundleInfo(ref DependenciesInfo depsInfo, ref ReservedSharedBundleInfo reserved)
+        private static BundlesInfo ParseSharedBundleInfo(ref DependenciesInfo depsInfo,
+            ref ReservedSharedBundleInfo reserved, ref DependencyCache cache)
         {
             var sharedDict = new Dictionary<string, string>();
 
@@ -551,7 +594,7 @@ namespace vFrame.Bundler.Editor
                         (++index).ToString());
 
                     // Sub-assets dependencies.
-                    var deps = CollectDependencies(asset);
+                    var deps = CollectDependencies(asset, ref cache);
                     foreach (var dep in deps) {
                         if (reserved.ContainsKey(dep))
                             continue;
@@ -808,6 +851,85 @@ namespace vFrame.Bundler.Editor
         // Asset name -> bundle name
         private class ReservedSharedBundleInfo : Dictionary<string, string>
         {
+        }
+
+        [Serializable]
+        private class DependencyCache : ISerializationCallbackReceiver
+        {
+            [NonSerialized]
+            public Dictionary<string, DependencyCacheData> cacheData = new Dictionary<string, DependencyCacheData>();
+
+            [SerializeField]
+            private List<string> _assetIndexes = new List<string>();
+
+            [SerializeField]
+            private List<DependencyCacheData> _cacheData = new List<DependencyCacheData>();
+
+            public void OnBeforeSerialize() {
+                var stopWatch = Stopwatch.StartNew();
+
+                _assetIndexes.Clear();
+                _cacheData.Clear();
+
+                var indexesMap = new Dictionary<string, int>(cacheData.Count);
+                var index = 0;
+                foreach (var kv in cacheData) {
+                    _assetIndexes.Add(kv.Key);
+                    _cacheData.Add(kv.Value);
+                    indexesMap.Add(kv.Key, index++);
+                }
+
+                foreach (var data in cacheData.Select(kv => kv.Value)) {
+                    data.assetHashStr = data.assetHash.ToString();
+                    data.dependencyIndexes.Clear();
+                    foreach (var dependency in data.dependencies) {
+                        if (!indexesMap.TryGetValue(dependency, out var idx)) {
+                            _assetIndexes.Add(dependency);
+                            idx = _assetIndexes.Count - 1;
+                            indexesMap.Add(dependency, idx);
+                        }
+                        data.dependencyIndexes.Add(idx);
+                    }
+                }
+                stopWatch.Stop();
+
+                Debug.LogFormat("Serialize DependencyCache finished, cost: {0}s", stopWatch.Elapsed.TotalSeconds);
+            }
+
+            public void OnAfterDeserialize() {
+                var stopWatch = Stopwatch.StartNew();
+
+                cacheData.Clear();
+
+                for (var idx = 0; idx < _cacheData.Count; idx++) {
+                    _cacheData[idx].dependencies = _cacheData[idx].dependencyIndexes.ConvertAll(v => _assetIndexes[v]);
+                    _cacheData[idx].assetHash = Hash128.Parse(_cacheData[idx].assetHashStr);
+                    cacheData.Add(_assetIndexes[idx], _cacheData[idx]);
+                }
+
+                stopWatch.Stop();
+
+                Debug.LogFormat("Deserialize DependencyCache finished, cost: {0}s", stopWatch.Elapsed.TotalSeconds);
+            }
+        }
+
+        [Serializable]
+        private class DependencyCacheData
+        {
+            [NonSerialized]
+            public Hash128 assetHash;
+
+            [NonSerialized]
+            public List<string> dependencies = new List<string>();
+
+            [NonSerialized]
+            public bool validated;
+
+            [SerializeField]
+            public List<int> dependencyIndexes = new List<int>();
+
+            [SerializeField]
+            public string assetHashStr;
         }
 
         #endregion
