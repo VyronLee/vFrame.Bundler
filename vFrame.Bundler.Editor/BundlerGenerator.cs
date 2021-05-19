@@ -28,6 +28,8 @@ namespace vFrame.Bundler.Editor
         private static string DependenciesCacheFilePath =>
             PathUtility.RelativeProjectPathToAbsolutePath("Library/AssetDependenciesCache.json");
 
+        private static int CollectedCount = 0;
+
         private static bool IsUnmanagedResources(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -427,16 +429,34 @@ namespace vFrame.Bundler.Editor
 
         private static IEnumerable<string> CollectDependencies(string asset, ref DependencyCache cache) {
             // Try get dependencies from cache
-            if (cache.cacheData.TryGetValue(asset, out var cacheData)) {
-                if (cacheData.validated) {
-                    return cacheData.dependencies;
+            var assetGuid = AssetDatabase.AssetPathToGUID(asset);
+            if (cache.cacheData.TryGetValue(assetGuid, out var cacheData)) {
+                if (ValidateDependency(ref cache, cacheData)) {
+                    return cacheData.dependencies.Select(AssetDatabase.GUIDToAssetPath).ToList();
                 }
+            }
+            return AnalyzeDependencies(asset, ref cache);
+        }
 
-                var hash = AssetDatabase.GetAssetDependencyHash(asset);
-                if (hash == cacheData.assetHash) {
-                    cacheData.validated = true;
-                    return cacheData.dependencies;
+        private static string[] GetLightingDataValidDependencies(LightingDataAsset lightingDataAsset) {
+            var path = AssetDatabase.GetAssetPath(lightingDataAsset);
+            var dep1 = AssetDatabase.GetDependencies(path, false);
+            var dep2 = dep1.Where(v => {
+                var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(v);
+                var isSceneAsset = null != asset;
+                if (asset) {
+                    Resources.UnloadAsset(asset);
                 }
+                return !isSceneAsset;
+            }).ToArray();
+            return dep2;
+        }
+
+        private static IEnumerable<string> AnalyzeDependencies(string asset, ref DependencyCache cache) {
+            if (++CollectedCount % 2000 == 0) {
+                Debug.Log($"[{CollectedCount}]Unloading assets to reduce memory...");
+                Resources.UnloadUnusedAssets();
+                GC.Collect();
             }
 
             var dep1 = AssetDatabase.GetDependencies(asset, true); // Must recursive here.
@@ -453,26 +473,55 @@ namespace vFrame.Bundler.Editor
             var dep3 = dep2.Where(v => !IsUnmanagedResources(v)).ToArray();
             var dep4 = dep3.Distinct().ToArray();
 
-            cache.cacheData[asset] = new DependencyCacheData {
+            var assetGuid = AssetDatabase.AssetPathToGUID(asset);
+            cache.cacheData[assetGuid] = new DependencyCacheData {
                 assetHash = AssetDatabase.GetAssetDependencyHash(asset),
-                dependencies = dep4.ToList(),
+                dependencies = dep4.Select(AssetDatabase.AssetPathToGUID).ToList(),
                 validated = true,
             };
+
+            foreach (var dep in dep4) {
+                var guid = AssetDatabase.AssetPathToGUID(dep);
+                if (!cache.cacheData.ContainsKey(guid) || !ValidateDependency(ref cache, cache.cacheData[guid])) {
+                    AnalyzeDependencies(dep, ref cache);
+                }
+            }
             return dep4;
         }
 
-        private static string[] GetLightingDataValidDependencies(LightingDataAsset lightingDataAsset) {
-            var path = AssetDatabase.GetAssetPath(lightingDataAsset);
-            var dep1 = AssetDatabase.GetDependencies(path, false);
-            var dep2 = dep1.Where(v => {
-                var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(v);
-                var isSceneAsset = null != asset;
-                if (asset) {
-                    Resources.UnloadAsset(asset);
+        private static bool ValidateDependency(ref DependencyCache cache, DependencyCacheData cacheData) {
+            if (cacheData.validated) {
+                return true;
+            }
+
+            var hash = AssetDatabase.GetAssetDependencyHash(cacheData.assetPath);
+            if (cacheData.assetHash != hash) {
+                Debug.LogFormat("Hash not match: {0}, previous: {1}, current: {2}",
+                    cacheData.assetPath, cacheData.assetHash, hash);
+                return false;
+            }
+
+            var ret = true;
+            foreach (var dependency in cacheData.dependencies) {
+                var dependencyPath = AssetDatabase.GUIDToAssetPath(dependency);
+                if (!File.Exists(PathUtility.RelativeProjectPathToAbsolutePath(dependencyPath))) {
+                    Debug.LogFormat("Dependency file missing: {0}, {1}, hash validation not passed: {2}",
+                        dependency, dependencyPath, cacheData.assetPath);
+                    return false;
                 }
-                return !isSceneAsset;
-            }).ToArray();
-            return dep2;
+
+                if (cache.cacheData.TryGetValue(dependency, out var data)) {
+                    ret &= ValidateDependency(ref cache, data);
+                }
+                else {
+                    Debug.LogFormat("Dependency cache data missing: {0}, {1}, hash validation not passed: {2}",
+                        dependency, dependencyPath, cacheData.assetPath);
+                    return false;
+                }
+            }
+
+            cacheData.validated = ret;
+            return ret;
         }
 
         private static void ResolveBundleDependencies(ref BundlesInfo bundlesInfo, ref DependencyCache cache) {
@@ -904,6 +953,8 @@ namespace vFrame.Bundler.Editor
                 for (var idx = 0; idx < _cacheData.Count; idx++) {
                     _cacheData[idx].dependencies = _cacheData[idx].dependencyIndexes.ConvertAll(v => _assetIndexes[v]);
                     _cacheData[idx].assetHash = Hash128.Parse(_cacheData[idx].assetHashStr);
+                    _cacheData[idx].assetGuid = _assetIndexes[idx];
+                    _cacheData[idx].assetPath = AssetDatabase.GUIDToAssetPath(_assetIndexes[idx]);
                     cacheData.Add(_assetIndexes[idx], _cacheData[idx]);
                 }
 
@@ -916,6 +967,12 @@ namespace vFrame.Bundler.Editor
         [Serializable]
         private class DependencyCacheData
         {
+            [NonSerialized]
+            public string assetPath;
+
+            [NonSerialized]
+            public string assetGuid;
+
             [NonSerialized]
             public Hash128 assetHash;
 
