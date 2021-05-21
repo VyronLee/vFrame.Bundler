@@ -30,19 +30,17 @@ namespace vFrame.Bundler.Editor
 
         private static int CollectedCount = 0;
 
-        private static bool IsUnmanagedResources(string name)
+        private static bool IsAssetBundleResources(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return true;
 
-            var unmanaged = false;
-            unmanaged |= Path.GetExtension(name) == ".meta";
-            unmanaged |= Path.GetExtension(name) == ".cs";
-            //unmanaged |= Path.GetExtension(name) == ".asset";
-            unmanaged |= Path.GetExtension(name) == ".dll";
-            unmanaged |= name.EndsWith("unity_builtin_extra");
-            unmanaged |= name.EndsWith("unity default resources");
-            return unmanaged;
+            var ret = true;
+            ret &= !IsMeta(name);
+            ret &= !IsScript(name);
+            ret &= !IsAssembly(name);
+            ret &= !IsBuiltinResource(name);
+            return ret;
         }
 
         private static bool IsShader(string name) {
@@ -61,9 +59,18 @@ namespace vFrame.Bundler.Editor
             return Path.GetExtension(name) == ".dll";
         }
 
+        private static bool IsMeta(string name) {
+            return Path.GetExtension(name) == ".meta";
+        }
+
         private static bool IsBuiltinResource(string name) {
             return name.EndsWith("unity_builtin_extra")
                 || name.EndsWith("unity default resources");
+        }
+
+        private static bool IsProjectResource(string name) {
+            return name.StartsWith("Assets/")
+                || name.StartsWith("Packages/");
         }
 
         private static bool IsExclude(string path, string pattern)
@@ -235,7 +242,7 @@ namespace vFrame.Bundler.Editor
             var excludePattern = rule.excludePattern;
             var searchPath = PathUtility.RelativeProjectPathToAbsolutePath(rule.path);
             var files = Directory.GetFiles(searchPath, rule.searchPattern, SearchOption.AllDirectories)
-                .Where(v => !IsUnmanagedResources(v))
+                .Where(v => !IsMeta(v))
                 .Where(v => !IsExclude(v, excludePattern))
                 .ToArray();
 
@@ -276,7 +283,7 @@ namespace vFrame.Bundler.Editor
 
             var excludePattern = rule.excludePattern;
             var files = Directory.GetFiles(searchPath, rule.searchPattern, SearchOption.AllDirectories)
-                .Where(v => !IsUnmanagedResources(v))
+                .Where(v => !IsMeta(v))
                 .Where(v => !IsExclude(v, excludePattern))
                 .ToArray();
 
@@ -312,7 +319,7 @@ namespace vFrame.Bundler.Editor
             {
                 var files = Directory
                     .GetFiles(subDirectory, rule.searchPattern, SearchOption.AllDirectories)
-                    .Where(v => !IsUnmanagedResources(v))
+                    .Where(v => !IsMeta(v))
                     .Where(v => !IsExclude(v, excludePattern))
                     .ToArray();
 
@@ -355,9 +362,9 @@ namespace vFrame.Bundler.Editor
                 case PackType.PackByFile:
                 case PackType.PackByDirectory: {
                     return Directory.GetFiles(searchPath, rule.searchPattern, SearchOption.AllDirectories)
-                        .Where(v => !IsUnmanagedResources(v))
+                        .Where(v => !IsMeta(v))
                         .Where(v => !IsExclude(v, excludePattern))
-                        .Select(v => PathUtility.AbsolutePathToRelativeProjectPath(v))
+                        .Select(PathUtility.AbsolutePathToRelativeProjectPath)
                         .ToArray();
                 }
                 case PackType.PackBySubDirectory: {
@@ -369,9 +376,9 @@ namespace vFrame.Bundler.Editor
                     foreach (var subDirectory in subDirectories) {
                         var filesInDir = Directory
                             .GetFiles(subDirectory, rule.searchPattern, SearchOption.AllDirectories)
-                            .Where(v => !IsUnmanagedResources(v))
+                            .Where(v => !IsMeta(v))
                             .Where(v => !IsExclude(v, excludePattern))
-                            .Select(v => PathUtility.AbsolutePathToRelativeProjectPath(v));
+                            .Select(PathUtility.AbsolutePathToRelativeProjectPath);
                         files.AddRange(filesInDir);
                     }
                     return files.ToArray();
@@ -440,16 +447,13 @@ namespace vFrame.Bundler.Editor
 
         private static string[] GetLightingDataValidDependencies(LightingDataAsset lightingDataAsset) {
             var path = AssetDatabase.GetAssetPath(lightingDataAsset);
-            var dep1 = AssetDatabase.GetDependencies(path, false);
-            var dep2 = dep1.Where(v => {
-                var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(v);
-                var isSceneAsset = null != asset;
-                if (asset) {
-                    Resources.UnloadAsset(asset);
-                }
-                return !isSceneAsset;
-            }).ToArray();
-            return dep2;
+            var dep1 = AssetDatabase.GetDependencies(path, false)
+                .Where(v => !IsBuiltinResource(v))
+                .Where(v => IsProjectResource(v))
+                .ToArray();
+            var dep2 = dep1.Where(v => !AssetDatabase.LoadAssetAtPath<SceneAsset>(v)).ToList();
+            dep2.Sort();
+            return dep2.ToArray();
         }
 
         private static IEnumerable<string> AnalyzeDependencies(string asset, ref DependencyCache cache) {
@@ -459,34 +463,50 @@ namespace vFrame.Bundler.Editor
                 GC.Collect();
             }
 
-            var dep1 = AssetDatabase.GetDependencies(asset, true); // Must recursive here.
-
+            string[] dep1;
             // On Unity 2018 or newer, LightingDataAsset depends on SceneAsset directly,
             // which will lead to circular dependency
-            var lightingDataAsset = AssetDatabase.LoadAssetAtPath<LightingDataAsset>(asset);
-            if (lightingDataAsset) {
+            var assetObj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(asset);
+            if (assetObj is LightingDataAsset lightingDataAsset) {
                 dep1 = GetLightingDataValidDependencies(lightingDataAsset);
-                Resources.UnloadAsset(lightingDataAsset);
+            }
+            else {
+                dep1 = AssetDatabase.GetDependencies(asset, true);
+                dep1 = dep1.Where(v => !IsBuiltinResource(v))
+                    .Where(v => IsProjectResource(v))
+                    .ToArray();
             }
 
             var dep2 = dep1.Where(v => v != asset).ToArray();
-            var dep3 = dep2.Where(v => !IsUnmanagedResources(v)).ToArray();
-            var dep4 = dep3.Distinct().ToArray();
+            var dep3 = dep2.Distinct().ToList();
+
+            var scriptRefs = dep3.Where(v => IsAssembly(v) || IsScript(v)).ToList();
+            var assetDeps = dep3.Where(v => !(IsAssembly(v) || IsScript(v))).ToList();
 
             var assetGuid = AssetDatabase.AssetPathToGUID(asset);
             cache.cacheData[assetGuid] = new DependencyCacheData {
                 assetHash = AssetDatabase.GetAssetDependencyHash(asset),
-                dependencies = dep4.Select(AssetDatabase.AssetPathToGUID).ToList(),
+                dependencies = assetDeps.Select(AssetDatabase.AssetPathToGUID).ToList(),
+                scriptsRefs = scriptRefs.Select(AssetDatabase.AssetPathToGUID).ToList(),
                 validated = true,
             };
 
-            foreach (var dep in dep4) {
+            foreach (var dep in assetDeps) {
                 var guid = AssetDatabase.AssetPathToGUID(dep);
                 if (!cache.cacheData.ContainsKey(guid) || !ValidateDependency(ref cache, cache.cacheData[guid])) {
                     AnalyzeDependencies(dep, ref cache);
                 }
             }
-            return dep4;
+
+            foreach (var dep in scriptRefs) {
+                var guid = AssetDatabase.AssetPathToGUID(dep);
+                if (!cache.cacheData.ContainsKey(guid) || !ValidateDependency(ref cache, cache.cacheData[guid])) {
+                    AnalyzeDependencies(dep, ref cache);
+                }
+            }
+
+            assetDeps.Sort();
+            return assetDeps;
         }
 
         private static bool ValidateDependency(ref DependencyCache cache, DependencyCacheData cacheData) {
@@ -516,6 +536,24 @@ namespace vFrame.Bundler.Editor
                 else {
                     Debug.LogFormat("Dependency cache data missing: {0}, {1}, hash validation not passed: {2}",
                         dependency, dependencyPath, cacheData.assetPath);
+                    return false;
+                }
+            }
+
+            foreach (var scriptRef in cacheData.scriptsRefs) {
+                var scriptPath = AssetDatabase.GUIDToAssetPath(scriptRef);
+                if (!File.Exists(PathUtility.RelativeProjectPathToAbsolutePath(scriptPath))) {
+                    Debug.LogFormat("Script file missing: {0}, {1}, hash validation not passed: {2}",
+                        scriptRef, scriptPath, cacheData.assetPath);
+                    return false;
+                }
+
+                if (cache.cacheData.TryGetValue(scriptRef, out var data)) {
+                    ret &= ValidateDependency(ref cache, data);
+                }
+                else {
+                    Debug.LogFormat("Script cache data missing: {0}, {1}, hash validation not passed: {2}",
+                        scriptRef, scriptPath, cacheData.assetPath);
                     return false;
                 }
             }
@@ -828,6 +866,10 @@ namespace vFrame.Bundler.Editor
                 if (kv.Key.EndsWith("LightingData.asset")) {
                     continue;
                 }
+
+                if (!IsAssetBundleResources(kv.Key)) {
+                    continue;
+                }
                 bundles[kv.Value.bundle].Add(kv.Key);
             }
 
@@ -905,6 +947,8 @@ namespace vFrame.Bundler.Editor
         [Serializable]
         private class DependencyCache : ISerializationCallbackReceiver
         {
+            private const int Version = 4;
+
             [NonSerialized]
             public Dictionary<string, DependencyCacheData> cacheData = new Dictionary<string, DependencyCacheData>();
 
@@ -913,6 +957,9 @@ namespace vFrame.Bundler.Editor
 
             [SerializeField]
             private List<DependencyCacheData> _cacheData = new List<DependencyCacheData>();
+
+            [SerializeField]
+            private int _version;
 
             public void OnBeforeSerialize() {
                 var stopWatch = Stopwatch.StartNew();
@@ -930,6 +977,7 @@ namespace vFrame.Bundler.Editor
 
                 foreach (var data in cacheData.Select(kv => kv.Value)) {
                     data.assetHashStr = data.assetHash.ToString();
+
                     data.dependencyIndexes.Clear();
                     foreach (var dependency in data.dependencies) {
                         if (!indexesMap.TryGetValue(dependency, out var idx)) {
@@ -939,19 +987,36 @@ namespace vFrame.Bundler.Editor
                         }
                         data.dependencyIndexes.Add(idx);
                     }
+
+                    data.scriptsRefsIndexes.Clear();
+                    foreach (var scriptsRef in data.scriptsRefs) {
+                        if (!indexesMap.TryGetValue(scriptsRef, out var idx)) {
+                            _assetIndexes.Add(scriptsRef);
+                            idx = _assetIndexes.Count - 1;
+                            indexesMap.Add(scriptsRef, idx);
+                        }
+                        data.scriptsRefsIndexes.Add(idx);
+                    }
                 }
                 stopWatch.Stop();
+
+                _version = Version;
 
                 Debug.LogFormat("Serialize DependencyCache finished, cost: {0}s", stopWatch.Elapsed.TotalSeconds);
             }
 
             public void OnAfterDeserialize() {
+                if (_version != Version) {
+                    Debug.LogFormat("Serialization version not match, require: {0}, got: {1}, skip.", Version, _version);
+                    return;
+                }
                 var stopWatch = Stopwatch.StartNew();
 
                 cacheData.Clear();
 
                 for (var idx = 0; idx < _cacheData.Count; idx++) {
                     _cacheData[idx].dependencies = _cacheData[idx].dependencyIndexes.ConvertAll(v => _assetIndexes[v]);
+                    _cacheData[idx].scriptsRefs = _cacheData[idx].scriptsRefsIndexes.ConvertAll(v => _assetIndexes[v]);
                     _cacheData[idx].assetHash = Hash128.Parse(_cacheData[idx].assetHashStr);
                     _cacheData[idx].assetGuid = _assetIndexes[idx];
                     _cacheData[idx].assetPath = AssetDatabase.GUIDToAssetPath(_assetIndexes[idx]);
@@ -980,10 +1045,16 @@ namespace vFrame.Bundler.Editor
             public List<string> dependencies = new List<string>();
 
             [NonSerialized]
+            public List<string> scriptsRefs = new List<string>();
+
+            [NonSerialized]
             public bool validated;
 
             [SerializeField]
             public List<int> dependencyIndexes = new List<int>();
+
+            [SerializeField]
+            public List<int> scriptsRefsIndexes = new List<int>();
 
             [SerializeField]
             public string assetHashStr;
