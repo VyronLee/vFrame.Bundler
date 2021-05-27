@@ -15,6 +15,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEngine;
 using vFrame.Bundler.Exception;
@@ -217,8 +218,9 @@ namespace vFrame.Bundler.Editor
             buildRule.rules.Sort((a, b) => -a.shared.CompareTo(b.shared));
 
             var depsInfo = new DependenciesInfo();
-            foreach (var rule in buildRule.rules)
-                switch (rule.packType)
+            foreach (var rule in buildRule.rules) {
+                var packType = (PackType) Enum.Parse(typeof(PackType), rule.packType);
+                switch (packType)
                 {
                     case PackType.PackByFile:
                         ParseBundleDependenciesByRuleOfPackByFile(rule, ref depsInfo, ref reserved, ref cache);
@@ -230,8 +232,9 @@ namespace vFrame.Bundler.Editor
                         ParseBundleDependenciesByRuleOfPackBySubDirectory(rule, ref depsInfo, ref reserved, ref cache);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException(rule.packType);
                 }
+            }
 
             return depsInfo;
         }
@@ -350,42 +353,22 @@ namespace vFrame.Bundler.Editor
         }
 
         private static string[] GetManagedFilesByRules(BundlerBuildRule rules) {
-            var files = new List<string>();
-            rules.rules.ForEach(v => files.AddRange(GetFileListByRule(v)));
+            var files = new HashSet<string>();
+            rules.managed.ForEach(v => {
+                var ret = GetFileListByRule(v);
+                foreach (var file in ret) {
+                    files.Add(file);
+                }
+            });
             return files.ToArray();
         }
 
-        private static string[] GetFileListByRule(BundleRule rule) {
-            var excludePattern = rule.excludePattern;
-            var searchPath = PathUtility.RelativeProjectPathToAbsolutePath(rule.path);
-            switch (rule.packType) {
-                case PackType.PackByFile:
-                case PackType.PackByDirectory: {
-                    return Directory.GetFiles(searchPath, rule.searchPattern, SearchOption.AllDirectories)
-                        .Where(v => !IsMeta(v))
-                        .Where(v => !IsExclude(v, excludePattern))
-                        .Select(PathUtility.AbsolutePathToRelativeProjectPath)
-                        .ToArray();
-                }
-                case PackType.PackBySubDirectory: {
-                    var subDirectories = Directory.GetDirectories(searchPath, "*.*", (SearchOption) rule.depth)
-                        .Where(v => !IsExclude(v, excludePattern))
-                        .ToArray();
-
-                    var files = new List<string>();
-                    foreach (var subDirectory in subDirectories) {
-                        var filesInDir = Directory
-                            .GetFiles(subDirectory, rule.searchPattern, SearchOption.AllDirectories)
-                            .Where(v => !IsMeta(v))
-                            .Where(v => !IsExclude(v, excludePattern))
-                            .Select(PathUtility.AbsolutePathToRelativeProjectPath);
-                        files.AddRange(filesInDir);
-                    }
-                    return files.ToArray();
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+        private static string[] GetFileListByRule(ManagedFileRule rule) {
+            var files = Directory.GetFiles(rule.directory, rule.pattern, SearchOption.AllDirectories)
+                .Where(v => !IsMeta(v))
+                .Select(PathUtility.NormalizePath)
+                .ToArray();
+            return files;
         }
 
         private static void TryAddToForceSharedBundle(string assetName, string bundleName, ref ReservedSharedBundleInfo reserved) {
@@ -840,6 +823,10 @@ namespace vFrame.Bundler.Editor
                     manifest.bundles[bundleName].dependencies.Add(depName);
             }
 
+            foreach (var kv in manifest.bundles) {
+                kv.Value.assets.Sort();
+                kv.Value.dependencies.Sort();
+            }
             return manifest;
         }
 

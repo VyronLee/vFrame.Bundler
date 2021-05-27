@@ -120,6 +120,10 @@ namespace vFrame.Bundler.Utils
             return string.Format("Assets/Resources/{0}", relativePath);
         }
 
+        public static string ProjectPath() {
+            return Application.dataPath.Remove(Application.dataPath.Length - 7, 7);
+        }
+
         public static string GetBundleName(string value) {
             value = Path.Combine(
                 Path.GetDirectoryName(value),
