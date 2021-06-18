@@ -32,6 +32,8 @@ namespace vFrame.Bundler.LoadRequests
 
         public LoadRequestAsync(ModeBase mode, BundlerOptions options, string path, BundleLoaderBase bundleLoader)
             : base(mode, options, path, bundleLoader) {
+
+            Initialize();
         }
 
         public IEnumerator Await() {
@@ -58,7 +60,10 @@ namespace vFrame.Bundler.LoadRequests
             }
         }
 
-        protected override void LoadInternal() {
+        private void Initialize() {
+            if (null == _bundleLoader) {
+                return;
+            }
             _root = BuildLoaderTree(ref _total);
         }
 

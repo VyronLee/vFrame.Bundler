@@ -33,8 +33,6 @@ namespace vFrame.Bundler.LoadRequests
             _bundleLoader = bundleLoader;
 
             _finished = _bundleLoader == null;
-            if (!_finished)
-                LoadInternal();
         }
 
         public override void Retain() {
@@ -86,9 +84,6 @@ namespace vFrame.Bundler.LoadRequests
 
         public ISceneAsync GetSceneAsync(LoadSceneMode mode) {
             return _mode.GetSceneAsync(this, mode);
-        }
-
-        protected virtual void LoadInternal() {
         }
     }
 }

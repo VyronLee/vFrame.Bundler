@@ -52,11 +52,9 @@ namespace vFrame.Bundler.Loaders
             }
 
             if (!IsDone) {
-                throw new BundleNotFoundException("AssetBundle synchronously loading failed, path: " + _path);
+                throw new BundleNotFoundException(
+                    string.Format("AssetBundle synchronously loading failed: {0}", this));
             }
-
-            Logger.LogInfo("Add assetbundle to cache: {0}", _path);
-            AssetBundleCache.Add(_path, _assetBundle);
 
             Logger.LogInfo("End synchronously loading process: {0}", _path);
 

@@ -19,9 +19,6 @@ namespace vFrame.Bundler.Loaders
 {
     public abstract class BundleLoaderBase : Reference
     {
-        public static readonly Dictionary<string, AssetBundle> AssetBundleCache =
-            new Dictionary<string, AssetBundle>();
-
         protected AssetBundle _assetBundle;
 
         protected string _path;
@@ -52,6 +49,12 @@ namespace vFrame.Bundler.Loaders
             }
         }
 
+        public bool IsUnloaded {
+            get {
+                return _unloaded;
+            }
+        }
+
         public void Initialize(string path, List<string> searchPaths, BundlerOptions options) {
             _path = path;
             _searchPaths = searchPaths;
@@ -66,10 +69,6 @@ namespace vFrame.Bundler.Loaders
                 return;
             }
 
-            if (AssetBundleCache.ContainsKey(_path)) {
-                throw new BundleException("AssetBundle already in cache: " + _path);
-            }
-
             LoadProcess();
         }
 
@@ -77,17 +76,13 @@ namespace vFrame.Bundler.Loaders
             Logger.LogInfo("Unload assetbundle: {0}", _path);
 
             if (_references > 0)
-                throw new BundleException("Cannot unload, references: " + _references);
+                throw new BundleException(
+                    string.Format("Cannot unload, references: {0}, {1}", _references, this));
 
             if (_assetBundle) {
                 _assetBundle.Unload(true);
                 _assetBundle = null;
             }
-
-            if (!AssetBundleCache.ContainsKey(_path)) {
-                throw new BundleException("AssetBundle does not in cache: " + _path);
-            }
-            AssetBundleCache.Remove(_path);
 
             UnloadProcess();
 
@@ -103,8 +98,6 @@ namespace vFrame.Bundler.Loaders
                 _assetBundle.Unload(true);
                 _assetBundle = null;
             }
-
-            AssetBundleCache.Remove(_path);
 
             foreach (var loader in Dependencies)
                 loader.ForceUnload();

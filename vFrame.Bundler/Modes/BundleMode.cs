@@ -52,9 +52,12 @@ namespace vFrame.Bundler.Modes
             }
 
             var loader = CreateLoaderByAssetPath(path, false);
-            loadRequest = _loadRequestCache[path] = new LoadRequestSync(this, _options, path, loader);
+            var loadRequestSync = new LoadRequestSync(this, _options, path, loader);
+            loadRequestSync.Load();
+            _loadRequestCache[path] = loadRequestSync;
+
             Logger.LogInfo("Add sync load request to cache: {0}", path);
-            return loadRequest;
+            return loadRequestSync;
         }
 
         public override ILoadRequestAsync LoadAsync(string path) {
@@ -66,6 +69,7 @@ namespace vFrame.Bundler.Modes
 
             var loader = CreateLoaderByAssetPath(path, true);
             loadRequestAsync = _loadRequestAsyncCache[path] = new LoadRequestAsync(this, _options, path, loader);
+
             Logger.LogInfo("Add async load request to cache: {0}", path);
             return loadRequestAsync;
         }

@@ -55,7 +55,8 @@ namespace vFrame.Bundler.Assets
             _options = options;
 
             if (target != null && !target.IsDone)
-                throw new BundleException(string.Format("Loader hasn't finished: {0}, asset path: {1}", target, _path));
+                throw new BundleException(string.Format("Loader hasn't finished: {0}, asset path: {1}, loader: {2}",
+                    target, _path, _loader));
 
             LoadAsset();
         }
@@ -94,7 +95,8 @@ namespace vFrame.Bundler.Assets
 
             var prefab = GetAsset() as GameObject;
             if (!prefab)
-                throw new BundleAssetTypeNotMatchException("Asset not typeof GameObject");
+                throw new BundleAssetTypeNotMatchException(
+                    string.Format("Asset not typeof GameObject, path: {0}, loader: {1}", _path, _loader));
 
             var go = Object.Instantiate(prefab);
 

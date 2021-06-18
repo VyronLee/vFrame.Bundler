@@ -27,7 +27,7 @@ namespace vFrame.Bundler.Loaders
             get {
                 if (!_assetBundle) {
                     throw new BundleLoadNotFinishedException(
-                        string.Format("Bundle Loader has not finished: {0}", _path));
+                        string.Format("Bundle Loader has not finished: {0}", this));
                 }
                 return _assetBundle;
             }
@@ -84,10 +84,9 @@ namespace vFrame.Bundler.Loaders
 
         private void LoadAndCache(AssetBundleCreateRequest assetBundleCreateRequest) {
             _assetBundle = assetBundleCreateRequest.assetBundle;
-
-            if (!AssetBundleCache.ContainsKey(_path)) {
-                AssetBundleCache.Add(_path, _assetBundle);
-                Logger.LogInfo("Add assetbundle to cache: {0}", _path);
+            if (!_assetBundle) {
+                throw new BundleLoadFailedException(
+                    string.Format("Load asset bundle from AssetBundleCreateRequest failed: {0}", this));
             }
 
             IsLoading = false;
@@ -130,7 +129,7 @@ namespace vFrame.Bundler.Loaders
                 }
             }
 
-            throw new BundleLoadFailedException("Cannot load assetbundle: " + _path);
+            throw new BundleLoadFailedException(string.Format("Cannot load assetbundle: {0}", this));
         }
 
         protected virtual AssetBundleCreateRequest LoadAssetBundleAsync(string path) {

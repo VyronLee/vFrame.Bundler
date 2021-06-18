@@ -23,7 +23,7 @@ namespace vFrame.Bundler.LoadRequests
             get { return _bundleLoader == null || _bundleLoader.IsDone; }
         }
 
-        protected override void LoadInternal() {
+        public void Load() {
             LoadRecursive(_bundleLoader);
         }
 
