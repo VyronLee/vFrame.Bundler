@@ -81,4 +81,10 @@ namespace vFrame.Bundler.Exception
         public BundleRuleConflictException(string message) : base(message) {
         }
     }
+
+    public class BundleBuildFailedException : BundleException
+    {
+        public BundleBuildFailedException(string message) : base(message) {
+        }
+    }
 }

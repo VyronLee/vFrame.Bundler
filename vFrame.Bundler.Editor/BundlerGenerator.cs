@@ -114,7 +114,11 @@ namespace vFrame.Bundler.Editor
         public static void GenerateAssetBundles(BundlerManifest manifest, BuildTarget platform, string outputPath) {
             var builds = GenerateAssetBundleBuilds(manifest);
             Debug.Log(string.Format("Generate asset bundles to path: {0}, build count: {1}", outputPath, builds.Length));
-            BuildPipeline.BuildAssetBundles(outputPath, builds, BundlerBuildSettings.kAssetBundleBuildOptions, platform);
+            var assetBundleManifest = BuildPipeline.BuildAssetBundles(outputPath, builds, BundlerBuildSettings.kAssetBundleBuildOptions, platform);
+            if (null == assetBundleManifest) {
+                throw new BundleBuildFailedException(
+                    "Asset bundle build failed with errors, see the console output to get more information.");
+            }
         }
 
         /// <summary>
@@ -136,7 +140,11 @@ namespace vFrame.Bundler.Editor
                 assetNames = assets.Select(v => v.Key).ToArray(),
                 assetBundleName = bundleName
             };
-            BuildPipeline.BuildAssetBundles(outputPath, new[] {build}, BundlerBuildSettings.kAssetBundleBuildOptions, platform);
+            var assetBundleManifest = BuildPipeline.BuildAssetBundles(outputPath, new[] {build}, BundlerBuildSettings.kAssetBundleBuildOptions, platform);
+            if (null == assetBundleManifest) {
+                throw new BundleBuildFailedException(
+                    "Asset bundle build failed with errors, see the console output to get more information.");
+            }
         }
 
         /// <summary>
