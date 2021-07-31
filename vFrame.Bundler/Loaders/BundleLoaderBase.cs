@@ -8,6 +8,7 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using vFrame.Bundler.Base;
@@ -19,6 +20,8 @@ namespace vFrame.Bundler.Loaders
 {
     public abstract class BundleLoaderBase : Reference
     {
+        private static int s_Indexer = 0;
+
         protected AssetBundle _assetBundle;
 
         protected string _path;
@@ -26,6 +29,11 @@ namespace vFrame.Bundler.Loaders
 
         private bool _started;
         private bool _unloaded;
+        private bool _done;
+
+        private int _createdIndex = -1;
+        private int _loadedIndex = -1;
+        private DateTime _loadedTime = new DateTime(0);
 
         protected BundlerOptions Options { get; private set; }
 
@@ -37,11 +45,44 @@ namespace vFrame.Bundler.Loaders
             get { return _path; }
         }
 
+        public int LoadedIndex {
+            get { return _loadedIndex; }
+        }
+
+        public DateTime LoadedTime {
+            get { return _loadedTime; }
+        }
+
         public virtual bool IsLoading { get; protected set; }
 
         public List<BundleLoaderBase> Dependencies { get; set; }
 
-        public virtual bool IsDone { get; protected set; }
+        public bool Validate(ref List<BundleLoaderBase> errors) {
+            var ret = true;
+            foreach (var dependency in Dependencies) {
+                ret &= dependency.Validate(ref errors);
+            }
+
+            if (!IsDone || IsUnloaded) {
+                errors.Add(this);
+                ret = false;
+            }
+            return ret;
+        }
+
+        public virtual bool IsDone {
+            get {
+                return _done;
+            }
+            protected set {
+                _done = value;
+
+                if (!value)
+                    return;
+                _loadedIndex = s_Indexer++;
+                _loadedTime = DateTime.Now;
+            }
+        }
 
         public bool IsStarted {
             get {
@@ -59,6 +100,7 @@ namespace vFrame.Bundler.Loaders
             _path = path;
             _searchPaths = searchPaths;
             _assetBundle = null;
+            _createdIndex = s_Indexer++;
 
             Options = options;
             Dependencies = ListPool<BundleLoaderBase>.Get();
@@ -151,8 +193,9 @@ namespace vFrame.Bundler.Loaders
         protected abstract void OnUnloadProcess();
 
         public override string ToString() {
-            return string.Format("{4}: [path: {0}, started: {1}, done: {2}, unloaded: {3}, refs: {5}]",
-                _path, IsStarted, IsDone, _unloaded, GetType().Name, GetReferences());
+            return string.Format(
+                "{4}: [path: {0}, started: {1}, done: {2}, unloaded: {3}, refs: {5}, create index: {6}, loaded index: {7}, loaded time: {8:HH:mm:ss.ffff}]",
+                _path, IsStarted, IsDone, _unloaded, GetType().Name, GetReferences(), _createdIndex, _loadedIndex, _loadedTime);
         }
     }
 }

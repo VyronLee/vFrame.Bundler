@@ -50,7 +50,6 @@ namespace vFrame.Bundler.Assets.Bundle
         }
 
         public bool IsStarted { get; private set; }
-        public override bool IsDone { get; set; }
 
         public float Progress {
             get { return _request == null ? 0f : _request.progress; }

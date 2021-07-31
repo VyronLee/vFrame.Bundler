@@ -108,25 +108,20 @@ namespace vFrame.Bundler.Loaders
 
             foreach (var basePath in _searchPaths) {
                 var path = PathUtility.Combine(basePath, _path);
-                try {
-                    // Avoid throwing error messages.
-                    if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path)) {
-                        Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
-                        continue;
-                    }
-
-                    Profiler.BeginSample("BundleLoaderAsync:CreateBuiltinBundleLoadRequest - AssetBundle.LoadFromFileAsync");
-                    var bundleLoadRequest = LoadAssetBundleAsync(path);
-                    Profiler.EndSample();
-
-                    if (bundleLoadRequest != null)
-                        return bundleLoadRequest;
-
+                // Avoid throwing error messages.
+                if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path)) {
                     Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
+                    continue;
                 }
-                catch {
-                    Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
-                }
+
+                Profiler.BeginSample("BundleLoaderAsync:CreateBuiltinBundleLoadRequest - AssetBundle.LoadFromFileAsync");
+                var bundleLoadRequest = LoadAssetBundleAsync(path);
+                Profiler.EndSample();
+
+                if (bundleLoadRequest != null)
+                    return bundleLoadRequest;
+
+                Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
             }
 
             throw new BundleLoadFailedException(string.Format("Cannot load assetbundle: {0}", this));

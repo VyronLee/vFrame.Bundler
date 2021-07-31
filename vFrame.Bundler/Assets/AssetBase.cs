@@ -54,11 +54,31 @@ namespace vFrame.Bundler.Assets
             _type = type;
             _options = options;
 
-            if (target != null && !target.IsDone)
-                throw new BundleException(string.Format("Loader hasn't finished: {0}, asset path: {1}, loader: {2}",
-                    target, _path, _loader));
+            ThrowIfBundleError();
 
             LoadAsset();
+        }
+
+        private void ThrowIfBundleError() {
+            if (null == _loader) {
+                return;
+            }
+
+            var errors = ListPool<BundleLoaderBase>.Get();
+            if (_loader.Validate(ref errors)) {
+                ListPool<BundleLoaderBase>.Return(errors);
+                return;
+            }
+
+            try {
+                throw new BundleException(string.Format(
+                    "One or more bundles and it's dependencies in an invalid state:\n  this loader: \n    {0}\n  errors: \n    {1}",
+                    _loader,
+                    string.Join("\n    ", errors.ConvertAll(v => v.ToString()).ToArray())));
+            }
+            finally {
+                ListPool<BundleLoaderBase>.Return(errors);
+            }
         }
 
         private void LoadAsset() {
@@ -67,7 +87,7 @@ namespace vFrame.Bundler.Assets
 
         protected abstract void LoadAssetInternal();
 
-        public virtual bool IsDone { get; set; }
+        public bool IsDone { get; set; }
 
         public void Retain() {
             if (_loader != null)

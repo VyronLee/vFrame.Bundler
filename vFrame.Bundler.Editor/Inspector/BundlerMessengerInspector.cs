@@ -65,7 +65,7 @@ namespace vFrame.Bundler.Editor.Inspector
             void DrawLoader(BundleLoaderBase loader, int indentLevel) {
                 var prevIndent = EditorGUI.indentLevel;
                 EditorGUI.indentLevel = indentLevel;
-                EditorGUILayout.LabelField(loader.AssetBundlePath);
+                EditorGUILayout.LabelField(string.Format("{0} [{1}] [{2:HH:mm:ss.ffff}]", loader.AssetBundlePath, loader.LoadedIndex, loader.LoadedTime));
                 EditorGUI.indentLevel = prevIndent;
 
                 if (null == loader.Dependencies)

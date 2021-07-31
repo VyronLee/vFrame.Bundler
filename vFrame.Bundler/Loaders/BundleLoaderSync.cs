@@ -25,30 +25,25 @@ namespace vFrame.Bundler.Loaders
             Profiler.BeginSample("BundleLoaderSync:LoadProcess");
             foreach (var basePath in _searchPaths) {
                 var path = PathUtility.Combine(basePath, _path);
-                try {
-                    // Avoid throwing error messages.
-                    if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path)) {
-                        IsDone = false;
-                        Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
-                        continue;
-                    }
-
-                    Profiler.BeginSample("BundleLoader:LoadProcess - AssetBundle.LoadFromFile");
-                    _assetBundle = LoadAssetBundle(path);
-                    Profiler.EndSample();
-
-                    if (_assetBundle) {
-                        IsDone = true;
-                        Logger.LogInfo("AssetBundle synchronously loading finished, path: {0}", _path);
-                        break;
-                    }
-
+                // Avoid throwing error messages.
+                if (PathUtility.IsFileInPersistentDataPath(path) && !File.Exists(path)) {
                     IsDone = false;
                     Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
+                    continue;
                 }
-                catch (System.Exception) {
-                    Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
+
+                Profiler.BeginSample("BundleLoader:LoadProcess - AssetBundle.LoadFromFile");
+                _assetBundle = LoadAssetBundle(path);
+                Profiler.EndSample();
+
+                if (_assetBundle) {
+                    IsDone = true;
+                    Logger.LogInfo("AssetBundle synchronously loading finished, path: {0}", _path);
+                    break;
                 }
+
+                IsDone = false;
+                Logger.LogInfo("AssetBundle cannot load at path: {0}, searching next ... ", path);
             }
 
             if (!IsDone) {

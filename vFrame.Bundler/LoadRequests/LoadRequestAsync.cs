@@ -40,14 +40,18 @@ namespace vFrame.Bundler.LoadRequests
             if (_finished)
                 yield break;
 
-            if (!IsStarted)
-                _root.Loader.Retain();
+            if (IsStarted) {
+                while (!_finished) {
+                    yield return null;
+                }
+                yield break;
+            }
             IsStarted = true;
 
+            _root.Loader.Retain();
             yield return TravelAndLoad();
+            _root.Loader.Release();
 
-            if (!_finished)
-                _root.Loader.Release();
             _finished = true;
         }
 
