@@ -15,16 +15,13 @@ namespace vFrame.Bundler.LoadRequests
 {
     public sealed class LoadRequestSync : LoadRequest
     {
-        public LoadRequestSync(ModeBase mode, BundlerOptions options, string path, BundleLoaderBase bundleLoader)
-            : base(mode, options, path, bundleLoader) {
+        internal LoadRequestSync(ModeBase mode, BundlerContext context, string path, BundleLoaderBase bundleLoader)
+            : base(mode, context, path, bundleLoader) {
         }
 
-        public override bool IsDone {
-            get { return _bundleLoader == null || _bundleLoader.IsDone; }
-        }
-
-        public void Load() {
+        protected override void OnLoadProcess() {
             LoadRecursive(_bundleLoader);
+            IsDone = true;
         }
 
         private void LoadRecursive(BundleLoaderBase bundleLoader) {

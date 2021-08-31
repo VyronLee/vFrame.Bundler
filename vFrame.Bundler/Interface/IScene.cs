@@ -8,9 +8,11 @@
 //   Copyright:  Copyright (c) 2018, VyronLee
 //============================================================
 
+using System;
+
 namespace vFrame.Bundler.Interface
 {
-    public interface IScene
+    public interface IScene : IDisposable
     {
         void Unload();
         void Activate();

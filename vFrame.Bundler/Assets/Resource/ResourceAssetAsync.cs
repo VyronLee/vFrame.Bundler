@@ -24,24 +24,27 @@ using UnityEditor;
 
 namespace vFrame.Bundler.Assets.Resource
 {
-    public sealed class ResourceAssetAsync : AssetBase, IAssetAsync
+    public sealed class ResourceAssetAsync : AssetBase, IAssetAsync, IAsyncProcessor
     {
         private ResourceAsyncRequest _request;
 
-        public ResourceAssetAsync(string assetName, Type type, BundlerOptions options)
-            : base(assetName, type, null, options) {
+        internal ResourceAssetAsync(string assetName, Type type, BundlerContext context)
+            : base(assetName, type, null, context) {
         }
 
-        public IEnumerator Await() {
-            if (IsStarted) {
-                while (!IsDone) {
-                    yield return null;
+        public override void Dispose() {
+            if (null != _context && null != _context.CoroutinePool) {
+                if (null != _request) {
+                    AsyncRequestHelper.Uninstall(_context.CoroutinePool, _request);
                 }
-                yield break;
+                AsyncRequestHelper.Uninstall(_context.CoroutinePool, this);
             }
+            base.Dispose();
+        }
 
+        public IEnumerator OnAsyncProcess() {
             IsStarted = true;
-            yield return _request.Await();
+            yield return _request;
 
             Logs.Logger.LogInfo("End asynchronously loading asset: {0}", _path);
             IsDone = true;
@@ -53,6 +56,18 @@ namespace vFrame.Bundler.Assets.Resource
             get { return _request == null ? 0f : _request.Progress; }
         }
 
+        public bool MoveNext() {
+            return !IsDone;
+        }
+
+        public void Reset() {
+
+        }
+
+        public object Current { get; private set; }
+        public bool IsSetup { get; set; }
+        public int ThreadHandle { get; set; }
+
         public override Object GetAsset() {
             return null != _request ? _request.asset : null;
         }
@@ -61,26 +76,41 @@ namespace vFrame.Bundler.Assets.Resource
             Logs.Logger.LogInfo("Start asynchronously loading asset: {0}", _path);
 
 #if UNITY_EDITOR
-            if (_options.UseAssetDatabaseInsteadOfResources) {
-                _request = new AssetDatabaseAsync(_options);
+            if (_context.Options.UseAssetDatabaseInsteadOfResources) {
+                _request = new AssetDatabaseAsync(_context);
                 _request.LoadAssetAtPath(_path, _type);
-                return;
             }
-#endif
-
+#else
             _request = new ResourceAsync();
             _request.LoadAssetAtPath(_path, _type);
+#endif
+
+            AsyncRequestHelper.Setup(_context.CoroutinePool, _request);
+            AsyncRequestHelper.Setup(_context.CoroutinePool, this);
         }
 
-        private abstract class ResourceAsyncRequest : IAsync
+        private abstract class ResourceAsyncRequest : IAsync, IAsyncProcessor
         {
             public abstract Object asset { get; }
-            public abstract void LoadAssetAtPath(string path, Type type);
-
+            public void LoadAssetAtPath(string path, Type type) {
+                LoadAssetAtPathInternal(path, type);
+            }
+            protected abstract void LoadAssetAtPathInternal(string path, Type type);
             public abstract bool IsStarted { get; protected set; }
             public bool IsDone { get; protected set; }
             public abstract float Progress { get; }
-            public abstract IEnumerator Await();
+            public bool MoveNext() {
+                return !IsDone;
+            }
+
+            public void Reset() {
+
+            }
+
+            public object Current { get; private set; }
+            public bool IsSetup { get; set; }
+            public int ThreadHandle { get; set; }
+            public abstract IEnumerator OnAsyncProcess();
         }
 
         private class ResourceAsync : ResourceAsyncRequest
@@ -93,15 +123,8 @@ namespace vFrame.Bundler.Assets.Resource
                 }
             }
 
-            public override IEnumerator Await() {
+            public override IEnumerator OnAsyncProcess() {
                 if (null == _request) {
-                    yield break;
-                }
-
-                if (IsStarted) {
-                    while (!IsDone) {
-                        yield return null;
-                    }
                     yield break;
                 }
 
@@ -114,7 +137,7 @@ namespace vFrame.Bundler.Assets.Resource
                 get { return _request.asset; }
             }
 
-            public override void LoadAssetAtPath(string path, Type type) {
+            protected override void LoadAssetAtPathInternal(string path, Type type) {
                 var resPath = PathUtility.RelativeProjectPathToRelativeResourcesPath(path);
 
                 var sb = StringBuilderPool.Get();
@@ -141,13 +164,13 @@ namespace vFrame.Bundler.Assets.Resource
 
             private string _path;
             private Type _type;
-            private readonly BundlerOptions _options;
+            private readonly BundlerContext _context;
 
-            public AssetDatabaseAsync(BundlerOptions options) {
-                _options = options;
+            public AssetDatabaseAsync(BundlerContext context) {
+                _context = context;
             }
 
-            public override IEnumerator Await() {
+            public override IEnumerator OnAsyncProcess() {
                 IsStarted = true;
                 while (Time.frameCount - _startFrame < _frameLength) {
                     yield return null;
@@ -159,13 +182,13 @@ namespace vFrame.Bundler.Assets.Resource
                 get { return Mathf.Min((float) (Time.frameCount - _startFrame) / _frameLength, 1f); }
             }
 
-            public override void LoadAssetAtPath(string path, Type type) {
+            protected override void LoadAssetAtPathInternal(string path, Type type) {
                 _path = path;
                 _type = type;
                 _startFrame = Time.frameCount;
                 _frameLength = Random.Range(
-                    _options.MinAsyncFrameCountWhenUsingAssetDatabase,
-                    _options.MaxAsyncFrameCountWhenUsingAssetDatabase);
+                    _context.Options.MinAsyncFrameCountWhenUsingAssetDatabase,
+                    _context.Options.MaxAsyncFrameCountWhenUsingAssetDatabase);
             }
 
             public override Object asset {

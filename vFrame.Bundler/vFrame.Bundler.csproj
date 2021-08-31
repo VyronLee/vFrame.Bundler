@@ -93,6 +93,7 @@
     <Compile Include="Base\Reference.cs" />
     <Compile Include="BundleOptions.cs" />
     <Compile Include="Bundler.cs" />
+    <Compile Include="BundlerContext.cs" />
     <Compile Include="BundlerManifest.cs" />
     <Compile Include="Exception\BundlerException.cs" />
     <Compile Include="Extension\AudioSourceExtensions.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Interface\IAsset.cs" />
     <Compile Include="Interface\IAssetAsync.cs" />
     <Compile Include="Interface\IAsync.cs" />
+    <Compile Include="Interface\IAsyncProcessor.cs" />
     <Compile Include="Interface\IBundler.cs" />
     <Compile Include="Interface\ICloneable.cs" />
     <Compile Include="Interface\ILoaderFactory.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Scenes\SceneAsync.cs" />
     <Compile Include="Scenes\SceneBase.cs" />
     <Compile Include="Scenes\SceneSync.cs" />
+    <Compile Include="Utils\AsyncRequestHelper.cs" />
     <Compile Include="Utils\PathUtility.cs" />
     <Compile Include="Utils\SerializableDictionary.cs" />
   </ItemGroup>

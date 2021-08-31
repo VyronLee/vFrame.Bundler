@@ -23,7 +23,7 @@ using vFrame.Bundler.Utils;
 
 namespace vFrame.Bundler.Modes
 {
-    public class BundleMode : ModeBase
+    internal class BundleMode : ModeBase
     {
         private readonly Dictionary<string, BundleLoaderBase> _loaderCache
             = new Dictionary<string, BundleLoaderBase>(); // Bundle name <=> Loader
@@ -37,11 +37,11 @@ namespace vFrame.Bundler.Modes
         private readonly Dictionary<ILoadRequest, Dictionary<Type, IAsset>> _assetCache
             = new Dictionary<ILoadRequest, Dictionary<Type, IAsset>>(); // Load request <=> Asset typed dict.
 
-        private readonly Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>> _assetAsyncCache
-            = new Dictionary<ILoadRequest, Dictionary<Type, IAssetAsync>>(); // Load request <=> Asset typed dict.
+        private readonly Dictionary<ILoadRequestAsync, Dictionary<Type, IAssetAsync>> _assetAsyncCache
+            = new Dictionary<ILoadRequestAsync, Dictionary<Type, IAssetAsync>>(); // Load request <=> Asset typed dict.
 
-        public BundleMode(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options)
-            : base(manifest, searchPaths, options) {
+        internal BundleMode(BundlerManifest manifest, List<string> searchPaths, BundlerContext context)
+            : base(manifest, searchPaths, context) {
         }
 
         public override ILoadRequest Load(string path) {
@@ -52,9 +52,7 @@ namespace vFrame.Bundler.Modes
             }
 
             var loader = CreateLoaderByAssetPath(path, false);
-            var loadRequestSync = new LoadRequestSync(this, _options, path, loader);
-            loadRequestSync.Load();
-            _loadRequestCache[path] = loadRequestSync;
+            var loadRequestSync = _loadRequestCache[path] = new LoadRequestSync(this, _context, path, loader);
 
             Logger.LogInfo("Add sync load request to cache: {0}", path);
             return loadRequestSync;
@@ -68,7 +66,7 @@ namespace vFrame.Bundler.Modes
             }
 
             var loader = CreateLoaderByAssetPath(path, true);
-            loadRequestAsync = _loadRequestAsyncCache[path] = new LoadRequestAsync(this, _options, path, loader);
+            loadRequestAsync = _loadRequestAsyncCache[path] = new LoadRequestAsync(this, _context, path, loader);
 
             Logger.LogInfo("Add async load request to cache: {0}", path);
             return loadRequestAsync;
@@ -92,10 +90,10 @@ namespace vFrame.Bundler.Modes
                 bundleData.dependencies.ForEach(v => dependencies.Add(CreateLoader(v, async)));
 
                 if (async)
-                    bundleLoader = _options.LoaderFactory.CreateLoaderAsync();
+                    bundleLoader = _context.Options.LoaderFactory.CreateLoaderAsync();
                 else
-                    bundleLoader = _options.LoaderFactory.CreateLoader();
-                bundleLoader.Initialize(bundlePath, _searchPaths, _options);
+                    bundleLoader = _context.Options.LoaderFactory.CreateLoader();
+                bundleLoader.Initialize(bundlePath, _searchPaths, _context);
                 bundleLoader.Dependencies = dependencies;
 
                 _loaderCache.Add(bundlePath, bundleLoader);
@@ -124,6 +122,7 @@ namespace vFrame.Bundler.Modes
                     continue;
 
                 loader.Unload();
+                loader.Dispose();
 
                 if (_loaderCache.ContainsKey(name)) {
                     Logger.LogInfo("Remove loader from cache: {0}", name);
@@ -132,6 +131,8 @@ namespace vFrame.Bundler.Modes
 
                 var toRemoveLoaderRequestName = ListPool<string>.Get();
                 var toRemoveLoaderRequest = ListPool<ILoadRequest>.Get();
+                var toRemoveLoaderAsyncRequestName = ListPool<string>.Get();
+                var toRemoveLoaderAsyncRequest = ListPool<ILoadRequestAsync>.Get();
 
                 foreach (var kv in _loadRequestCache) {
                     if (kv.Value.Loader != loader)
@@ -143,29 +144,50 @@ namespace vFrame.Bundler.Modes
                 foreach (var kv in _loadRequestAsyncCache) {
                     if (kv.Value.Loader != loader)
                         continue;
-                    toRemoveLoaderRequestName.Add(kv.Key);
-                    toRemoveLoaderRequest.Add(kv.Value);
+                    toRemoveLoaderAsyncRequestName.Add(kv.Key);
+                    toRemoveLoaderAsyncRequest.Add(kv.Value);
                 }
 
                 foreach (var v in toRemoveLoaderRequestName) {
                     if (_loadRequestCache.ContainsKey(v)) {
                         Logger.LogInfo("Remove sync load request from cache: {0}", v);
+                        _loadRequestCache[v].Dispose();
                         _loadRequestCache.Remove(v);
-                    }
-
-                    if (_loadRequestAsyncCache.ContainsKey(v)) {
-                        Logger.LogInfo("Remove async load request from cache: {0}", v);
-                        _loadRequestAsyncCache.Remove(v);
                     }
                 }
 
                 foreach (var v in toRemoveLoaderRequest) {
+                    Dictionary<Type, IAsset> assets;
+                    if (_assetCache.TryGetValue(v, out assets)) {
+                        foreach (var kv in assets) {
+                            kv.Value.Dispose();
+                        }
+                    }
                     _assetCache.Remove(v);
+                }
+
+                foreach (var v in toRemoveLoaderAsyncRequestName) {
+                    if (_loadRequestAsyncCache.ContainsKey(v)) {
+                        Logger.LogInfo("Remove async load request from cache: {0}", v);
+                        _loadRequestAsyncCache[v].Dispose();
+                        _loadRequestAsyncCache.Remove(v);
+                    }
+                }
+
+                foreach (var v in toRemoveLoaderAsyncRequest) {
+                    Dictionary<Type, IAssetAsync> assets;
+                    if (_assetAsyncCache.TryGetValue(v, out assets)) {
+                        foreach (var kv in assets) {
+                            kv.Value.Dispose();
+                        }
+                    }
                     _assetAsyncCache.Remove(v);
                 }
 
                 ListPool<string>.Return(toRemoveLoaderRequestName);
                 ListPool<ILoadRequest>.Return(toRemoveLoaderRequest);
+                ListPool<string>.Return(toRemoveLoaderAsyncRequestName);
+                ListPool<ILoadRequestAsync>.Return(toRemoveLoaderAsyncRequest);
             }
 
             ListPool<string>.Return(unused);
@@ -200,13 +222,35 @@ namespace vFrame.Bundler.Modes
         }
 
         private void ForceUnloadLoaders() {
-            foreach (var kv in _loaderCache)
-                kv.Value.ForceUnload();
-            _loaderCache.Clear();
-            _loadRequestCache.Clear();
-            _loadRequestAsyncCache.Clear();
+            foreach (var kv in _assetCache) {
+                foreach (var kv2 in kv.Value) {
+                    kv2.Value.Dispose();
+                }
+            }
             _assetCache.Clear();
+
+            foreach (var kv in _assetAsyncCache) {
+                foreach (var kv2 in kv.Value) {
+                    kv2.Value.Dispose();
+                }
+            }
             _assetAsyncCache.Clear();
+
+            foreach (var kv in _loaderCache) {
+                kv.Value.ForceUnload();
+                kv.Value.Dispose();
+            }
+            _loaderCache.Clear();
+
+            foreach (var kv in _loadRequestCache) {
+                kv.Value.Dispose();
+            }
+            _loadRequestCache.Clear();
+
+            foreach (var kv in _loadRequestAsyncCache) {
+                kv.Value.Dispose();
+            }
+            _loadRequestAsyncCache.Clear();
         }
 
         public override IAsset GetAsset(LoadRequest request, Type type) {
@@ -216,18 +260,18 @@ namespace vFrame.Bundler.Modes
 
             IAsset asset;
             if (!assetCache.TryGetValue(type, out asset))
-                asset = assetCache[type] = new BundleAssetSync(request.AssetPath, type, request.Loader, _options);
+                asset = assetCache[type] = new BundleAssetSync(request.AssetPath, type, request.Loader, _context);
             return asset;
         }
 
-        public override IAssetAsync GetAssetAsync(LoadRequest request, Type type) {
+        public override IAssetAsync GetAssetAsync(LoadRequestAsync request, Type type) {
             Dictionary<Type, IAssetAsync> assetCache;
             if (!_assetAsyncCache.TryGetValue(request, out assetCache))
                 assetCache = _assetAsyncCache[request] = new Dictionary<Type, IAssetAsync>();
 
             IAssetAsync asset;
             if (!assetCache.TryGetValue(type, out asset))
-                asset = assetCache[type] = new BundleAssetAsync(request.AssetPath, type, request.Loader, _options);
+                asset = assetCache[type] = new BundleAssetAsync(request.AssetPath, type, request.Loader, _context);
             return asset;
         }
 

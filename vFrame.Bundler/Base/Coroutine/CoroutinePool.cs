@@ -19,17 +19,14 @@ namespace vFrame.Bundler.Base.Coroutine
         private static int _index;
 
         private static GameObject _parent;
-        private static bool _parentCreated;
 
         private static GameObject PoolParent {
             get {
-                if (_parentCreated)
+                if (_parent) {
                     return _parent;
-
+                }
                 _parent = new GameObject("BundleCoroutinePools");
                 Object.DontDestroyOnLoad(_parent);
-
-                _parentCreated = true;
                 return _parent;
             }
         }
@@ -96,7 +93,9 @@ namespace vFrame.Bundler.Base.Coroutine
                     continue;
 
                 var runner = CoroutineList[task.RunnerId];
-                runner.CoStop();
+                if (runner) {
+                    runner.CoStop();
+                }
 
                 TasksRunning.Remove(task);
                 break;
@@ -131,11 +130,13 @@ namespace vFrame.Bundler.Base.Coroutine
 
         private void RunTask(CoroutineTask context) {
             context.RunnerId = FindIdleRunner();
-            var runner = GetOrSpawnRunner(context.RunnerId);
-            runner.CoStart(TaskProcessWrap(context));
+            TasksRunning.Add(context);
 
-            if (runner.IsRunning()) {
-                TasksRunning.Add(context);
+            var runner = GetOrSpawnRunner(context.RunnerId);
+            runner.CoStart(context);
+
+            if (!runner.IsRunning()) {
+                TasksRunning.Remove(context);
             }
         }
 
@@ -145,7 +146,7 @@ namespace vFrame.Bundler.Base.Coroutine
             }
 
             var runner = new GameObject("Coroutine_" + runnerId).AddComponent<CoroutineBehaviour>();
-            runner.OnFinished = PopupAndRunNext;
+            runner.OnFinished = OnFinished;
             runner.transform.SetParent(_holder.transform);
 
             CoroutineList.Add(runner);
@@ -169,9 +170,9 @@ namespace vFrame.Bundler.Base.Coroutine
             throw new System.IndexOutOfRangeException("No idling runner now.");
         }
 
-        private IEnumerator TaskProcessWrap(CoroutineTask context) {
-            yield return context.Task;
+        private void OnFinished(CoroutineTask context) {
             TasksRunning.Remove(context);
+            PopupAndRunNext();
         }
 
         private void PopupAndRunNext() {

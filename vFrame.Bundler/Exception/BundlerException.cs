@@ -87,4 +87,16 @@ namespace vFrame.Bundler.Exception
         public BundleBuildFailedException(string message) : base(message) {
         }
     }
+
+    public class AsyncRequestAlreadySetupException : BundleException
+    {
+        public AsyncRequestAlreadySetupException(string message) : base(message) {
+        }
+    }
+
+    public class CoroutinePoolInvalidStateException : BundleException
+    {
+        public CoroutinePoolInvalidStateException(string message) : base(message) {
+        }
+    }
 }

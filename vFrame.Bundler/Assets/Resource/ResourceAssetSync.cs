@@ -25,8 +25,8 @@ namespace vFrame.Bundler.Assets.Resource
     {
         private Object _asset;
 
-        public ResourceAssetSync(string assetName, Type type, BundlerOptions options)
-            : base(assetName, type, null, options) {
+        internal ResourceAssetSync(string assetName, Type type, BundlerContext context)
+            : base(assetName, type, null, context) {
         }
 
         public override Object GetAsset() {
@@ -37,7 +37,7 @@ namespace vFrame.Bundler.Assets.Resource
             Logs.Logger.LogInfo("Start synchronously loading asset: {0}", _path);
 
 #if UNITY_EDITOR
-            if (_options.UseAssetDatabaseInsteadOfResources) {
+            if (_context.Options.UseAssetDatabaseInsteadOfResources) {
                 _asset = AssetDatabase.LoadAssetAtPath(_path, _type);
                 if (!_asset)
                     throw new BundleAssetLoadFailedException("Could not load asset from AssetDatabase: " + _path);

@@ -26,10 +26,10 @@ namespace vFrame.Bundler.Assets
 {
     public abstract class AssetBase : IAsset
     {
+        internal readonly BundlerContext _context;
         protected readonly string _path;
         protected readonly BundleLoaderBase _loader;
         protected readonly Type _type;
-        protected readonly BundlerOptions _options;
 
         private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _propertiesCache
             = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
@@ -48,11 +48,11 @@ namespace vFrame.Bundler.Assets
             get { return null != _loader ? _loader.AssetBundlePath : "null"; }
         }
 
-        protected AssetBase(string path, Type type, BundleLoaderBase target, BundlerOptions options) {
+        internal AssetBase(string path, Type type, BundleLoaderBase target, BundlerContext context) {
             _loader = target;
             _path = path;
             _type = type;
-            _options = options;
+            _context = context;
 
             ThrowIfBundleError();
 
@@ -188,6 +188,19 @@ namespace vFrame.Bundler.Assets
                 return;
 
             messenger.ReleaseRef();
+        }
+
+        public virtual void Dispose() {
+        }
+
+        public override string ToString() {
+            return string.Format("[{0} path: {1}, type: {2}, done: {3}, loader: {4}]",
+                GetType().Name,
+                _path,
+                _type,
+                IsDone,
+                _loader
+            );
         }
     }
 }

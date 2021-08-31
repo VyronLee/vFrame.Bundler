@@ -18,7 +18,7 @@ using Logger = vFrame.Bundler.Logs.Logger;
 
 namespace vFrame.Bundler.Loaders
 {
-    public abstract class BundleLoaderBase : Reference
+    public abstract class BundleLoaderBase : Reference, IDisposable
     {
         private static int s_Indexer = 0;
 
@@ -35,7 +35,7 @@ namespace vFrame.Bundler.Loaders
         private int _loadedIndex = -1;
         private DateTime _loadedTime = new DateTime(0);
 
-        protected BundlerOptions Options { get; private set; }
+        internal BundlerContext _context { get; private set; }
 
         public virtual AssetBundle AssetBundle {
             get { return _assetBundle; }
@@ -96,13 +96,13 @@ namespace vFrame.Bundler.Loaders
             }
         }
 
-        public void Initialize(string path, List<string> searchPaths, BundlerOptions options) {
+        internal void Initialize(string path, List<string> searchPaths, BundlerContext context) {
             _path = path;
             _searchPaths = searchPaths;
             _assetBundle = null;
             _createdIndex = s_Indexer++;
 
-            Options = options;
+            _context = context;
             Dependencies = ListPool<BundleLoaderBase>.Get();
         }
 
@@ -115,7 +115,7 @@ namespace vFrame.Bundler.Loaders
         }
 
         public void Unload() {
-            Logger.LogInfo("Unload assetbundle: {0}", _path);
+            Logger.LogInfo("Unload loader: {0}", this);
 
             if (_references > 0)
                 throw new BundleException(
@@ -134,7 +134,7 @@ namespace vFrame.Bundler.Loaders
         }
 
         public void ForceUnload() {
-            Logger.LogVerbose("ForceUnload - {0}", _path);
+            Logger.LogVerbose("ForceUnload - {0}", this);
 
             if (_assetBundle) {
                 _assetBundle.Unload(true);
@@ -196,6 +196,10 @@ namespace vFrame.Bundler.Loaders
             return string.Format(
                 "{4}: [path: {0}, started: {1}, done: {2}, unloaded: {3}, refs: {5}, create index: {6}, loaded index: {7}, loaded time: {8:HH:mm:ss.ffff}]",
                 _path, IsStarted, IsDone, _unloaded, GetType().Name, GetReferences(), _createdIndex, _loadedIndex, _loadedTime);
+        }
+
+        public virtual void Dispose() {
+
         }
     }
 }

@@ -8,13 +8,14 @@
 //   Copyright:  Copyright (c) 2018, VyronLee
 //============================================================
 
+using System;
 using UnityEngine;
 using vFrame.Bundler.Base;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Interface
 {
-    public interface IAsset
+    public interface IAsset : IDisposable
     {
         Object GetAsset();
         GameObject InstantiateGameObject();

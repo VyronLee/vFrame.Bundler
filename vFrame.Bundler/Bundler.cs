@@ -10,6 +10,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using vFrame.Bundler.Base.Coroutine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
@@ -27,7 +28,8 @@ namespace vFrame.Bundler
         private readonly List<string> _searchPaths = new List<string>();
         private BundleModeType _modeType;
         private BundlerManifest _manifest;
-        private BundlerOptions _options;
+        private BundlerContext _context;
+        private CoroutinePool _coroutinePool;
 
         public static Bundler Instance { get; private set; }
 
@@ -49,11 +51,15 @@ namespace vFrame.Bundler
             Instance = this;
 
             _manifest = manifest;
-            _options = options;
+            _coroutinePool = new CoroutinePool("BundlerCoroutinePool", options.MaxAsyncUploadCount);
+            _context = new BundlerContext {
+                Options = options,
+                CoroutinePool = _coroutinePool,
+            };
 
             _modes = new Dictionary<BundleModeType, ModeBase>(2);
-            _modes[BundleModeType.Bundle] = new BundleMode(manifest, _searchPaths, options);
-            _modes[BundleModeType.Resource] = new ResourceMode(manifest, _searchPaths, options);
+            _modes[BundleModeType.Bundle] = new BundleMode(manifest, _searchPaths, _context);
+            _modes[BundleModeType.Resource] = new ResourceMode(manifest, _searchPaths, _context);
 
             var bundleMode = true;
             var logLevel = Logger.LogLevel.ERROR;
@@ -76,6 +82,11 @@ namespace vFrame.Bundler
 
         public void Destroy() {
             CurrentMode.Destroy();
+
+            if (null != _coroutinePool) {
+                _coroutinePool.Destroy();
+                _coroutinePool = null;
+            }
         }
 
         private ModeBase CurrentMode {

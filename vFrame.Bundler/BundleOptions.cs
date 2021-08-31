@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------
-//        File:  BunderSetting.cs
-//       Brief:  BunderSetting
+//        File:  BundlerSetting.cs
+//       Brief:  BundlerSetting
 //
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
@@ -18,5 +18,6 @@ namespace vFrame.Bundler
         public bool UseAssetDatabaseInsteadOfResources = true;
         public int MinAsyncFrameCountWhenUsingAssetDatabase = 1;
         public int MaxAsyncFrameCountWhenUsingAssetDatabase = 10;
+        public int MaxAsyncUploadCount = 256;
     }
 }

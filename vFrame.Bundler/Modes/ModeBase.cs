@@ -18,16 +18,16 @@ using vFrame.Bundler.Scenes;
 
 namespace vFrame.Bundler.Modes
 {
-    public abstract class ModeBase
+    internal abstract class ModeBase
     {
         protected readonly BundlerManifest _manifest;
         protected readonly List<string> _searchPaths;
-        protected readonly BundlerOptions _options;
+        internal readonly BundlerContext _context;
 
-        protected ModeBase(BundlerManifest manifest, List<string> searchPaths, BundlerOptions options) {
+        internal ModeBase(BundlerManifest manifest, List<string> searchPaths, BundlerContext context) {
             _manifest = manifest;
             _searchPaths = searchPaths;
-            _options = options;
+            _context = context;
         }
 
         public abstract ILoadRequest Load(string path);
@@ -46,14 +46,14 @@ namespace vFrame.Bundler.Modes
         }
 
         public virtual IScene GetScene(LoadRequest request, LoadSceneMode mode) {
-            return new SceneSync(request.AssetPath, mode, _options, request.Loader);
+            return new SceneSync(request.AssetPath, mode, _context, request.Loader);
         }
 
         public virtual ISceneAsync GetSceneAsync(LoadRequest request, LoadSceneMode mode) {
-            return new SceneAsync(request.AssetPath, mode, _options, request.Loader);
+            return new SceneAsync(request.AssetPath, mode, _context, request.Loader);
         }
 
         public abstract IAsset GetAsset(LoadRequest request, Type type);
-        public abstract IAssetAsync GetAssetAsync(LoadRequest request, Type type);
+        public abstract IAssetAsync GetAssetAsync(LoadRequestAsync request, Type type);
     }
 }

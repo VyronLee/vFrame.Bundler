@@ -19,7 +19,7 @@ using Logger = vFrame.Bundler.Logs.Logger;
 
 namespace vFrame.Bundler.Loaders
 {
-    public class BundleLoaderAsync : BundleLoaderBase, IAsync
+    public class BundleLoaderAsync : BundleLoaderBase, IAsync, IAsyncProcessor
     {
         private AssetBundleCreateRequest _bundleLoadRequest;
 
@@ -45,7 +45,14 @@ namespace vFrame.Bundler.Loaders
             }
         }
 
-        public IEnumerator Await() {
+        public override void Dispose() {
+            if (null != _context && null != _context.CoroutinePool) {
+                AsyncRequestHelper.Uninstall(_context.CoroutinePool, this);
+            }
+            base.Dispose();
+        }
+
+        public IEnumerator OnAsyncProcess() {
             if (_assetBundle)
                 yield break;
 
@@ -97,6 +104,8 @@ namespace vFrame.Bundler.Loaders
             Logger.LogInfo("Start asynchronously loading process: {0}", _path);
 
             IsLoading = true;
+
+            AsyncRequestHelper.Setup(_context.CoroutinePool, this);
         }
 
         protected override void OnUnloadProcess() {
@@ -130,5 +139,17 @@ namespace vFrame.Bundler.Loaders
         protected virtual AssetBundleCreateRequest LoadAssetBundleAsync(string path) {
             return AssetBundle.LoadFromFileAsync(path);
         }
+
+        public bool MoveNext() {
+            return !IsDone;
+        }
+
+        public void Reset() {
+
+        }
+
+        public object Current { get; private set; }
+        public bool IsSetup { get; set; }
+        public int ThreadHandle { get; set; }
     }
 }

@@ -11,17 +11,18 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler.Base.Coroutine
 {
     internal class CoroutineBehaviour : MonoBehaviour
     {
-        private IEnumerator _task;
+        private CoroutineTask _task;
 
         [SerializeField]
         private CoroutineState _state;
 
-        public Action OnFinished;
+        public Action<CoroutineTask> OnFinished;
 
         public void Pause() {
             _state |= CoroutineState.Paused;
@@ -31,8 +32,10 @@ namespace vFrame.Bundler.Base.Coroutine
             _state &= ~CoroutineState.Paused;
         }
 
-        public void CoStart(IEnumerator task) {
-            Reset();
+        public void CoStart(CoroutineTask task) {
+            if (IsRunning()) {
+                throw new CoroutinePoolInvalidStateException("CoroutinePool is running, cannot start another task!");
+            }
 
             _task = task;
             _state |= CoroutineState.Running;
@@ -65,33 +68,16 @@ namespace vFrame.Bundler.Base.Coroutine
 
         private void Reset() {
             _state = 0;
-            _task = null;
         }
 
         public IEnumerator RunTask() {
             var task = _task;
-            while (IsRunning()) {
-                if (IsStopped()) {
-                    break;
-                }
-
-                if (IsPause()) {
-                    yield return null;
-                }
-
-                if (task != null && task.MoveNext()) {
-                    yield return task.Current;
-                }
-                else {
-                    _state |= CoroutineState.Finished;
-                    break;
-                }
-            }
+            yield return task.Task;
 
             CoStop();
 
             if (null != OnFinished) {
-                OnFinished();
+                OnFinished(task);
             }
         }
     }

@@ -34,14 +34,14 @@ namespace vFrame.Bundler.Scenes
         protected readonly LoadSceneMode _mode;
         protected readonly string _path;
         protected readonly string _scenePath;
-        protected readonly BundlerOptions _options;
+        internal readonly BundlerContext Context;
 
         protected Scene Scene { get; set; }
 
-        protected SceneBase(string path, LoadSceneMode mode, BundlerOptions options, BundleLoaderBase bundleLoader = null) {
+        internal SceneBase(string path, LoadSceneMode mode, BundlerContext context, BundleLoaderBase bundleLoader = null) {
             _path = path;
             _mode = mode;
-            _options = options;
+            Context = context;
             _bundleLoader = bundleLoader;
 
             _scenePath = _path.Substring(7, _path.Length - 13); // Cut from "Assets/_____.unity"
@@ -53,7 +53,7 @@ namespace vFrame.Bundler.Scenes
             Retain();
         }
 
-        public virtual bool IsDone { get; protected set; }
+        public bool IsDone { get; protected set; }
 
         public void Unload() {
 #if UNITY_EDITOR
@@ -98,6 +98,10 @@ namespace vFrame.Bundler.Scenes
         public void Release() {
             if (_bundleLoader != null)
                 _bundleLoader.Release();
+        }
+
+        public virtual void Dispose() {
+
         }
     }
 }

@@ -22,8 +22,8 @@ namespace vFrame.Bundler.Scenes
 {
     public class SceneSync : SceneBase
     {
-        public SceneSync(string path, LoadSceneMode mode, BundlerOptions options, BundleLoaderBase loader)
-            : base(path, mode, options, loader) {
+        internal SceneSync(string path, LoadSceneMode mode, BundlerContext context, BundleLoaderBase loader)
+            : base(path, mode, context, loader) {
         }
 
         protected override void LoadInternal() {
@@ -40,6 +40,7 @@ namespace vFrame.Bundler.Scenes
             SceneManager.LoadScene(_scenePath, _mode);
 #endif
             Scene = SceneManager.GetSceneByPath(_scenePath);
+            IsDone = true;
         }
 
         protected override IEnumerator OnUnload() {

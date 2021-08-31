@@ -8,7 +8,6 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -25,24 +24,27 @@ using UnityEditor.SceneManagement;
 
 namespace vFrame.Bundler.Scenes
 {
-    public class SceneAsync : SceneBase, ISceneAsync
+    public class SceneAsync : SceneBase, ISceneAsync, IAsyncProcessor
     {
-        public SceneAsync(string path, LoadSceneMode mode, BundlerOptions options, BundleLoaderBase loader)
-            : base(path, mode, options, loader) {
+        internal SceneAsync(string path, LoadSceneMode mode, BundlerContext context, BundleLoaderBase loader)
+            : base(path, mode, context, loader) {
         }
 
         private SceneAsyncRequest Request { get; set; }
 
-        public IEnumerator Await() {
-            if (IsStarted) {
-                while (!IsDone) {
-                    yield return null;
+        public override void Dispose() {
+            if (null != Context && null != Context.CoroutinePool) {
+                if (null != Request) {
+                    AsyncRequestHelper.Uninstall(Context.CoroutinePool, Request);
                 }
-                yield break;
+                AsyncRequestHelper.Uninstall(Context.CoroutinePool, this);
             }
+            base.Dispose();
+        }
 
+        public IEnumerator OnAsyncProcess() {
             IsStarted = true;
-            yield return Request.Await();
+            yield return Request;
             Scene = Request.Scene;
             IsDone = true;
         }
@@ -53,15 +55,16 @@ namespace vFrame.Bundler.Scenes
 
         public bool IsStarted { get; private set; }
 
-        public override bool IsDone { get; protected set; }
-
         protected override void LoadInternal() {
 #if UNITY_EDITOR
-            Request = new EditorSceneAsync(_options);
+            Request = new EditorSceneAsync(Context);
 #else
             Request = new RuntimeSceneAsync();
 #endif
             Request.Load(_path, _mode);
+
+            AsyncRequestHelper.Setup(Context.CoroutinePool, Request);
+            AsyncRequestHelper.Setup(Context.CoroutinePool, this);
         }
 
         protected override IEnumerator OnUnload() {
@@ -76,15 +79,36 @@ namespace vFrame.Bundler.Scenes
         }
 #endif
 
-        private abstract class SceneAsyncRequest : IAsync
+        public bool MoveNext() {
+            return !IsDone;
+        }
+
+        public void Reset() {
+        }
+
+        public object Current { get; private set; }
+        public bool IsSetup { get; set; }
+        public int ThreadHandle { get; set; }
+
+        private abstract class SceneAsyncRequest : IAsync, IAsyncProcessor
         {
             public abstract bool IsStarted { get; protected set; }
             public bool IsDone { get; protected set; }
             public abstract float Progress { get; }
             public Scene Scene { get; protected set; }
-            public abstract IEnumerator Await();
             public abstract void Load(string scenePath, LoadSceneMode mode);
             public abstract IEnumerator Unload();
+            public bool MoveNext() {
+                return !IsDone;
+            }
+
+            public void Reset() {
+            }
+
+            public object Current { get; private set; }
+            public bool IsSetup { get; set; }
+            public int ThreadHandle { get; set; }
+            public abstract IEnumerator OnAsyncProcess();
         }
 
         private class RuntimeSceneAsync : SceneAsyncRequest
@@ -98,15 +122,8 @@ namespace vFrame.Bundler.Scenes
                 }
             }
 
-            public override IEnumerator Await() {
+            public override IEnumerator OnAsyncProcess() {
                 if (null == _request) {
-                    yield break;
-                }
-
-                if (IsStarted) {
-                    while (!IsDone) {
-                        yield return null;
-                    }
                     yield break;
                 }
 
@@ -145,13 +162,13 @@ namespace vFrame.Bundler.Scenes
             private string _path;
             private LoadSceneMode _mode;
             private AsyncOperation _request;
-            private readonly BundlerOptions _options;
+            private readonly BundlerContext _context;
 
-            public EditorSceneAsync(BundlerOptions options) {
-                _options = options;
+            internal EditorSceneAsync(BundlerContext context) {
+                _context = context;
             }
 
-            public override IEnumerator Await() {
+            public override IEnumerator OnAsyncProcess() {
                 IsStarted = true;
                 while (Time.frameCount - _startFrame < _frameLength) {
                     yield return null;
@@ -169,8 +186,8 @@ namespace vFrame.Bundler.Scenes
                 _mode = mode;
                 _startFrame = Time.frameCount;
                 _frameLength = Random.Range(
-                    _options.MinAsyncFrameCountWhenUsingAssetDatabase,
-                    _options.MaxAsyncFrameCountWhenUsingAssetDatabase);
+                    _context.Options.MinAsyncFrameCountWhenUsingAssetDatabase,
+                    _context.Options.MaxAsyncFrameCountWhenUsingAssetDatabase);
             }
 
             public override IEnumerator Unload() {

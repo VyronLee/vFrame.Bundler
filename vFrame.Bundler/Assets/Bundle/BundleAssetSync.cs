@@ -20,8 +20,8 @@ namespace vFrame.Bundler.Assets.Bundle
     {
         private Object _asset;
 
-        public BundleAssetSync(string path, Type type, BundleLoaderBase target, BundlerOptions options)
-            : base(path, type, target, options) {
+        internal BundleAssetSync(string path, Type type, BundleLoaderBase target, BundlerContext context)
+            : base(path, type, target, context) {
         }
 
         protected override void LoadAssetInternal() {

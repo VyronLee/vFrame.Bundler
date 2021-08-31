@@ -14,29 +14,30 @@ using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
+using vFrame.Bundler.Utils;
 using Logger = vFrame.Bundler.Logs.Logger;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Assets.Bundle
 {
-    public sealed class BundleAssetAsync : AssetBase, IAssetAsync
+    public sealed class BundleAssetAsync : AssetBase, IAssetAsync, IAsyncProcessor
     {
         private AssetBundleRequest _request;
 
-        public BundleAssetAsync(string path, Type type, BundleLoaderBase target, BundlerOptions options)
-            : base(path, type, target, options) {
+        internal BundleAssetAsync(string path, Type type, BundleLoaderBase target, BundlerContext context)
+            : base(path, type, target, context) {
         }
 
-        public IEnumerator Await() {
+        public override void Dispose() {
+            if (null != _context && null != _context.CoroutinePool) {
+                AsyncRequestHelper.Uninstall(_context.CoroutinePool, this);
+            }
+            base.Dispose();
+        }
+
+        public IEnumerator OnAsyncProcess() {
             if (_request == null)
                 yield break;
-
-            if (IsStarted) {
-                while (!IsDone) {
-                    yield return null;
-                }
-                yield break;
-            }
 
             IsStarted = true;
             yield return _request;
@@ -76,6 +77,8 @@ namespace vFrame.Bundler.Assets.Bundle
 
             // Avoid releasing reference when loading assets.
             _loader.Retain();
+
+            AsyncRequestHelper.Setup(_context.CoroutinePool, this);
         }
 
         private AssetBundleRequest CreateLoadRequest() {
@@ -84,5 +87,16 @@ namespace vFrame.Bundler.Assets.Bundle
             request.allowSceneActivation = true;
             return request;
         }
+
+        public bool MoveNext() {
+            return !IsDone;
+        }
+
+        public void Reset() {
+        }
+
+        public object Current { get; private set; }
+        public bool IsSetup { get; set; }
+        public int ThreadHandle { get; set; }
     }
 }

@@ -18,22 +18,36 @@ using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.LoadRequests
 {
-    public class LoadRequest : Reference, ILoadRequest
+    public abstract class LoadRequest : Reference, IDisposable, ILoadRequest
     {
-        protected readonly BundleLoaderBase _bundleLoader;
-        protected readonly ModeBase _mode;
-        protected readonly BundlerOptions _options;
-        protected readonly string _path;
-        protected bool _finished;
+        internal readonly BundlerContext _context;
+        internal readonly ModeBase _mode;
 
-        public LoadRequest(ModeBase mode, BundlerOptions options, string path, BundleLoaderBase bundleLoader) {
+        protected readonly BundleLoaderBase _bundleLoader;
+        protected readonly string _path;
+
+        internal LoadRequest(ModeBase mode, BundlerContext context, string path, BundleLoaderBase bundleLoader) {
             _path = path;
-            _options = options;
+            _context = context;
             _mode = mode;
             _bundleLoader = bundleLoader;
 
-            _finished = _bundleLoader == null;
+            IsDone = _bundleLoader == null;
+
+            if (!IsDone) {
+                LoadInternal();
+            }
         }
+
+        public virtual void Dispose() {
+
+        }
+
+        private void LoadInternal() {
+            OnLoadProcess();
+        }
+
+        protected abstract void OnLoadProcess();
 
         public override void Retain() {
             base.Retain();
@@ -58,9 +72,7 @@ namespace vFrame.Bundler.LoadRequests
             get { return _path; }
         }
 
-        public virtual bool IsDone {
-            get { return _bundleLoader == null || _bundleLoader.IsDone; }
-        }
+        public bool IsDone { protected set; get; }
 
         public IAsset GetAsset<T>() where T : Object {
             return _mode.GetAsset(this, typeof(T));
@@ -74,16 +86,10 @@ namespace vFrame.Bundler.LoadRequests
             return _mode.GetScene(this, mode);
         }
 
-        public IAssetAsync GetAssetAsync<T>() where T : Object {
-            return _mode.GetAssetAsync(this, typeof(T));
-        }
-
-        public IAssetAsync GetAssetAsync(Type type) {
-            return _mode.GetAssetAsync(this, type);
-        }
-
-        public ISceneAsync GetSceneAsync(LoadSceneMode mode) {
-            return _mode.GetSceneAsync(this, mode);
+        public override string ToString() {
+            return string.Format("[{0} root loader: {1}]",
+                GetType().Name,
+                null == _bundleLoader ? "<None>" : _bundleLoader.ToString());
         }
     }
 }
