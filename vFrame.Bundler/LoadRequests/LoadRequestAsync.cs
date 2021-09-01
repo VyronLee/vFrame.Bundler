@@ -115,7 +115,10 @@ namespace vFrame.Bundler.LoadRequests
                 node.LaunchTime = Time.realtimeSinceStartup;
                 node.Loader.Load();
             }
-            yield return node.Loader;
+
+            if (!node.Loader.IsDone) {
+                yield return node.Loader;
+            }
         }
 
         private IEnumerator TravelAndLoad() {

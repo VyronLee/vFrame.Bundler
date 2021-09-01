@@ -11,18 +11,30 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler.Base.Coroutine
 {
-    internal class CoroutineBehaviour : MonoBehaviour
+    internal class CoroutineRunnerBehaviour : MonoBehaviour
     {
+        [SerializeField]
         private CoroutineTask _task;
 
         [SerializeField]
         private CoroutineState _state;
 
+        [SerializeField]
+        private int _runnerId;
+
         public Action<CoroutineTask> OnFinished;
+
+        public int RunnerId {
+            get {
+                return _runnerId;
+            }
+            set {
+                _runnerId = value;
+            }
+        }
 
         public void Pause() {
             _state |= CoroutineState.Paused;
@@ -34,8 +46,10 @@ namespace vFrame.Bundler.Base.Coroutine
 
         public void CoStart(CoroutineTask task) {
             if (IsRunning()) {
-                throw new CoroutinePoolInvalidStateException("CoroutinePool is running, cannot start another task!");
+                throw new CoroutinePoolInvalidStateException("Coroutine is running, cannot start another task!");
             }
+
+            Reset();
 
             _task = task;
             _state |= CoroutineState.Running;
@@ -70,14 +84,27 @@ namespace vFrame.Bundler.Base.Coroutine
             _state = 0;
         }
 
-        public IEnumerator RunTask() {
-            var task = _task;
-            yield return task.Task;
+        private IEnumerator RunTask() {
+            var taskContext = _task;
+            while (IsRunning()) {
+                if (IsStopped()) {
+                    break;
+                }
+
+                if (IsPause()) {
+                    yield return null;
+                }
+
+                yield return taskContext.Task;
+
+                _state |= CoroutineState.Finished;
+                break;
+            }
 
             CoStop();
 
             if (null != OnFinished) {
-                OnFinished(task);
+                OnFinished(taskContext);
             }
         }
     }

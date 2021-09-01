@@ -51,7 +51,7 @@ namespace vFrame.Bundler
             Instance = this;
 
             _manifest = manifest;
-            _coroutinePool = new CoroutinePool("BundlerCoroutinePool", options.MaxAsyncUploadCount);
+            _coroutinePool = new CoroutinePool("Bundler", options.MaxAsyncUploadCount);
             _context = new BundlerContext {
                 Options = options,
                 CoroutinePool = _coroutinePool,

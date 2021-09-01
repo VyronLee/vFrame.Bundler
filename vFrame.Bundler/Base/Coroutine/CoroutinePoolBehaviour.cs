@@ -12,7 +12,9 @@ namespace vFrame.Bundler.Base.Coroutine
         [SerializeField]
         private List<CoroutineTask> _tasksWaiting;
         [SerializeField]
-        private List<CoroutineBehaviour> _coroutineList;
+        private List<CoroutineRunnerBehaviour> _coroutineList;
+
+        private CoroutinePool _pool;
 
         public CoroutinePool Pool {
             set {
@@ -20,7 +22,18 @@ namespace vFrame.Bundler.Base.Coroutine
                 _coroutineList = value.CoroutineList;
                 _tasksRunning = value.TasksRunning;
                 _tasksWaiting = value.TasksWaiting;
+                _pool = value;
             }
+            get {
+              return _pool;
+            }
+        }
+
+        private void Update() {
+            if (null == Pool) {
+                return;
+            }
+            Pool.OnUpdate();
         }
     }
 }

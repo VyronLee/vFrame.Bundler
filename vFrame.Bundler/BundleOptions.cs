@@ -18,6 +18,6 @@ namespace vFrame.Bundler
         public bool UseAssetDatabaseInsteadOfResources = true;
         public int MinAsyncFrameCountWhenUsingAssetDatabase = 1;
         public int MaxAsyncFrameCountWhenUsingAssetDatabase = 10;
-        public int MaxAsyncUploadCount = 256;
+        public int MaxAsyncUploadCount = int.MaxValue;
     }
 }

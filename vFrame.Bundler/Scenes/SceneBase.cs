@@ -27,7 +27,7 @@ namespace vFrame.Bundler.Scenes
         private static CoroutinePool _coroutinePool;
 
         private static CoroutinePool CoroutinePool {
-            get { return _coroutinePool ?? (_coroutinePool = new CoroutinePool("BundleScene")); }
+            get { return _coroutinePool ?? (_coroutinePool = new CoroutinePool("BundlerScene")); }
         }
 
         private readonly BundleLoaderBase _bundleLoader;
