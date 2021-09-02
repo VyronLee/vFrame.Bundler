@@ -1,6 +1,6 @@
 //------------------------------------------------------------
-//        File:  ListAllocator.cs
-//       Brief:  ListAllocator
+//        File:  StackAllocator.cs
+//       Brief:  StackAllocator
 //
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
@@ -11,21 +11,16 @@
 using System.Collections.Generic;
 using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Utils.Pools
+namespace vFrame.Bundler.Base.Pools
 {
-    public class ListAllocator<T> : IPoolObjectAllocator<List<T>>
+    internal class StackAllocator<T> : IPoolObjectAllocator<Stack<T>>
     {
-        public static int ListLength = 64;
-
-        public List<T> Alloc()
-        {
-            return new List<T>(ListLength);
+        public Stack<T> Alloc() {
+            return new Stack<T>();
         }
 
-        public void Reset(List<T> obj)
-        {
+        public void Reset(Stack<T> obj) {
             obj.Clear();
         }
-
     }
 }

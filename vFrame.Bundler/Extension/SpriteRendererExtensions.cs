@@ -7,6 +7,7 @@
 //    Modified:  2020-05-21 16:20
 //   Copyright:  Copyright (c) 2020, VyronLee
 //============================================================
+
 using UnityEngine;
 using vFrame.Bundler.Base;
 using vFrame.Bundler.Interface;
@@ -22,8 +23,7 @@ namespace vFrame.Bundler.Extension
             }
         }
 
-        public static void SetSprite(this SpriteRenderer target, IAsset asset)
-        {
+        public static void SetSprite(this SpriteRenderer target, IAsset asset) {
             asset.SetTo<SpriteRenderer, Sprite, SpriteSetter>(target);
         }
     }

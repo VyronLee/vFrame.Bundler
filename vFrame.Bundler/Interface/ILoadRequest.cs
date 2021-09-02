@@ -14,14 +14,10 @@ using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Interface
 {
-    public interface ILoadRequest
+    public interface ILoadRequest : IReference
     {
-        IAsset GetAsset<T>() where T: Object;
+        IAsset GetAsset<T>() where T : Object;
         IAsset GetAsset(Type type);
         IScene GetScene(LoadSceneMode mode);
-
-        IAssetAsync GetAssetAsync<T>() where T : Object;
-        IAssetAsync GetAssetAsync(Type type);
-        ISceneAsync GetSceneAsync(LoadSceneMode mode);
     }
 }

@@ -9,70 +9,94 @@
 //============================================================
 
 using System;
+using System.Collections;
 using UnityEngine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Utils;
+using Logger = vFrame.Bundler.Logs.Logger;
+using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Assets.Bundle
 {
-    public sealed class BundleAssetAsync : AssetBase, IAssetAsync
+    public sealed class BundleAssetAsync : AssetBase, IAssetAsync, IAsyncProcessor
     {
         private AssetBundleRequest _request;
 
-        public BundleAssetAsync(string path, Type type, BundleLoaderBase target) : base(path, type, target)
-        {
+        internal BundleAssetAsync(string path, Type type, BundleLoaderBase target, BundlerContext context)
+            : base(path, type, target, context) {
         }
 
-        public bool MoveNext()
-        {
-            if (_asset)
-                return false;
+        public override void Dispose() {
+            if (null != _context && null != _context.CoroutinePool) {
+                AsyncRequestHelper.Uninstall(_context.CoroutinePool, this);
+            }
+            base.Dispose();
+        }
 
-            if (_request == null || _request.progress < 1f || !_request.isDone)
-                return true;
+        public IEnumerator OnAsyncProcess() {
+            if (_request == null)
+                yield break;
 
-            _asset = _request.asset;
+            IsStarted = true;
+            yield return _request;
 
-            Logs.Logger.LogInfo("End asynchronously loading asset from bundle: {0}", _path);
+            Logger.LogInfo("End asynchronously loading asset from bundle: {0}, object: {1}", _path, _request.asset);
 
             // Must release reference after assets loaded.
             _loader.Release();
 
-            return false;
+            IsDone = true;
         }
 
-        public void Reset()
-        {
-        }
+        public bool IsStarted { get; private set; }
 
-        public object Current { get; private set; }
-
-        public override bool IsDone
-        {
-            get { return !MoveNext(); }
-        }
-
-        public float Progress
-        {
+        public float Progress {
             get { return _request == null ? 0f : _request.progress; }
         }
 
-        protected override void LoadAssetInternal()
-        {
-            Logs.Logger.LogInfo("Start asynchronously loading asset from bundle: {0}", _path);
+        public override Object GetAsset() {
+            if (null == _request) {
+                _request = CreateLoadRequest();
+            }
 
-            var name = GetAssetName();
-            _request = _loader.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);
-            _request.allowSceneActivation = true;
+            if (!IsDone) {
+                Logger.LogError("Asset not loaded, force load complete: {0}", _path);
+            }
+            return _request.asset;
+        }
 
+        protected override void LoadAssetInternal() {
+            Logger.LogInfo("Start asynchronously loading asset from bundle: {0}", _path);
+
+            _request = CreateLoadRequest();
             if (_request == null)
                 throw new BundleAssetLoadFailedException(
-                    string.Format("Cannot load asset {0} from bundle: {1}", name, _path));
+                    string.Format("Cannot load asset {0} from bundle: {1}", GetAssetName(), _path));
 
             // Avoid releasing reference when loading assets.
             _loader.Retain();
+
+            AsyncRequestHelper.Setup(_context.CoroutinePool, this);
         }
+
+        private AssetBundleRequest CreateLoadRequest() {
+            var name = GetAssetName();
+            var request = _loader.AssetBundle.LoadAssetWithSubAssetsAsync(name, _type);
+            request.allowSceneActivation = true;
+            return request;
+        }
+
+        public bool MoveNext() {
+            return !IsDone;
+        }
+
+        public void Reset() {
+        }
+
+        public object Current { get; private set; }
+        public bool IsSetup { get; set; }
+        public int ThreadHandle { get; set; }
     }
 }

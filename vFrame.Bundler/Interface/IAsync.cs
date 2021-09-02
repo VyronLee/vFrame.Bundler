@@ -14,6 +14,7 @@ namespace vFrame.Bundler.Interface
 {
     public interface IAsync : IEnumerator
     {
+        bool IsStarted { get; }
         bool IsDone { get; }
         float Progress { get; }
     }

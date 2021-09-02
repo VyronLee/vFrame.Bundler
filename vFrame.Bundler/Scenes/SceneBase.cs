@@ -9,24 +9,39 @@
 //============================================================
 
 using System;
+using System.Collections;
 using UnityEngine.SceneManagement;
+using vFrame.Bundler.Base.Coroutine;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace vFrame.Bundler.Scenes
 {
     public abstract class SceneBase : IScene
     {
+        private static CoroutinePool _coroutinePool;
+
+        private static CoroutinePool CoroutinePool {
+            get { return _coroutinePool ?? (_coroutinePool = new CoroutinePool("BundlerScene")); }
+        }
+
         private readonly BundleLoaderBase _bundleLoader;
         protected readonly LoadSceneMode _mode;
         protected readonly string _path;
         protected readonly string _scenePath;
+        internal readonly BundlerContext Context;
 
-        protected SceneBase(string path, LoadSceneMode mode, BundleLoaderBase bundleLoader = null)
-        {
+        protected Scene Scene { get; set; }
+
+        internal SceneBase(string path, LoadSceneMode mode, BundlerContext context, BundleLoaderBase bundleLoader = null) {
             _path = path;
             _mode = mode;
+            Context = context;
             _bundleLoader = bundleLoader;
 
             _scenePath = _path.Substring(7, _path.Length - 13); // Cut from "Assets/_____.unity"
@@ -38,33 +53,55 @@ namespace vFrame.Bundler.Scenes
             Retain();
         }
 
-        public virtual bool IsDone { get; protected set; }
+        public bool IsDone { get; protected set; }
 
-        public void Unload()
-        {
-            SceneManager.UnloadSceneAsync(_scenePath);
+        public void Unload() {
+#if UNITY_EDITOR
+            if (!EditorApplication.isPlaying) {
+                UnloadInternalInEditMode();
+                return;
+            }
+#endif
+            CoroutinePool.StartCoroutine(UnloadInternalInPlayMode());
+        }
+
+        private IEnumerator UnloadInternalInPlayMode() {
+            yield return OnUnload();
             Release();
         }
 
-        public void Activate()
-        {
-            var scene = SceneManager.GetSceneByPath(_path);
-            if (scene == null)
-                throw new BundleInstanceNotFoundException("No such scene instance: " + _path);
+#if UNITY_EDITOR
+        private void UnloadInternalInEditMode() {
+            OnUnloadInEditMode();
+            Release();
+        }
+#endif
 
-            SceneManager.SetActiveScene(scene);
+        public void Activate() {
+            if (!Scene.IsValid())
+                throw new InvalidOperationException("Scene invalid: " + Scene.path);
+
+            SceneManager.SetActiveScene(Scene);
         }
 
         protected abstract void LoadInternal();
+        protected abstract IEnumerator OnUnload();
+#if UNITY_EDITOR
+        protected abstract void OnUnloadInEditMode();
+#endif
 
-        public void Retain()
-        {
-            if (_bundleLoader != null) _bundleLoader.Retain();
+        public void Retain() {
+            if (_bundleLoader != null)
+                _bundleLoader.Retain();
         }
 
-        public void Release()
-        {
-            if (_bundleLoader != null) _bundleLoader.Release();
+        public void Release() {
+            if (_bundleLoader != null)
+                _bundleLoader.Release();
+        }
+
+        public virtual void Dispose() {
+
         }
     }
 }

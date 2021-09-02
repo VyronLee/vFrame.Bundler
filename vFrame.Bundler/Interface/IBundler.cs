@@ -18,6 +18,8 @@ namespace vFrame.Bundler.Interface
 
     public interface IBundler
     {
+        void Destroy();
+
         ILoadRequest Load(string path);
         ILoadRequestAsync LoadAsync(string path);
 

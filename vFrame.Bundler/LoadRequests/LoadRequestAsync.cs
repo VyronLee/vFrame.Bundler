@@ -8,65 +8,81 @@
 //   Copyright:  Copyright (c) 2019, VyronLee
 //============================================================
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Modes;
+using vFrame.Bundler.Utils;
+using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.LoadRequests
 {
-    public sealed class LoadRequestAsync : LoadRequest, ILoadRequestAsync
+    public sealed class LoadRequestAsync : LoadRequest, ILoadRequestAsync, IAsyncProcessor
     {
         private class Node
         {
             public BundleLoaderBase Loader;
             public readonly List<Node> Children = new List<Node>();
+            public float LaunchTime;
         }
 
         private Node _root;
         private int _total;
 
-        public LoadRequestAsync(ModeBase mode, string path, BundleLoaderBase bundleLoader)
-            : base(mode, path, bundleLoader)
-        {
+        internal LoadRequestAsync(ModeBase mode, BundlerContext context, string path, BundleLoaderBase bundleLoader)
+            : base(mode, context, path, bundleLoader) {
 
         }
 
-        public bool MoveNext()
-        {
-            if (_finished)
-                return false;
-
-            if (TravelAndLoadLeaf(_root)) {
-                return true;
+        public override void Dispose() {
+            if (null != _context && null != _context.CoroutinePool) {
+                AsyncRequestHelper.Uninstall(_context.CoroutinePool, this);
             }
-
-            _finished = true;
-            return false;
+            base.Dispose();
         }
 
-        public void Reset()
-        {
+        protected override void OnLoadProcess() {
+            if (null == _bundleLoader) {
+                return;
+            }
+            _root = BuildLoaderTree(ref _total);
+
+            AsyncRequestHelper.Setup(_context.CoroutinePool, this);
         }
 
-        public object Current { get; private set; }
+        public IEnumerator OnAsyncProcess() {
+            IsStarted = true;
 
-        public override bool IsDone
-        {
-            get { return !MoveNext(); }
+            _root.Loader.Retain();
+            yield return TravelAndLoad();
+            _root.Loader.Release();
+
+            IsDone = true;
         }
 
-        public float Progress
-        {
+        public bool IsStarted { get; private set; }
+
+        public float Progress {
             get {
                 var progress = CalculateLoadingProgress();
                 return progress / _total;
             }
         }
 
-        protected override void LoadInternal() {
-            _root = BuildLoaderTree(ref _total);
+        public IAssetAsync GetAssetAsync<T>() where T : Object {
+            return _mode.GetAssetAsync(this, typeof(T));
+        }
+
+        public IAssetAsync GetAssetAsync(Type type) {
+            return _mode.GetAssetAsync(this, type);
+        }
+
+        public ISceneAsync GetSceneAsync(LoadSceneMode mode) {
+            return _mode.GetSceneAsync(this, mode);
         }
 
         private Node BuildLoaderTree(ref int count) {
@@ -81,7 +97,7 @@ namespace vFrame.Bundler.LoadRequests
         private static void BuildTree(Node parent, IEnumerable<BundleLoaderBase> children, ref int count) {
             foreach (var child in children) {
                 var node = new Node {
-                    Loader = child,
+                    Loader = child
                 };
                 BuildTree(node, child.Dependencies, ref count);
                 count += 1;
@@ -90,24 +106,23 @@ namespace vFrame.Bundler.LoadRequests
             }
         }
 
-        private bool TravelAndLoadLeaf(Node node) {
-            var loading = false;
+        private IEnumerator TravelAndLoadNode(Node node) {
             foreach (var child in node.Children) {
-                var ret = TravelAndLoadLeaf(child);
-                loading |= ret;
+                yield return TravelAndLoadNode(child);
             }
 
-            if (loading) {
-                return true;
+            if (!node.Loader.IsStarted) {
+                node.LaunchTime = Time.realtimeSinceStartup;
+                node.Loader.Load();
             }
 
             if (!node.Loader.IsDone) {
-                if (!node.Loader.IsLoading) {
-                    node.Loader.Load();
-                }
-                return true;
+                yield return node.Loader;
             }
-            return false;
+        }
+
+        private IEnumerator TravelAndLoad() {
+            yield return TravelAndLoadNode(_root);
         }
 
         private float CalculateLoadingProgress() {
@@ -117,18 +132,26 @@ namespace vFrame.Bundler.LoadRequests
         }
 
         private void CalculateNodeProgress(Node node, ref float progress) {
-            foreach (var child in node.Children) {
+            foreach (var child in node.Children)
                 CalculateNodeProgress(child, ref progress);
-            }
 
             var loaderAsync = node.Loader as BundleLoaderAsync;
-            if (null != loaderAsync) {
+            if (null != loaderAsync)
                 progress += loaderAsync.Progress;
-            }
-            else {
+            else
                 progress += 1;
-            }
         }
 
+        public bool MoveNext() {
+            return !IsDone;
+        }
+
+        public void Reset() {
+
+        }
+
+        public object Current { get; private set; }
+        public bool IsSetup { get; set; }
+        public int ThreadHandle { get; set; }
     }
 }

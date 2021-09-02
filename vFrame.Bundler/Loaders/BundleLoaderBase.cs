@@ -10,127 +10,196 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using vFrame.Bundler.Base;
+using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Exception;
-using vFrame.Bundler.Utils.Pools;
 using Logger = vFrame.Bundler.Logs.Logger;
 
 namespace vFrame.Bundler.Loaders
 {
-    public abstract class BundleLoaderBase : Reference
+    public abstract class BundleLoaderBase : Reference, IDisposable
     {
-        protected static readonly Dictionary<string, AssetBundle> AssetBundleCache =
-            new Dictionary<string, AssetBundle>();
+        private static int s_Indexer = 0;
 
         protected AssetBundle _assetBundle;
-        protected Stream _fileStream;
 
         protected string _path;
         protected List<string> _searchPaths;
 
-        public virtual AssetBundle AssetBundle
-        {
+        private bool _started;
+        private bool _unloaded;
+        private bool _done;
+
+        private int _createdIndex = -1;
+        private int _loadedIndex = -1;
+        private DateTime _loadedTime = new DateTime(0);
+
+        internal BundlerContext _context { get; private set; }
+
+        public virtual AssetBundle AssetBundle {
             get { return _assetBundle; }
         }
 
-        public string AssetBundlePath
-        {
+        public string AssetBundlePath {
             get { return _path; }
+        }
+
+        public int LoadedIndex {
+            get { return _loadedIndex; }
+        }
+
+        public DateTime LoadedTime {
+            get { return _loadedTime; }
         }
 
         public virtual bool IsLoading { get; protected set; }
 
         public List<BundleLoaderBase> Dependencies { get; set; }
 
-        public virtual bool IsDone { get; protected set; }
+        public bool Validate(ref List<BundleLoaderBase> errors) {
+            var ret = true;
+            foreach (var dependency in Dependencies) {
+                ret &= dependency.Validate(ref errors);
+            }
 
-        public void Initialize(string path, List<string> searchPaths)
-        {
+            if (!IsDone || IsUnloaded) {
+                errors.Add(this);
+                ret = false;
+            }
+            return ret;
+        }
+
+        public virtual bool IsDone {
+            get {
+                return _done;
+            }
+            protected set {
+                _done = value;
+
+                if (!value)
+                    return;
+                _loadedIndex = s_Indexer++;
+                _loadedTime = DateTime.Now;
+            }
+        }
+
+        public bool IsStarted {
+            get {
+                return _started;
+            }
+        }
+
+        public bool IsUnloaded {
+            get {
+                return _unloaded;
+            }
+        }
+
+        internal void Initialize(string path, List<string> searchPaths, BundlerContext context) {
             _path = path;
             _searchPaths = searchPaths;
             _assetBundle = null;
+            _createdIndex = s_Indexer++;
 
+            _context = context;
             Dependencies = ListPool<BundleLoaderBase>.Get();
         }
 
-        public void Load()
-        {
-            if (AssetBundleCache.TryGetValue(_path, out _assetBundle))
-            {
-                Logs.Logger.LogInfo("Load assetbundle from cache: {0}", _path);
-                IsDone = true;
+        public void Load() {
+            if (IsDone || IsLoading) {
                 return;
             }
 
-            if (IsLoading)
-                return;
-
-            if (!(IsDone = LoadProcess()))
-                return;
-
-            Logs.Logger.LogInfo("Add assetbundle to cache: {0}", _path);
-
-            if (AssetBundleCache.ContainsKey(_path))
-                throw new System.Exception("Assetbundle already in cache: " + _path);
-            AssetBundleCache.Add(_path, _assetBundle);
+            LoadProcess();
         }
 
-        public void Unload()
-        {
-            Logs.Logger.LogInfo("Unload assetbundle: {0}", _path);
+        public void Unload() {
+            Logger.LogInfo("Unload loader: {0}", this);
 
             if (_references > 0)
-                throw new BundleException("Cannot unload, references: " + _references);
+                throw new BundleException(
+                    string.Format("Cannot unload, references: {0}, {1}", _references, this));
 
-            if (_assetBundle)
-            {
+            if (_assetBundle) {
                 _assetBundle.Unload(true);
                 _assetBundle = null;
             }
 
-            if (null != _fileStream) {
-                _fileStream.Close();
-                _fileStream.Dispose();
-                _fileStream = null;
-            }
+            UnloadProcess();
 
-            AssetBundleCache.Remove(_path);
-
-            IsDone = !UnloadProcess();
-
-            foreach (var loader in Dependencies)
-                loader.Release();
+            IsDone = false;
 
             ListPool<BundleLoaderBase>.Return(Dependencies);
         }
 
-        public override void Retain()
-        {
+        public void ForceUnload() {
+            Logger.LogVerbose("ForceUnload - {0}", this);
+
+            if (_assetBundle) {
+                _assetBundle.Unload(true);
+                _assetBundle = null;
+            }
+
             foreach (var loader in Dependencies)
-                loader.Retain();
+                loader.ForceUnload();
+
+            ListPool<BundleLoaderBase>.Return(Dependencies);
+        }
+
+        public override void Retain() {
+            RetainDependencies();
 
             base.Retain();
 
-            Logs.Logger.LogVerbose("Retain loader: {0}, ref: {1}", _path, _references);
+            Logger.LogVerbose("Retain loader: {0}, ref: {1}", _path, _references);
         }
 
-        public override void Release()
-        {
-            foreach (var loader in Dependencies)
-                loader.Release();
+        public override void Release() {
+            ReleaseDependencies();
 
             base.Release();
 
-            Logs.Logger.LogVerbose("Release loader: {0}, ref: {1}", _path, _references);
+            Logger.LogVerbose("Release loader: {0}, ref: {1}", _path, _references);
         }
 
-        protected abstract bool LoadProcess();
+        protected void RetainDependencies() {
+            foreach (var loader in Dependencies)
+                loader.Retain();
+        }
 
-        protected virtual bool UnloadProcess()
-        {
-            return true;
+        protected void ReleaseDependencies() {
+            foreach (var loader in Dependencies)
+                loader.Release();
+        }
+
+        private void LoadProcess() {
+            if (!_started)
+                RetainDependencies();
+            _started = true;
+
+            OnLoadProcess();
+        }
+
+        private void UnloadProcess() {
+            if (!_unloaded)
+                ReleaseDependencies();
+            _unloaded = true;
+
+            OnUnloadProcess();
+        }
+
+        protected abstract void OnLoadProcess();
+        protected abstract void OnUnloadProcess();
+
+        public override string ToString() {
+            return string.Format(
+                "{4}: [path: {0}, started: {1}, done: {2}, unloaded: {3}, refs: {5}, create index: {6}, loaded index: {7}, loaded time: {8:HH:mm:ss.ffff}]",
+                _path, IsStarted, IsDone, _unloaded, GetType().Name, GetReferences(), _createdIndex, _loadedIndex, _loadedTime);
+        }
+
+        public virtual void Dispose() {
+
         }
     }
 }

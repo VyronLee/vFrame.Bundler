@@ -12,28 +12,39 @@ using System;
 using vFrame.Bundler.Exception;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Logs;
+using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.Assets.Bundle
 {
     public sealed class BundleAssetSync : AssetBase
     {
-        public BundleAssetSync(string path, Type type, BundleLoaderBase target) : base(path, type, target)
-        {
+        private Object _asset;
+
+        internal BundleAssetSync(string path, Type type, BundleLoaderBase target, BundlerContext context)
+            : base(path, type, target, context) {
         }
 
-        protected override void LoadAssetInternal()
-        {
+        protected override void LoadAssetInternal() {
             Logger.LogInfo("Start synchronously loading asset from bundle: {0}", _path);
 
+            if (!Loader.IsDone) {
+                throw new BundleAssetLoadFailedException(
+                    string.Format("Loader has not finished: {0}", Loader));
+            }
+
             var name = GetAssetName();
-            var assets = _loader.AssetBundle.LoadAssetWithSubAssets(name, _type);
+            var assets = Loader.AssetBundle.LoadAssetWithSubAssets(name, _type);
             if (assets.Length <= 0)
                 throw new BundleAssetLoadFailedException(
-                    string.Format("Could not load asset {0} from assetbundle: ", name));
+                    string.Format("Could not load asset {0} from assetbundle, loader: {1}: ", name, Loader));
             _asset = assets[0];
             IsDone = true;
 
             Logger.LogInfo("End synchronously loading asset from bundle: {0}", _path);
+        }
+
+        public override Object GetAsset() {
+            return _asset;
         }
     }
 }

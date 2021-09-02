@@ -30,13 +30,11 @@ namespace vFrame.Bundler.Extension
             }
         }
 
-        public static void SetMaterial(this Renderer target, IAsset asset)
-        {
+        public static void SetMaterial(this Renderer target, IAsset asset) {
             asset.SetTo<Renderer, Material, MaterialSetter>(target);
         }
 
-        public static void SetSharedMaterial(this Renderer target, IAsset asset)
-        {
+        public static void SetSharedMaterial(this Renderer target, IAsset asset) {
             asset.SetTo<Renderer, Material, SharedMaterialSetter>(target);
         }
     }
