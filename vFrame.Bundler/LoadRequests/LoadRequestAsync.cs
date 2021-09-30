@@ -11,12 +11,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Modes;
 using vFrame.Bundler.Utils;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler.LoadRequests
@@ -31,6 +34,7 @@ namespace vFrame.Bundler.LoadRequests
         }
 
         private Node _root;
+        private List<Node> _children = new List<Node>();
         private int _total;
 
         internal LoadRequestAsync(ModeBase mode, BundlerContext context, string path, BundleLoaderBase bundleLoader)
@@ -49,7 +53,7 @@ namespace vFrame.Bundler.LoadRequests
             if (null == _bundleLoader) {
                 return;
             }
-            _root = BuildLoaderTree(ref _total);
+            _root = BuildLoaderTree(ref _total, ref _children);
 
             AsyncRequestHelper.Setup(_context.CoroutinePool, this);
         }
@@ -57,9 +61,13 @@ namespace vFrame.Bundler.LoadRequests
         public IEnumerator OnAsyncProcess() {
             IsStarted = true;
 
+            //var stopWatch = Stopwatch.StartNew();
             _root.Loader.Retain();
             yield return TravelAndLoad();
             _root.Loader.Release();
+
+            //var elapse = stopWatch.Elapsed.TotalSeconds;
+            //Debug.LogFormat("LoadRequestAsync finished, cost: {0:0.0000}s, path: {1}", elapse, _root.Loader.AssetBundlePath);
 
             IsDone = true;
         }
@@ -85,30 +93,32 @@ namespace vFrame.Bundler.LoadRequests
             return _mode.GetSceneAsync(this, mode);
         }
 
-        private Node BuildLoaderTree(ref int count) {
+        private Node BuildLoaderTree(ref int count, ref List<Node> allChildren) {
             var root = new Node {
                 Loader = _bundleLoader
             };
-            BuildTree(root, _bundleLoader.Dependencies, ref count);
+            BuildTree(root, _bundleLoader.Dependencies, ref count, ref allChildren);
             count += 1;
             return root;
         }
 
-        private static void BuildTree(Node parent, IEnumerable<BundleLoaderBase> children, ref int count) {
+        private static void BuildTree(Node parent, IEnumerable<BundleLoaderBase> children, ref int count, ref List<Node> allChildren) {
             foreach (var child in children) {
                 var node = new Node {
                     Loader = child
                 };
-                BuildTree(node, child.Dependencies, ref count);
+                BuildTree(node, child.Dependencies, ref count, ref allChildren);
                 count += 1;
 
                 parent.Children.Add(node);
+                allChildren.Add(node);
             }
         }
 
-        private IEnumerator TravelAndLoadNode(Node node) {
+        private IEnumerator TravelAndLoadNode(Node node, int depth) {
+            var stopWatch = Stopwatch.StartNew();
             foreach (var child in node.Children) {
-                yield return TravelAndLoadNode(child);
+                yield return TravelAndLoadNode(child, depth + 1);
             }
 
             if (!node.Loader.IsStarted) {
@@ -119,10 +129,44 @@ namespace vFrame.Bundler.LoadRequests
             if (!node.Loader.IsDone) {
                 yield return node.Loader;
             }
+
+            var elapse = stopWatch.Elapsed.TotalSeconds;
+            //Debug.LogFormat(new string('\t', depth) + "Load loader finished, cost: {0:0.0000}s, path: {1}", elapse, node.Loader.AssetBundlePath);
         }
 
         private IEnumerator TravelAndLoad() {
-            yield return TravelAndLoadNode(_root);
+            //yield return TravelAndLoadNode(_root, 0);
+
+            //var stopWatch = Stopwatch.StartNew();
+
+            var toLoad = _children.ToList();
+            toLoad.Add(_root);
+
+            foreach (var child in toLoad) {
+                if (!child.Loader.IsStarted) {
+                    child.LaunchTime = Time.realtimeSinceStartup;
+                    child.Loader.Load();
+                }
+            }
+
+            while (true) {
+                for (var index = toLoad.Count - 1; index >= 0; index--) {
+                    var child = toLoad[index];
+                    if (!child.Loader.IsDone) {
+                        continue;
+                    }
+
+                    //var elapse = stopWatch.Elapsed.TotalSeconds;
+                    //Debug.LogFormat("Load loader finished, cost: {0:0.0000}s, path: {1}", elapse, child.Loader.AssetBundlePath);
+                    toLoad.RemoveAt(index);
+                }
+
+                if (toLoad.Count > 0) {
+                    yield return null;
+                    continue;
+                }
+                break;
+            }
         }
 
         private float CalculateLoadingProgress() {
