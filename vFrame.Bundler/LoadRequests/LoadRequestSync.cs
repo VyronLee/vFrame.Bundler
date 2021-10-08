@@ -10,13 +10,21 @@
 
 using System.Diagnostics;
 using vFrame.Bundler.Loaders;
+using vFrame.Bundler.Logs;
 using vFrame.Bundler.Modes;
-using Debug = UnityEngine.Debug;
 
 namespace vFrame.Bundler.LoadRequests
 {
     public sealed class LoadRequestSync : LoadRequest
     {
+        private static readonly string[] TabOfDepth = {
+            "\t",
+            "\t\t",
+            "\t\t\t",
+            "\t\t\t\t",
+            "\t\t\t\t\t",
+        };
+
         internal LoadRequestSync(ModeBase mode, BundlerContext context, string path, BundleLoaderBase bundleLoader)
             : base(mode, context, path, bundleLoader) {
         }
@@ -25,7 +33,7 @@ namespace vFrame.Bundler.LoadRequests
             var stopWatch = Stopwatch.StartNew();
             LoadRecursive(_bundleLoader, 0);
             var elapse = stopWatch.Elapsed.TotalSeconds;
-            //Debug.LogFormat("LoadRequestSync finished, cost: {0:0.0000}s, path: {1}", elapse, _bundleLoader.AssetBundlePath);
+            Logger.LogVerbose("LoadRequestSync finished, cost: {0:0.0000}s, path: {1}", elapse, _bundleLoader.AssetBundlePath);
             IsDone = true;
         }
 
@@ -33,8 +41,9 @@ namespace vFrame.Bundler.LoadRequests
             var stopWatch = Stopwatch.StartNew();
 
             // Load dependencies at first
-            foreach (var dependency in bundleLoader.Dependencies)
+            foreach (var dependency in bundleLoader.Dependencies) {
                 LoadRecursive(dependency, depth + 1);
+            }
 
             // Load target at last
             if (!bundleLoader.IsStarted) {
@@ -47,8 +56,9 @@ namespace vFrame.Bundler.LoadRequests
                 async.ForceLoadComplete();
             }
 
+            var tabStr = TabOfDepth.Length < depth ? TabOfDepth[depth] : new string('\t', depth);
             var elapse = stopWatch.Elapsed.TotalSeconds;
-            //Debug.LogFormat("Loader load finished, cost: {0:0.0000}s, path: {1}", elapse, bundleLoader.AssetBundlePath);
+            Logger.LogVerbose("{0}Loader load finished, cost: {1:0.0000}s, path: {2}", tabStr, elapse, bundleLoader.AssetBundlePath);
         }
     }
 }
