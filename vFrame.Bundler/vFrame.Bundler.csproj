@@ -98,6 +98,7 @@
     <Compile Include="BundlerManifest.cs" />
     <Compile Include="Exception\BundlerException.cs" />
     <Compile Include="Extension\AudioSourceExtensions.cs" />
+    <Compile Include="Extension\GameObjectExtensions.cs" />
     <Compile Include="Extension\ProjectorExtension.cs" />
     <Compile Include="Extension\RendererExtensions.cs" />
     <Compile Include="Extension\SpriteRendererExtensions.cs" />

@@ -1,9 +1,11 @@
-﻿using vFrame.Bundler.Exception;
-
-namespace vFrame.Bundler.Base.Coroutine
+﻿namespace vFrame.Bundler.Base.Coroutine
 {
-    public class CoroutinePoolException : BundleException
+    public class CoroutinePoolException : System.Exception
     {
+        public CoroutinePoolException() {
+
+        }
+
         public CoroutinePoolException(string message) : base(message) {
 
         }

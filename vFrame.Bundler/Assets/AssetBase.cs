@@ -15,6 +15,7 @@ using UnityEngine;
 using vFrame.Bundler.Base;
 using vFrame.Bundler.Base.Pools;
 using vFrame.Bundler.Exception;
+using vFrame.Bundler.Extension;
 using vFrame.Bundler.Interface;
 using vFrame.Bundler.Loaders;
 using vFrame.Bundler.Messengers;
@@ -136,7 +137,7 @@ namespace vFrame.Bundler.Assets
             foreach (var messenger in messengers)
                 UnsubscribeDestroyedMessenger(messenger.gameObject);
 
-            Object.Destroy(gameObject);
+            gameObject.DestroyEx();
         }
 
         public void SetTo<T1, T2, TSetter>(T1 target)

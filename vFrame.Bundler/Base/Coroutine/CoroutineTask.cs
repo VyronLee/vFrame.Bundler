@@ -19,5 +19,6 @@ namespace vFrame.Bundler.Base.Coroutine
         public int Handle;
         public int RunnerId;
         public IEnumerator Task;
+        public string Stack;
     }
 }

@@ -25,15 +25,15 @@ namespace vFrame.Bundler.Base.Coroutine
         [SerializeField]
         private int _runnerId;
 
-        public Action<CoroutineTask> OnFinished;
+        public Action<CoroutineTask> OnFinished = null;
 
         public int RunnerId {
-            get {
-                return _runnerId;
-            }
-            set {
-                _runnerId = value;
-            }
+            get { return _runnerId; }
+            set { _runnerId = value; }
+        }
+
+        public int TaskHandle {
+            get { return _task.Handle; }
         }
 
         public void Pause() {
@@ -93,6 +93,7 @@ namespace vFrame.Bundler.Base.Coroutine
 
                 if (IsPause()) {
                     yield return null;
+                    continue;
                 }
 
                 yield return taskContext.Task;
@@ -101,7 +102,9 @@ namespace vFrame.Bundler.Base.Coroutine
                 break;
             }
 
-            CoStop();
+            _state &= ~CoroutineState.Running;
+            _state |= CoroutineState.Stopped;
+            _task = default(CoroutineTask);
 
             if (null != OnFinished) {
                 OnFinished(taskContext);
