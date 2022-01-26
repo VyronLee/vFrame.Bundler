@@ -326,8 +326,7 @@ namespace vFrame.Bundler.Editor
                 .Where(v => !IsExclude(v, excludePattern))
                 .ToArray();
 
-            foreach (var subDirectory in subDirectories)
-            {
+            foreach (var subDirectory in subDirectories) {
                 var files = Directory
                     .GetFiles(subDirectory, rule.searchPattern, SearchOption.AllDirectories)
                     .Where(v => !IsMeta(v))
@@ -342,10 +341,9 @@ namespace vFrame.Bundler.Editor
 
                 try {
                     var index = 0;
-                    foreach (var file in files)
-                    {
+                    foreach (var file in files) {
                         EditorUtility.DisplayProgressBar("Parsing Rule of Pack By Sub Directory Name", file,
-                            (float) index++ / files.Length);
+                            (float)index++ / files.Length);
 
                         var relativePath = PathUtility.AbsolutePathToRelativeProjectPath(file);
                         if (rule.shared)
@@ -429,11 +427,13 @@ namespace vFrame.Bundler.Editor
             // Try get dependencies from cache
             var assetGuid = AssetDatabase.AssetPathToGUID(asset);
             if (cache.cacheData.TryGetValue(assetGuid, out var cacheData)) {
-                if (ValidateDependency(ref cache, cacheData)) {
+                var validated = new HashSet<string>();
+                if (ValidateDependency(ref cache, ref validated, cacheData)) {
                     return cacheData.dependencies.Select(AssetDatabase.GUIDToAssetPath).ToList();
                 }
             }
-            return AnalyzeDependencies(asset, ref cache);
+            var traveled = new HashSet<string>();
+            return AnalyzeDependencies(asset, ref cache, ref traveled);
         }
 
         private static string[] GetLightingDataValidDependencies(LightingDataAsset lightingDataAsset) {
@@ -447,7 +447,14 @@ namespace vFrame.Bundler.Editor
             return dep2.ToArray();
         }
 
-        private static IEnumerable<string> AnalyzeDependencies(string asset, ref DependencyCache cache) {
+        private static IEnumerable<string> AnalyzeDependencies(string asset, ref DependencyCache cache,
+            ref HashSet<string> traveled) {
+
+            if (traveled.Contains(asset)) {
+                throw new InvalidOperationException("Circular dependencies found for asset during analyzing: " + asset);
+            }
+            traveled.Add(asset);
+
             if (++CollectedCount % 2000 == 0) {
                 Debug.Log($"[{CollectedCount}]Unloading assets to reduce memory...");
                 Resources.UnloadUnusedAssets();
@@ -464,7 +471,7 @@ namespace vFrame.Bundler.Editor
             else {
                 dep1 = AssetDatabase.GetDependencies(asset, true);
                 dep1 = dep1.Where(v => !IsBuiltinResource(v))
-                    .Where(v => IsProjectResource(v))
+                    .Where(IsProjectResource)
                     .ToArray();
             }
 
@@ -484,31 +491,42 @@ namespace vFrame.Bundler.Editor
 
             foreach (var dep in assetDeps) {
                 var guid = AssetDatabase.AssetPathToGUID(dep);
-                if (!cache.cacheData.ContainsKey(guid) || !ValidateDependency(ref cache, cache.cacheData[guid])) {
-                    AnalyzeDependencies(dep, ref cache);
+                var validated = new HashSet<string>();
+                if (!cache.cacheData.ContainsKey(guid) || !ValidateDependency(ref cache, ref validated, cache.cacheData[guid])) {
+                    AnalyzeDependencies(dep, ref cache, ref traveled);
                 }
             }
 
             foreach (var dep in scriptRefs) {
                 var guid = AssetDatabase.AssetPathToGUID(dep);
-                if (!cache.cacheData.ContainsKey(guid) || !ValidateDependency(ref cache, cache.cacheData[guid])) {
-                    AnalyzeDependencies(dep, ref cache);
+                var validated = new HashSet<string>();
+                if (!cache.cacheData.ContainsKey(guid) || !ValidateDependency(ref cache, ref validated, cache.cacheData[guid])) {
+                    AnalyzeDependencies(dep, ref cache, ref traveled);
                 }
             }
 
             assetDeps.Sort();
+            traveled.Remove(asset);
             return assetDeps;
         }
 
-        private static bool ValidateDependency(ref DependencyCache cache, DependencyCacheData cacheData) {
+        private static bool ValidateDependency(ref DependencyCache cache, ref HashSet<string> validated,
+            DependencyCacheData cacheData) {
+
             if (cacheData.validated) {
                 return true;
             }
+
+            if (validated.Contains(cacheData.assetGuid)) {
+                return true;
+            }
+            validated.Add(cacheData.assetGuid);
 
             var hash = AssetDatabase.GetAssetDependencyHash(cacheData.assetPath);
             if (cacheData.assetHash != hash) {
                 Debug.LogFormat("Hash not match: {0}, previous: {1}, current: {2}",
                     cacheData.assetPath, cacheData.assetHash, hash);
+                validated.Remove(cacheData.assetGuid);
                 return false;
             }
 
@@ -518,15 +536,17 @@ namespace vFrame.Bundler.Editor
                 if (!File.Exists(PathUtility.RelativeProjectPathToAbsolutePath(dependencyPath))) {
                     Debug.LogFormat("Dependency file missing: {0}, {1}, hash validation not passed: {2}",
                         dependency, dependencyPath, cacheData.assetPath);
+                    validated.Remove(cacheData.assetGuid);
                     return false;
                 }
 
                 if (cache.cacheData.TryGetValue(dependency, out var data)) {
-                    ret &= ValidateDependency(ref cache, data);
+                    ret &= ValidateDependency(ref cache, ref validated, data);
                 }
                 else {
                     Debug.LogFormat("Dependency cache data missing: {0}, {1}, hash validation not passed: {2}",
                         dependency, dependencyPath, cacheData.assetPath);
+                    validated.Remove(cacheData.assetGuid);
                     return false;
                 }
             }
@@ -536,20 +556,23 @@ namespace vFrame.Bundler.Editor
                 if (!File.Exists(PathUtility.RelativeProjectPathToAbsolutePath(scriptPath))) {
                     Debug.LogFormat("Script file missing: {0}, {1}, hash validation not passed: {2}",
                         scriptRef, scriptPath, cacheData.assetPath);
+                    validated.Remove(cacheData.assetGuid);
                     return false;
                 }
 
                 if (cache.cacheData.TryGetValue(scriptRef, out var data)) {
-                    ret &= ValidateDependency(ref cache, data);
+                    ret &= ValidateDependency(ref cache, ref validated, data);
                 }
                 else {
                     Debug.LogFormat("Script cache data missing: {0}, {1}, hash validation not passed: {2}",
                         scriptRef, scriptPath, cacheData.assetPath);
+                    validated.Remove(cacheData.assetGuid);
                     return false;
                 }
             }
 
             cacheData.validated = ret;
+            validated.Remove(cacheData.assetGuid);
             return ret;
         }
 
