@@ -25,6 +25,7 @@ namespace vFrame.Bundler.Editor
         public static bool kHashAssetBundlePath = true;
         public static bool kHashSharedBundle = true;
         public static bool kSeparateShaderBundle = true;
+        public static bool kBundleDependenciesCacheEnabled = true;
         public static string kSeparatedShaderBundleName = "shared/shared_shaders.ab";
 
         public static string kModePreferenceKey = "vFrameBundlerModePreferenceKey";

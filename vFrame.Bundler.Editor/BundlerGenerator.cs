@@ -206,6 +206,9 @@ namespace vFrame.Bundler.Editor
         }
 
         private static DependencyCache LoadAssetDependenciesCache() {
+            if (!BundlerBuildSettings.kBundleDependenciesCacheEnabled) {
+                return new DependencyCache();
+            }
             try {
                 var jsonData = File.ReadAllText(DependenciesCacheFilePath);
                 return JsonUtility.FromJson<DependencyCache>(jsonData);

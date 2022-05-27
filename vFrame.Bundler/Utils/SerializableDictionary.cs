@@ -28,7 +28,7 @@ using UnityEngine;
 namespace vFrame.Bundler.Utils
 {
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : SortedDictionary<TKey, TValue>, ISerializationCallbackReceiver
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
         // We save the keys and values in two lists because Unity does understand those.
         [SerializeField] [HideInInspector] private List<TKey> _keys;

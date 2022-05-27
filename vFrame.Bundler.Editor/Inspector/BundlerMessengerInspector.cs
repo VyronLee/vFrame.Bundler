@@ -42,7 +42,10 @@ namespace vFrame.Bundler.Editor.Inspector
         {
             EditorGUILayout.BeginVertical();
 
+            var wasEnable = GUI.enabled;
+            GUI.enabled = false;
             EditorGUILayout.PropertyField(_instanceId);
+            GUI.enabled = wasEnable;
 
             var assets = _assetsFieldInfo.GetValue(_messenger) as HashSet<AssetBase>;
             var typedAssets = _typedAssetsFieldInfo.GetValue(_messenger) as Dictionary<Type, AssetBase>;
