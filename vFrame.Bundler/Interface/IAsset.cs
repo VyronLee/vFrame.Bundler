@@ -18,7 +18,7 @@ namespace vFrame.Bundler.Interface
     public interface IAsset : IDisposable
     {
         Object GetAsset();
-        GameObject InstantiateGameObject();
+        GameObject InstantiateGameObject(Transform parent = null, bool stayWorldPosition = false);
         void DestroyGameObject(GameObject gameObject);
 
         void SetTo<T1, T2, TSetter>(T1 target)

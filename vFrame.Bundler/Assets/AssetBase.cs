@@ -109,7 +109,7 @@ namespace vFrame.Bundler.Assets
 
         public abstract Object GetAsset();
 
-        public GameObject InstantiateGameObject() {
+        public GameObject InstantiateGameObject(Transform parent = null, bool stayWorldPosition = false) {
             if (!IsDone)
                 throw new BundleAssetNotReadyException(
                     string.Format("Asset not ready, path: {0}, loader: {1}", _path, _loader));
@@ -119,7 +119,7 @@ namespace vFrame.Bundler.Assets
                 throw new BundleAssetTypeNotMatchException(
                     string.Format("Asset not typeof GameObject, path: {0}, loader: {1}", _path, _loader));
 
-            var go = Object.Instantiate(prefab);
+            var go = Object.Instantiate(prefab, parent, stayWorldPosition);
 
             Logger.LogVerbose("Instantiate gameObject: {0}, from bundle: {1}", AssetPath, LoaderPath);
 
