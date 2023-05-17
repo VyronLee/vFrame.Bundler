@@ -56,7 +56,7 @@ namespace vFrame.Bundler.LoadRequests
                 async.ForceLoadComplete();
             }
 
-            var tabStr = TabOfDepth.Length < depth ? TabOfDepth[depth] : new string('\t', depth);
+            var tabStr = TabOfDepth.Length > depth ? TabOfDepth[depth] : new string('\t', depth);
             var elapse = stopWatch.Elapsed.TotalSeconds;
             Logger.LogVerbose("{0}Loader load finished, cost: {1:0.0000}s, path: {2}", tabStr, elapse, bundleLoader.AssetBundlePath);
         }
