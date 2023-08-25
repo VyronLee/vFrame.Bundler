@@ -467,9 +467,9 @@ namespace vFrame.Bundler.Editor
             string[] dep1;
             // On Unity 2018 or newer, LightingDataAsset depends on SceneAsset directly,
             // which will lead to circular dependency
-            var assetObj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(asset);
-            if (assetObj is LightingDataAsset lightingDataAsset) {
-                dep1 = GetLightingDataValidDependencies(lightingDataAsset);
+            var assetObj = AssetDatabase.GetMainAssetTypeAtPath(asset);
+            if (assetObj == typeof(LightingDataAsset)) {
+                dep1 = GetLightingDataValidDependencies(AssetDatabase.LoadAssetAtPath<LightingDataAsset>(asset));
             }
             else {
                 dep1 = AssetDatabase.GetDependencies(asset, true);
