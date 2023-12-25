@@ -16,6 +16,19 @@ namespace vFrame.Bundler.Exception
         }
     }
 
+    public class BundleArgumentException : BundleException
+    {
+         public BundleArgumentException(string message): base(message) {
+         }
+    }
+
+    public class BundleUnsupportedEnumException : BundleException
+    {
+        public BundleUnsupportedEnumException(string message) : base(message) {
+
+        }
+    }
+
     public class BundleNotFoundException : BundleException
     {
         public BundleNotFoundException(string message) : base(message) {
@@ -70,12 +83,6 @@ namespace vFrame.Bundler.Exception
         }
     }
 
-    public class BundleMixLoaderException : BundleException
-    {
-        public BundleMixLoaderException(string message) : base(message) {
-        }
-    }
-
     public class BundleRuleConflictException : BundleException
     {
         public BundleRuleConflictException(string message) : base(message) {
@@ -91,12 +98,6 @@ namespace vFrame.Bundler.Exception
     public class AsyncRequestAlreadySetupException : BundleException
     {
         public AsyncRequestAlreadySetupException(string message) : base(message) {
-        }
-    }
-
-    public class CoroutinePoolInvalidStateException : BundleException
-    {
-        public CoroutinePoolInvalidStateException(string message) : base(message) {
         }
     }
 }
