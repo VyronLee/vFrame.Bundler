@@ -9,16 +9,26 @@
 // ============================================================
 
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace vFrame.Bundler.Editor
 {
     internal class BuildContext
     {
+        // =====================
+        //          Input
+        // =====================
         public BundleBuildRules BuildRules { get; set; }
         public BundleBuildSettings BuildSettings { get; set; }
 
-        public List<MainAssetInfo> MainAssetInfos { get; set; } = new List<MainAssetInfo>();
-        public List<DependencyAssetInfo> DependencyAssetInfos { get; set; } = new List<DependencyAssetInfo>();
+        // =====================
+        //          Output
+        // =====================
+        public Dictionary<string, MainAssetInfo> MainAssetInfos { get; } = new Dictionary<string, MainAssetInfo>(); // Step 1
+        public Dictionary<string, DependencyAssetInfo> DependencyAssetInfos { get; } = new Dictionary<string, DependencyAssetInfo>(); // Step 2,3
+        public Dictionary<string, BundleInfo> BundleInfos { get; } = new Dictionary<string, BundleInfo>(); // Step 4
+        public AssetBundleManifest AssetBundleManifest { get; set; } // Step 5
+        public BundlerManifest BundlerManifest { get; set; } // Step 6
     }
 
     internal class MainAssetInfo
@@ -30,6 +40,13 @@ namespace vFrame.Bundler.Editor
     internal class DependencyAssetInfo
     {
         public string AssetPath { get; set; }
-        public HashSet<string> ReferenceInBundles { get; set; } = new HashSet<string>();
+        public string BundlePath { get; set; }
+        public HashSet<string> ReferenceBundles { get; } = new HashSet<string>();
+    }
+
+    internal class BundleInfo
+    {
+        public string BundlePath { get; set; }
+        public HashSet<string> AssetPaths { get; } = new HashSet<string>();
     }
 }

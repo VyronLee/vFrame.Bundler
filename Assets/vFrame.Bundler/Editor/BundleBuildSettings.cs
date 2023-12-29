@@ -14,9 +14,10 @@ namespace vFrame.Bundler.Editor
 {
     public class BundleBuildSettings
     {
+        public bool DryRun { get; set; } = false;
         public string BundlePath { get; set; } = "Bundles";
-        public string BuildRuleFilePath { get; set; } = "BundleRules.json";
-        public string ManifestFileName { get; set; } = "Manifest.json";
+        public string ManifestFileName { get; set; } = "BundlerManifest.json";
+        public BuildTarget BuildTarget { get; set; } = EditorUserBuildSettings.activeBuildTarget;
 
         public string BundleFormatter { get; set; } = "{0}.ab";
         public string SharedBundleFormatter { get; set; } = "shared/shared_{0}.ab";
@@ -24,7 +25,7 @@ namespace vFrame.Bundler.Editor
 
         public bool HashAssetBundlePath { get; set; } = true;
         public bool SeparateShaderBundle { get; set; } = true;
-        public string SeparatedShaderBundleName { get; set; } = "shared/shared_shaders.ab";
+        public string SeparatedShaderBundlePath { get; set; } = "shared/shared_shaders.ab";
 
         public BuildAssetBundleOptions AssetBundleBuildOptions { get; set; } =
             BuildAssetBundleOptions.ChunkBasedCompression |

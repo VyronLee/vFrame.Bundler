@@ -9,6 +9,7 @@
 // ============================================================
 
 using System;
+using vFrame.Bundler.Editor.Helper;
 using vFrame.Bundler.Editor.Task.MainAssetAnalyzers;
 
 namespace vFrame.Bundler.Editor.Task
@@ -26,10 +27,13 @@ namespace vFrame.Bundler.Editor.Task
                 ThrowHelper.ThrowIfNullOrEmpty(rule.PackType,
                     ThrowHelper.Variables(nameof(rule), nameof(rule.PackType)));
                 MainAssetAnalyzerBase analyzer = null;
-                var packType = Enum.Parse<PackType>(rule.PackType);
+                var packType = Enum.Parse(typeof(PackType), rule.PackType);
                 switch (packType) {
                     case PackType.PackBySingleFile:
-                        analyzer = new AnalyzePackByFileRule();
+                        analyzer = new AnalyzePackBySingleFileRule();
+                        break;
+                    case PackType.PackByAllFiles:
+                        analyzer = new AnalyzePackByAllFilesRule();
                         break;
                     case PackType.PackByTopDirectory:
                         analyzer = new AnalyzePackByTopDirectoryRule();

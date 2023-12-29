@@ -2,7 +2,7 @@
     "name": "vFrame.Bundler.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:ea2e9e0da144ae34c9f42e8a5e02729e"
+        "vFrame.Bundler"
     ],
     "includePlatforms": [
         "Editor"

@@ -15,18 +15,17 @@ namespace vFrame.Bundler.Editor
 {
     public enum PackType
     {
-        PackBySingleFile = 1, // Generate AB package using a single file name matched by searchPattern
-        PackByTopDirectory = 2, // Use the specified directory name to generate an AB package.
-                             // Only files matched by searchPattern and excludePattern will be put into the package.
-        PackByAllDirectories = 3 // Use all directory names in the specified directory to generate an AB package.
-                               // Only files matched by searchPattern and excludePattern will be included in the package.
+        PackBySingleFile = 1,
+        PackByAllFiles = 2,
+        PackByTopDirectory = 3,
+        PackByAllDirectories = 4
     }
 
     [Serializable]
     public class BundleBuildRules
     {
-        public List<MainBundleRule> MainRules { get; set; } = new List<MainBundleRule>();
-        public List<AutoGroupRule> GroupRules { get; set; } = new List<AutoGroupRule>();
+        public List<MainBundleRule> MainRules { get; } = new List<MainBundleRule>();
+        public List<AutoGroupRule> GroupRules { get; } = new List<AutoGroupRule>();
     }
 
     [Serializable]
@@ -60,5 +59,7 @@ namespace vFrame.Bundler.Editor
     {
         public string Include { get; set; } = "(.+)";
         public string Exclude { get; set; } = "";
+
+        public static AutoGroupRule Fallback { get; } = new AutoGroupRule { Include = "(.+)" };
     }
 }
