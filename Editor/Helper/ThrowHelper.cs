@@ -10,13 +10,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using vFrame.Bundler.Exception;
 
-namespace vFrame.Bundler.Editor
+namespace vFrame.Bundler.Editor.Helper
 {
     internal static class ThrowHelper
     {
+        public static void ThrowArgumentException(string message) {
+            throw new BundleArgumentException(message);
+        }
+
         public static void ThrowIfNull(object param, string variable) {
             if (null != param) {
                 return;
@@ -33,6 +36,10 @@ namespace vFrame.Bundler.Editor
 
         public static void ThrowUnsupportedEnum<T>(T value) {
             throw new BundleUnsupportedEnumException($"Unsupported enum value: {value}!");
+        }
+
+        public static void ThrowUndesiredException(string message) {
+            throw new BundleException(message);
         }
 
         public static string Variables(params string[] args) {

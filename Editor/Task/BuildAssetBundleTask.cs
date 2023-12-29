@@ -8,12 +8,38 @@
 //    Copyright: Copyright (c) 2023, VyronLee
 // ============================================================
 
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+
 namespace vFrame.Bundler.Editor.Task
 {
     internal class BuildAssetBundleTask : BuildTaskBase
     {
         public override void Run(BuildContext context) {
+            var outputPath = context.BuildSettings.BundlePath;
+            var options = context.BuildSettings.AssetBundleBuildOptions;
+            var buildTarget = context.BuildSettings.BuildTarget;
+            var builds = context.BundleInfos.Select(BundleInfoToBundleBuild).ToArray();
 
+            if (!Directory.Exists(outputPath)) {
+                Directory.CreateDirectory(outputPath);
+            }
+
+            if (context.BuildSettings.DryRun) {
+                options |= BuildAssetBundleOptions.DryRunBuild;
+            }
+            context.AssetBundleManifest = BuildPipeline.BuildAssetBundles(outputPath, builds, options, buildTarget);
+        }
+
+        private AssetBundleBuild BundleInfoToBundleBuild(KeyValuePair<string, BundleInfo> kv) {
+            var bundleInfo = kv.Value;
+            var build = new AssetBundleBuild {
+                assetBundleName = bundleInfo.BundlePath,
+                assetNames = bundleInfo.AssetPaths.ToArray()
+            };
+            return build;
         }
     }
 }

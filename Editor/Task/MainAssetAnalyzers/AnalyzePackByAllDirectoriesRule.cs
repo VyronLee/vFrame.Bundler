@@ -9,13 +9,36 @@
 // ============================================================
 
 using System.Collections.Generic;
+using System.IO;
 
 namespace vFrame.Bundler.Editor.Task.MainAssetAnalyzers
 {
     internal class AnalyzePackByAllDirectoriesRule : MainAssetAnalyzerBase
     {
         protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule) {
-            throw new System.NotImplementedException();
+            var assets = FindAssets(rule);
+            var index = 0f;
+            var total = assets.Count;
+
+            foreach (var asset in assets) {
+                yield return (asset, ++index / total);
+
+                if (TryBuiltinAnalyzer(context, asset)) {
+                    continue;
+                }
+
+                var dirName = Path.GetDirectoryName(asset);
+                if (string.IsNullOrEmpty(dirName)) {
+                    continue;
+                }
+
+                var bundle = context.BuildBundlePath(dirName);
+                var assetInfo = new MainAssetInfo {
+                    AssetPath = asset,
+                    BundlePath = bundle
+                };
+                SafeAddMainAssetInfo(context, assetInfo);
+            }
         }
     }
 }
