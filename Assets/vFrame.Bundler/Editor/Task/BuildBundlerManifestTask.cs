@@ -10,7 +10,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using vFrame.Bundler.Utils;
@@ -35,9 +34,7 @@ namespace vFrame.Bundler.Editor.Task
                     var assetInfo = kv.Value;
                     EditorUtility.DisplayProgressBar("Building Bundler Manifest",
                         $"Granting asset info: {assetInfo.AssetPath}", ++index / total );
-                    manifest.assets[assetInfo.AssetPath] = new AssetData {
-                        bundle = assetInfo.BundlePath
-                    };
+                    manifest.Assets[assetInfo.AssetPath] = assetInfo.BundlePath;
                 }
             }
             finally {
@@ -55,13 +52,8 @@ namespace vFrame.Bundler.Editor.Task
                     EditorUtility.DisplayProgressBar("Building Bundler Manifest",
                         $"Granting assetBundle: {ab}", ++index / total );
 
-                    var assets = context.BundleInfos[ab].AssetPaths;
                     var dependencies = context.AssetBundleManifest.GetDirectDependencies(ab) ?? Array.Empty<string>();
-
-                    manifest.bundles[ab] = new BundleData {
-                        assets = assets.ToList(),
-                        dependencies = dependencies.ToList()
-                    };
+                    manifest.Bundles[ab] = new BundleDependencySet(dependencies);
                 }
             }
             finally {
