@@ -24,13 +24,13 @@ namespace vFrame.Bundler.Modes
         }
 
         public override ILoadRequest Load(string path) {
-            if (null != _manifest && !_manifest.assets.ContainsKey(path))
+            if (null != _manifest && !_manifest.Assets.ContainsKey(path))
                 throw new BundleNoneConfigurationException("Asset path not specified: " + path);
             return new LoadRequestSync(this, _context, path, null);
         }
 
         public override ILoadRequestAsync LoadAsync(string path) {
-            if (null != _manifest && !_manifest.assets.ContainsKey(path))
+            if (null != _manifest && !_manifest.Assets.ContainsKey(path))
                 throw new BundleNoneConfigurationException("Asset path not specified: " + path);
             return new LoadRequestAsync(this, _context, path, null);
         }

@@ -74,20 +74,22 @@ namespace vFrame.Bundler.Modes
 
         private BundleLoaderBase CreateLoaderByAssetPath(string assetPath, bool async) {
             assetPath = PathUtility.NormalizePath(assetPath);
+            Logger.LogInfo("Create loader by asset path: {0}", assetPath);
 
-            if (!_manifest.assets.ContainsKey(assetPath))
+            if (!_manifest.Assets.ContainsKey(assetPath))
                 throw new BundleNoneConfigurationException("Asset path not specified: " + assetPath);
 
-            var assetData = _manifest.assets[assetPath];
-            return CreateLoader(assetData.bundle, async);
+            var bundle = _manifest.Assets[assetPath];
+            return CreateLoader(bundle, async);
         }
 
         private BundleLoaderBase CreateLoader(string bundlePath, bool async) {
+            Logger.LogInfo("Create loader: {0}", bundlePath);
             BundleLoaderBase bundleLoader;
             if (!_loaderCache.TryGetValue(bundlePath, out bundleLoader)) {
-                var bundleData = _manifest.bundles[bundlePath];
+                var bundleData = _manifest.Bundles[bundlePath];
                 var dependencies = new List<BundleLoaderBase>();
-                bundleData.dependencies.ForEach(v => dependencies.Add(CreateLoader(v, async)));
+                bundleData.ForEach(v => dependencies.Add(CreateLoader(v, async)));
 
                 if (async)
                     bundleLoader = _context.Options.LoaderFactory.CreateLoaderAsync();
