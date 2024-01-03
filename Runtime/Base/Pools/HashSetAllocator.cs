@@ -9,9 +9,8 @@
 //============================================================
 
 using System.Collections.Generic;
-using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Base.Pools
+namespace vFrame.Bundler
 {
     internal class HashSetAllocator<T> : IPoolObjectAllocator<HashSet<T>>
     {

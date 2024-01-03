@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace vFrame.Bundler.Base
+namespace vFrame.Bundler
 {
     public abstract class PropertySetterProxy<T1, T2> where T1 : Component where T2 : Object
     {

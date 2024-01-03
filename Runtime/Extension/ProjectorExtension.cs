@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
-using vFrame.Bundler.Base;
-using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Extension
+namespace vFrame.Bundler
 {
     public static class ProjectorExtension
     {

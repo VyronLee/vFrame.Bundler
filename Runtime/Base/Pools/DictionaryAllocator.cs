@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Base.Pools
+namespace vFrame.Bundler
 {
     internal class DictionaryAllocator<T1, T2> : IPoolObjectAllocator<Dictionary<T1, T2>>
     {

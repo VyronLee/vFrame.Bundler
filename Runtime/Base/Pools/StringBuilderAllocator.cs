@@ -5,13 +5,12 @@
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
 //    Modified:  2019-07-09 19:27
-//   Copyright:  Copyright (c) 2019, VyronLee
+//   Copyright:  Copyright (c) 2024, VyronLee
 //============================================================
 
 using System.Text;
-using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Base.Pools
+namespace vFrame.Bundler
 {
     internal class StringBuilderAllocator : IPoolObjectAllocator<StringBuilder>
     {

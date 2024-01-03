@@ -10,10 +10,8 @@
 
 using UnityEngine;
 using UnityEngine.UI;
-using vFrame.Bundler.Base;
-using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Extension.UI
+namespace vFrame.Bundler
 {
     public static class ImageExtensions
     {
