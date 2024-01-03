@@ -10,7 +10,7 @@
 
 using System.Collections.Generic;
 
-namespace vFrame.Bundler.Base.Pools
+namespace vFrame.Bundler
 {
     internal class HashSetPool<T> : ObjectPool<HashSet<T>, HashSetAllocator<T>>
     {

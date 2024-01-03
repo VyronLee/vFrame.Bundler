@@ -12,30 +12,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
 {
     [Serializable]
     public class BundlerManifest : ISerializationCallbackReceiver
     {
-        [NonSerialized]
-        public AssetsTable Assets = new AssetsTable();
-        [NonSerialized]
-        public BundlesTable Bundles = new BundlesTable();
+        [NonSerialized] public AssetsTable Assets = new();
+        [NonSerialized] public BundlesTable Bundles = new();
+
+        public BundlerManifest FromJson(string jsonData) {
+            if (string.IsNullOrEmpty(jsonData))
+                throw new BundleArgumentException($"Argument '{nameof(jsonData)}' cannot be null or empty.");
+            return JsonUtility.FromJson<BundlerManifest>(jsonData);
+        }
 
         //=============================================
         // ISerializationCallbackReceiver
         //=============================================
 
-        [SerializeField]
-        private List<string> _assets = new List<string>();
-        [SerializeField]
-        private List<int> _assetContainsInBundle = new List<int>();
+        [SerializeField] private List<string> _assets = new();
+        [SerializeField] private List<int> _assetContainsInBundle = new();
 
-        [SerializeField]
-        private List<string> _bundles = new List<string>();
-        [SerializeField]
-        private List<BundleDependencySetInt> _bundleDependencies = new List<BundleDependencySetInt>();
+        [SerializeField] private List<string> _bundles = new();
+        [SerializeField] private List<BundleDependencySetInt> _bundleDependencies = new();
 
         public void OnBeforeSerialize() {
             _assets = Assets.Keys.ToList();
@@ -90,8 +91,7 @@ namespace vFrame.Bundler
     [Serializable]
     public class BundleDependencySet
     {
-        [SerializeField]
-        private List<string> _values = new List<string>();
+        [SerializeField] private List<string> _values = new();
 
         public IEnumerable<string> Values => _values;
 
@@ -100,17 +100,14 @@ namespace vFrame.Bundler
         }
 
         public void ForEach(Action<string> action) {
-            foreach (var value in _values) {
-                action(value);
-            }
+            foreach (var value in _values) action(value);
         }
     }
 
     [Serializable]
     internal class BundleDependencySetInt
     {
-        [SerializeField]
-        private List<int> _values = new List<int>();
+        [SerializeField] private List<int> _values = new();
 
         public IEnumerable<int> Values => _values;
 

@@ -5,7 +5,7 @@
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-24 21:27
-//    Copyright: Copyright (c) 2023, VyronLee
+//    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
 namespace vFrame.Bundler.Editor.Task

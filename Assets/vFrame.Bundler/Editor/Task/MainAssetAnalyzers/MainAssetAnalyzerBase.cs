@@ -5,7 +5,7 @@
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 22:51
-//    Copyright: Copyright (c) 2023, VyronLee
+//    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
 using System.Collections.Generic;
@@ -42,9 +42,7 @@ namespace vFrame.Bundler.Editor.Task.MainAssetAnalyzers
         protected List<string> FindAssets(MainBundleRule rule) {
             try {
                 EditorUtility.DisplayProgressBar("Finding Assets", rule.SearchPath, 0.2f);
-                var assets = AssetHelper.FindAllAssets(rule.SearchPath)
-                    .Where(FilterTest)
-                    .ToList();
+                var assets = AssetHelper.FindAllAssets(rule.SearchPath).Where(FilterTest).ToList();
                 assets.Sort();
                 return assets;
             }

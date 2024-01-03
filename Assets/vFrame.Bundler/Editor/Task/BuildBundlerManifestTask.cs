@@ -5,14 +5,13 @@
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 22:42
-//    Copyright: Copyright (c) 2023, VyronLee
+//    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
 using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using vFrame.Bundler.Utils;
 
 namespace vFrame.Bundler.Editor.Task
 {
@@ -52,7 +51,7 @@ namespace vFrame.Bundler.Editor.Task
                     EditorUtility.DisplayProgressBar("Building Bundler Manifest",
                         $"Granting assetBundle: {ab}", ++index / total );
 
-                    var dependencies = context.AssetBundleManifest.GetDirectDependencies(ab) ?? Array.Empty<string>();
+                    var dependencies = context.AssetBundleManifest.GetAllDependencies(ab) ?? Array.Empty<string>();
                     manifest.Bundles[ab] = new BundleDependencySet(dependencies);
                 }
             }
@@ -63,7 +62,7 @@ namespace vFrame.Bundler.Editor.Task
 
         private void WriteToDisk(BuildContext context, BundlerManifest manifest) {
             var jsonData = JsonUtility.ToJson(manifest);
-            var savePath = PathUtility.Combine(
+            var savePath = PathUtils.Combine(
                 context.BuildSettings.BundlePath,
                 context.BuildSettings.ManifestFileName);
 

@@ -18,14 +18,13 @@ namespace vFrame.Bundler.Exception
 
     public class BundleArgumentException : BundleException
     {
-         public BundleArgumentException(string message): base(message) {
-         }
+        public BundleArgumentException(string message) : base(message) {
+        }
     }
 
     public class BundleUnsupportedEnumException : BundleException
     {
         public BundleUnsupportedEnumException(string message) : base(message) {
-
         }
     }
 
@@ -95,9 +94,9 @@ namespace vFrame.Bundler.Exception
         }
     }
 
-    public class AsyncRequestAlreadySetupException : BundleException
+    public class BundleNotSupportedException : BundleException
     {
-        public AsyncRequestAlreadySetupException(string message) : base(message) {
+        public BundleNotSupportedException(string message) : base(message) {
         }
     }
 }

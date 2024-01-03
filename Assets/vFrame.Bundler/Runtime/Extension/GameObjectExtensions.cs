@@ -1,20 +1,16 @@
 ﻿using UnityEngine;
 
-namespace vFrame.Bundler.Extension
+namespace vFrame.Bundler
 {
     public static class GameObjectExtensions
     {
         public static void DestroyEx(this GameObject obj) {
-            if (!obj) {
-                return;
-            }
+            if (!obj) return;
 
-            if (Application.isPlaying) {
+            if (Application.isPlaying)
                 Object.Destroy(obj);
-            }
-            else {
+            else
                 Object.DestroyImmediate(obj);
-            }
         }
     }
 }
