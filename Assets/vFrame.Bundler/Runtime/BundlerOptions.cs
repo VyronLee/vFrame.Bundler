@@ -17,7 +17,8 @@ namespace vFrame.Bundler
         public BundlerMode Mode { get; set; } = BundlerMode.AssetBundle;
         public string[] SearchPaths = Array.Empty<string>();
         public IAssetBundleCreateRequestAdapter AssetBundleCreateRequestAdapter;
-        public int MinAsyncFrameCountWhenUsingAssetDatabase { get; set; } = 1;
-        public int MaxAsyncFrameCountWhenUsingAssetDatabase { get; set; } = 10;
+        public ILogHandler LogHandler;
+        public int MinAsyncFrameCountOnSimulation { get; set; } = 1;
+        public int MaxAsyncFrameCountOnSimulation { get; set; } = 10;
     }
 }

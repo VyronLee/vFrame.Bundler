@@ -5,7 +5,7 @@
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
 //    Modified:  2019-02-15 20:19
-//   Copyright:  Copyright (c) 2018, VyronLee
+//   Copyright:  Copyright (c) 2024, VyronLee
 //============================================================
 
 using System;

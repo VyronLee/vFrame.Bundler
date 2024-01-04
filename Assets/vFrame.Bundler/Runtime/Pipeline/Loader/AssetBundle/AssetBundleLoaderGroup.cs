@@ -23,7 +23,7 @@ namespace vFrame.Bundler
         protected AssetBundleLoaderGroup(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
             : base(bundlerContexts, loaderContexts) {
 
-            _loaders = CreateBundleLoaderGroup(bundlerContexts, loaderContexts);
+            _loaders = CreateBundleLoaders();
             if (null != _loaders) {
                 return;
             }
@@ -37,32 +37,48 @@ namespace vFrame.Bundler
             base.OnDestroy();
         }
 
+        public AssetBundleLoader MainBundleLoader {
+            get {
+                if (null == _loaders || _loaders.Count <= 0) {
+                    return null;
+                }
+                return _loaders[0];
+            }
+        }
+
+        public string MainBundlePath => MainBundleLoader?.BundlePath;
+
         public AssetBundle AssetBundle {
             get {
                 ForceComplete();
                 ThrowIfNotFinished();
-
-                if (null == _loaders || _loaders.Count <= 0) {
-                    return null;
-                }
-                return _loaders[0].AssetBundle;
+                return MainBundleLoader?.AssetBundle;
             }
         }
 
-        private List<AssetBundleLoader> CreateBundleLoaderGroup(BundlerContexts bundlerContexts, LoaderContexts loaderContexts) {
-            if (!bundlerContexts.Manifest.Assets.TryGetValue(loaderContexts.AssetPath, out var mainBundle)) {
-                Facade.GetSystem<LogSystem>().LogError("Bundle data not found for asset: {0}", loaderContexts.AssetPath);
+        private List<AssetBundleLoader> CreateBundleLoaders() {
+            if (!BundlerContexts.Manifest.Assets.TryGetValue(LoaderContexts.AssetPath, out var mainBundle)) {
+                Facade.GetSystem<LogSystem>().LogError("Bundle data not found for asset: {0}", LoaderContexts.AssetPath);
                 return null;
             }
 
-            if (!bundlerContexts.Manifest.Bundles.TryGetValue(mainBundle, out var dependencySet)) {
+            if (!BundlerContexts.Manifest.Bundles.TryGetValue(mainBundle, out var dependencySet)) {
                 Facade.GetSystem<LogSystem>().LogError("Dependency data not found for bundle: {0}", mainBundle);
                 return null;
             }
 
             var ret = new List<AssetBundleLoader>();
-            ret.Add(CreateAssetBundleLoader(mainBundle));
-            ret.AddRange(dependencySet.Values.Select(CreateAssetBundleLoader));
+            ret.Add(GetOrCreateAssetBundleLoader(mainBundle));
+            ret.AddRange(dependencySet.Values.Select(GetOrCreateAssetBundleLoader));
+            return ret;
+        }
+
+        private AssetBundleLoader GetOrCreateAssetBundleLoader(string bundlePath) {
+            if (BundlerContexts.TryGetLoader(bundlePath, out AssetBundleLoader bundleLoader)) {
+                return bundleLoader;
+            }
+            var ret = CreateAssetBundleLoader(bundlePath);
+            BundlerContexts.AddLoader(ret);
             return ret;
         }
 
@@ -104,6 +120,11 @@ namespace vFrame.Bundler
             foreach (var loader in _loaders) {
                 loader.ForceComplete();
             }
+            Finish();
+        }
+
+        public override string ToString() {
+            return $"[Type: {GetType().Name}, MainBundlePath: {MainBundlePath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }
 }

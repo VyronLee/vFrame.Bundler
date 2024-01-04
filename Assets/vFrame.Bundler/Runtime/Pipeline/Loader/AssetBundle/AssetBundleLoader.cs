@@ -22,9 +22,13 @@ namespace vFrame.Bundler
                        new InternalAssetBundleCreateRequestAdapter(bundlerContexts);
         }
 
-        protected string BundlePath { get; }
+        public string BundlePath { get; }
         protected IAssetBundleCreateRequestAdapter Adapter { get; }
 
         public abstract AssetBundle AssetBundle { get; }
+
+        public override string ToString() {
+            return $"[Type: {GetType().Name}, BundlePath: {BundlePath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
+        }
     }
 }

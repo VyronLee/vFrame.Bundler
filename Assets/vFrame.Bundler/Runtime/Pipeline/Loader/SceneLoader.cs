@@ -21,7 +21,7 @@ namespace vFrame.Bundler
             LoadSceneMode = loaderContexts.SceneMode;
         }
 
-        protected string AssetPath { get; }
+        public string AssetPath { get; }
         protected LoadSceneMode LoadSceneMode { get; }
         public abstract UnityEngine.SceneManagement.Scene SceneObject { get; }
     }

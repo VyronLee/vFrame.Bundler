@@ -18,18 +18,18 @@ namespace vFrame.Bundler
     {
         void Destroy();
 
-        IAsset LoadAsset(string path, Type type);
-        IAssetAsync LoadAssetAsync(string path, Type type);
-        IAsset LoadAssetWithSubAssets(string path, Type type);
-        IAssetAsync LoadAssetWithSubAssetsAsync(string path, Type type);
+        Asset LoadAsset(string path, Type type);
+        AssetAsync LoadAssetAsync(string path, Type type);
+        Asset LoadAssetWithSubAssets(string path, Type type);
+        AssetAsync LoadAssetWithSubAssetsAsync(string path, Type type);
 
-        IAsset<T> LoadAsset<T>(string path) where T : Object;
-        IAssetAsync<T> LoadAssetAsync<T>(string path) where T : Object;
-        IAsset<T> LoadAssetWithSubAssets<T>(string path) where T : Object;
-        IAssetAsync<T> LoadAssetWithSubAssetsAsync<T>(string path) where T : Object;
+        Asset<T> LoadAsset<T>(string path) where T : Object;
+        AssetAsync<T> LoadAssetAsync<T>(string path) where T : Object;
+        Asset<T> LoadAssetWithSubAssets<T>(string path) where T : Object;
+        AssetAsync<T> LoadAssetWithSubAssetsAsync<T>(string path) where T : Object;
 
-        IScene LoadScene(string path, LoadSceneMode mode);
-        ISceneAsync LoadSceneAsync(string path, LoadSceneMode mode);
+        Scene LoadScene(string path, LoadSceneMode mode);
+        SceneAsync LoadSceneAsync(string path, LoadSceneMode mode);
 
         void Update();
         void Collect();
