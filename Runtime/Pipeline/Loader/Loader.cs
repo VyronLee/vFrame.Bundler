@@ -68,6 +68,7 @@ namespace vFrame.Bundler
         }
 
         public void ForceComplete() {
+            Start();
             if (TaskState != TaskState.Processing) {
                 Facade.GetSystem<LogSystem>().LogWarning(
                     "Cannot force loading because task is not processing: {0}", this);

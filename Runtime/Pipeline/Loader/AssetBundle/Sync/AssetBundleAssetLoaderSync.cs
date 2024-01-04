@@ -15,10 +15,10 @@ namespace vFrame.Bundler
     internal class AssetBundleAssetLoaderSync : AssetBundleAssetLoader
     {
         private Object _assetObject;
+        private Object[] _assetObjects;
 
-        public AssetBundleAssetLoaderSync(BundlerContexts bundlerContexts,
-            LoaderContexts loaderContexts,
-            AssetBundleLoaderGroup bundleLoader) : base(bundlerContexts, loaderContexts, bundleLoader) {
+        public AssetBundleAssetLoaderSync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
+            : base(bundlerContexts, loaderContexts) {
 
         }
 
@@ -34,11 +34,12 @@ namespace vFrame.Bundler
             switch (AssetLoadType) {
                 case AssetLoadType.LoadAsset:
                     _assetObject = assetBundle.LoadAsset(AssetPath, AssetType);
+                    _assetObjects = new[] { _assetObject };
                     break;
                 case AssetLoadType.LoadAssetWithSubAsset:
-                    var assets = assetBundle.LoadAssetWithSubAssets(AssetPath, AssetType);
-                    if (assets.Length > 0) {
-                        _assetObject = assets[0];
+                    _assetObjects = assetBundle.LoadAssetWithSubAssets(AssetPath, AssetType);
+                    if (_assetObjects.Length > 0) {
+                        _assetObject = _assetObjects[0];
                     }
                     break;
                 default:
@@ -59,6 +60,7 @@ namespace vFrame.Bundler
 
         protected override void OnStop() {
             _assetObject = null;
+            _assetObjects = null;
         }
 
         protected override void OnUpdate() {
@@ -73,6 +75,13 @@ namespace vFrame.Bundler
             get {
                 ThrowIfNotFinished();
                 return _assetObject;
+            }
+        }
+
+        public override Object[] AssetObjects {
+            get {
+                ThrowIfNotFinished();
+                return _assetObjects;
             }
         }
     }

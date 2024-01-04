@@ -44,6 +44,10 @@ namespace vFrame.Bundler
                 }
                 _systems[type] = Activator.CreateInstance(type, _contexts) as BundlerSystem;
             }
+
+            if (null != _contexts.Options.LogHandler) {
+                GetSystem<LogSystem>().SetLogHandler(_contexts.Options.LogHandler);
+            }
         }
 
         public void Destroy() {
@@ -57,54 +61,58 @@ namespace vFrame.Bundler
             return _systems[typeof(T)] as T;
         }
 
-        public IAsset LoadAsset(string path, Type type) {
-            throw new NotImplementedException();
+        public Asset LoadAsset(string path, Type type) {
+            return GetSystem<LoadSystem>().LoadAsset(path, type, AssetLoadType.LoadAsset);
         }
 
-        public IAssetAsync LoadAssetAsync(string path, Type type) {
-            throw new NotImplementedException();
+        public AssetAsync LoadAssetAsync(string path, Type type) {
+            return GetSystem<LoadSystem>().LoadAssetAsync(path, type, AssetLoadType.LoadAsset);
         }
 
-        public IAsset LoadAssetWithSubAssets(string path, Type type) {
-            throw new NotImplementedException();
+        public Asset LoadAssetWithSubAssets(string path, Type type) {
+            return GetSystem<LoadSystem>().LoadAsset(path, type, AssetLoadType.LoadAssetWithSubAsset);
         }
 
-        public IAssetAsync LoadAssetWithSubAssetsAsync(string path, Type type) {
-            throw new NotImplementedException();
+        public AssetAsync LoadAssetWithSubAssetsAsync(string path, Type type) {
+            return GetSystem<LoadSystem>().LoadAssetAsync(path, type, AssetLoadType.LoadAssetWithSubAsset);
         }
 
-        public IAsset<T> LoadAsset<T>(string path) where T : Object {
-            throw new NotImplementedException();
+        public Asset<T> LoadAsset<T>(string path) where T : Object {
+            return GetSystem<LoadSystem>().LoadAsset<T>(path, AssetLoadType.LoadAsset);
         }
 
-        public IAssetAsync<T> LoadAssetAsync<T>(string path) where T : Object {
-            throw new NotImplementedException();
+        public AssetAsync<T> LoadAssetAsync<T>(string path) where T : Object {
+            return GetSystem<LoadSystem>().LoadAssetAsync<T>(path, AssetLoadType.LoadAsset);
         }
 
-        public IAsset<T> LoadAssetWithSubAssets<T>(string path) where T : Object {
-            throw new NotImplementedException();
+        public Asset<T> LoadAssetWithSubAssets<T>(string path) where T : Object {
+            return GetSystem<LoadSystem>().LoadAsset<T>(path, AssetLoadType.LoadAssetWithSubAsset);
         }
 
-        public IAssetAsync<T> LoadAssetWithSubAssetsAsync<T>(string path) where T : Object {
-            throw new NotImplementedException();
+        public AssetAsync<T> LoadAssetWithSubAssetsAsync<T>(string path) where T : Object {
+            return GetSystem<LoadSystem>().LoadAssetAsync<T>(path, AssetLoadType.LoadAssetWithSubAsset);
         }
 
-        public IScene LoadScene(string path, LoadSceneMode mode) {
-            throw new NotImplementedException();
+        public Scene LoadScene(string path, LoadSceneMode mode) {
+            return GetSystem<LoadSystem>().LoadScene(path, mode);
         }
 
-        public ISceneAsync LoadSceneAsync(string path, LoadSceneMode mode) {
-            throw new NotImplementedException();
+        public SceneAsync LoadSceneAsync(string path, LoadSceneMode mode) {
+            return GetSystem<LoadSystem>().LoadSceneAsync(path, mode);
         }
 
         public void Update() {
-            throw new NotImplementedException();
+            foreach (var kv in _systems) {
+                var system = kv.Value;
+                system.Update();
+            }
         }
 
         public void Collect() {
         }
 
         public void SetLogLevel(int level) {
+            GetSystem<LogSystem>().SetLogLevel(level);
         }
     }
 }

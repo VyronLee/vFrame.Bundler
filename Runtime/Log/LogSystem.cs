@@ -23,6 +23,10 @@ namespace vFrame.Bundler
 
         }
 
+        protected override void OnUpdate() {
+
+        }
+
         public void SetLogLevel(int level) {
             _level = level;
         }

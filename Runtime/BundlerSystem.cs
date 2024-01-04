@@ -15,5 +15,11 @@ namespace vFrame.Bundler
         protected BundlerSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
 
         }
+
+        public void Update() {
+            OnUpdate();
+        }
+
+        protected abstract void OnUpdate();
     }
 }

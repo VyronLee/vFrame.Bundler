@@ -5,7 +5,7 @@
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
 //    Modified:  2019-02-15 20:03
-//   Copyright:  Copyright (c) 2018, VyronLee
+//   Copyright:  Copyright (c) 2024, VyronLee
 //============================================================
 
 namespace vFrame.Bundler.Exception
@@ -19,6 +19,12 @@ namespace vFrame.Bundler.Exception
     public class BundleArgumentException : BundleException
     {
         public BundleArgumentException(string message) : base(message) {
+        }
+    }
+
+    public class BundleArgumentNullException : BundleException
+    {
+        public BundleArgumentNullException(string message = "Argument cannot be null.") : base(message) {
         }
     }
 

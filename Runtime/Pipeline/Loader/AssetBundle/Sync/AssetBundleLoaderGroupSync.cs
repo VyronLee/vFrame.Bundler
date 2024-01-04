@@ -20,5 +20,11 @@ namespace vFrame.Bundler
         protected override AssetBundleLoader CreateAssetBundleLoader(string bundlePath) {
             return new AssetBundleLoaderSync(BundlerContexts, LoaderContexts, bundlePath);
         }
+
+        protected override void OnStart() {
+            base.OnStart();
+            // 因为BundlerLoader缓存的原因，可能组里会含有异步加载中的Loader，因此要强制完成一次
+            ForceComplete();
+        }
     }
 }

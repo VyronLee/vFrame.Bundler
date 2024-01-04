@@ -21,11 +21,14 @@ namespace vFrame.Bundler
             AssetLoadType = loaderContexts.AssetLoadType;
             AssetPath = loaderContexts.AssetPath;
             AssetType = loaderContexts.AssetType;
+            AssetLoadKey = (AssetPath, AssetType);
         }
 
-        protected string AssetPath { get; }
-        protected Type AssetType { get; }
-        protected AssetLoadType AssetLoadType { get; }
+        internal string AssetPath { get; }
+        internal Type AssetType { get; }
+        internal AssetLoadKey AssetLoadKey { get; }
+        internal AssetLoadType AssetLoadType { get; }
         public abstract Object AssetObject { get; }
+        public abstract Object[] AssetObjects { get; }
     }
 }

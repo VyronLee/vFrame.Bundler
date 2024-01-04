@@ -17,10 +17,10 @@ namespace vFrame.Bundler
     {
         private AssetBundleRequest _bundleRequest;
         private Object _assetObject;
+        private Object[] _assetObjects;
 
-        public AssetBundleAssetLoaderAsync(BundlerContexts bundlerContexts,
-            LoaderContexts loaderContexts,
-            AssetBundleLoaderGroup bundleLoader) : base(bundlerContexts, loaderContexts, bundleLoader) {
+        public AssetBundleAssetLoaderAsync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
+            : base(bundlerContexts, loaderContexts) {
 
         }
 
@@ -45,6 +45,7 @@ namespace vFrame.Bundler
 
             switch (AssetLoadType) {
                 case AssetLoadType.LoadAsset:
+                case AssetLoadType.LoadAllAssets:
                     _bundleRequest = assetBundle.LoadAssetAsync(AssetPath, AssetType);
                     break;
                 case AssetLoadType.LoadAssetWithSubAsset:
@@ -68,6 +69,7 @@ namespace vFrame.Bundler
 
         protected override void OnStop() {
             _assetObject = null;
+            _assetObjects = null;
             _bundleRequest = null;
         }
 
@@ -90,6 +92,7 @@ namespace vFrame.Bundler
 
         private void ObtainAssetObjectFromBundleRequest() {
             _assetObject = _bundleRequest.asset;
+            _assetObjects = _bundleRequest.allAssets;
 
             if (_assetObject) {
                 Finish();
@@ -110,6 +113,14 @@ namespace vFrame.Bundler
                 ForceComplete();
                 ThrowIfNotFinished();
                 return _assetObject;
+            }
+        }
+
+        public override Object[] AssetObjects {
+            get {
+                ForceComplete();
+                ThrowIfNotFinished();
+                return _assetObjects;
             }
         }
     }
