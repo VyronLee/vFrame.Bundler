@@ -11,12 +11,11 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace vFrame.Bundler.Editor.Task.MainAssetAnalyzers
+namespace vFrame.Bundler.Task.Simulation.MainAssetAnalyzers
 {
-    internal class AnalyzePackByTopDirectoryRule : MainAssetAnalyzerBase
+    internal class AnalyzePackByTopDirectoryRule : SimulationMainAssetAnalyzerBase
     {
         protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule) {
-            var bundlePath = context.BuildBundlePath(rule.SearchPath);
             var assets = FindAssets(rule);
             var index = 0f;
             var total = assets.Count;
@@ -26,13 +25,8 @@ namespace vFrame.Bundler.Editor.Task.MainAssetAnalyzers
                 if (!IsTopDirectoryAsset(asset)) {
                     continue;
                 }
-                if (TryBuiltinAnalyzer(context, asset)) {
-                    continue;
-                }
-
                 var assetInfo = new MainAssetInfo {
                     AssetPath = asset,
-                    BundlePath = bundlePath
                 };
                 SafeAddMainAssetInfo(context, assetInfo);
             }

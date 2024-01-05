@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-//         File: IAssetBundleCreateRequestAdapter.cs
-//        Brief: IAssetBundleCreateRequestAdapter.cs
+//         File: IAssetBundleCreateAdapter.cs
+//        Brief: IAssetBundleCreateAdapter.cs
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -12,9 +12,9 @@ using UnityEngine;
 
 namespace vFrame.Bundler
 {
-    public interface IAssetBundleCreateRequestAdapter
+    public interface IAssetBundleCreateAdapter
     {
-        AssetBundle CreateRequest(string bundlePath);
-        AssetBundleCreateRequest CreateRequestAsync(string bundlePath);
+        AssetBundle CreateAssetBundle(string bundlePath);
+        AssetBundleCreateRequest CreateRequest(string bundlePath);
     }
 }

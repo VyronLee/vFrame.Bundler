@@ -11,9 +11,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using vFrame.Bundler.Editor.Helper;
+using vFrame.Bundler.Helper;
 
-namespace vFrame.Bundler.Editor.Task
+namespace vFrame.Bundler.Task.Formal
 {
     internal class AnalyzeDependencyAssetsTask : BuildTaskBase
     {

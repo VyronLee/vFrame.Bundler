@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using vFrame.Bundler.Exception;
+using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler
 {
@@ -10,11 +12,11 @@ namespace vFrame.Bundler
         public BundlerOptions Options { get; set; }
         public BundlerManifest Manifest { get; set; }
 
-        public Dictionary<AssetLoadKey, AssetLoader> AssetLoaders { get; } = new Dictionary<AssetLoadKey, AssetLoader>();
-        public Dictionary<string, SceneLoader> SceneLoaders { get; } = new Dictionary<string, SceneLoader>();
-        public Dictionary<string, AssetBundleLoader> AssetBundleLoaders { get; } = new Dictionary<string, AssetBundleLoader>();
-        public Dictionary<string, AssetBundleLoaderGroup> AssetBundleLoaderGroups { get; } = new Dictionary<string, AssetBundleLoaderGroup>();
-        public Dictionary<string, Scene> SceneHandlers { get; } = new Dictionary<string, Scene>();
+        //============================================================
+        // Handlers
+        //============================================================
+
+        private Dictionary<string, Scene> SceneHandlers { get; } = new Dictionary<string, Scene>();
 
         public void AddHandler(ILoaderHandler loaderHandler) {
             switch (loaderHandler) {
@@ -30,6 +32,19 @@ namespace vFrame.Bundler
             }
         }
 
+        //============================================================
+        // Loaders
+        //============================================================
+
+        private Dictionary<AssetLoadKey, AssetLoader> AssetLoaders { get; } =
+            new Dictionary<AssetLoadKey, AssetLoader>();
+        private Dictionary<string, SceneLoader> SceneLoaders { get; } =
+            new Dictionary<string, SceneLoader>();
+        private Dictionary<string, AssetBundleLoader> AssetBundleLoaders { get; } =
+            new Dictionary<string, AssetBundleLoader>();
+        private Dictionary<string, AssetBundleLoaderGroup> AssetBundleLoaderGroups { get; } =
+            new Dictionary<string, AssetBundleLoaderGroup>();
+
         public void AddLoader(Loader loader) {
             switch (loader) {
                 case AssetLoader assetLoader:
@@ -44,8 +59,23 @@ namespace vFrame.Bundler
                 case AssetBundleLoaderGroup bundlerLoaderGroup:
                     AssetBundleLoaderGroups.Add(bundlerLoaderGroup.MainBundlePath, bundlerLoaderGroup);
                     break;
-                default:
-                    throw new BundleUnsupportedEnumException(loader.GetType().Name);
+            }
+        }
+
+        public void RemoveLoader(Loader loader) {
+            switch (loader) {
+                case AssetLoader assetLoader:
+                    AssetLoaders.Remove(assetLoader.AssetLoadKey);
+                    break;
+                case SceneLoader sceneLoader:
+                    SceneLoaders.Remove(sceneLoader.AssetPath);
+                    break;
+                case AssetBundleLoader bundlerLoader:
+                    AssetBundleLoaders.Remove(bundlerLoader.BundlePath);
+                    break;
+                case AssetBundleLoaderGroup bundlerLoaderGroup:
+                    AssetBundleLoaderGroups.Remove(bundlerLoaderGroup.MainBundlePath);
+                    break;
             }
         }
 
@@ -79,7 +109,7 @@ namespace vFrame.Bundler
                 return false;
             }
 
-            if (typeof(TK) == typeof(string)) {
+            if (typeof(TK) != typeof(string)) {
                 value = null;
                 return false;
             }
@@ -96,7 +126,7 @@ namespace vFrame.Bundler
                 return false;
             }
 
-            if (typeof(TK) == typeof(string)) {
+            if (typeof(TK) != typeof(string)) {
                 value = null;
                 return false;
             }
@@ -113,7 +143,7 @@ namespace vFrame.Bundler
                 return false;
             }
 
-            if (typeof(TK) == typeof(AssetLoadKey)) {
+            if (typeof(TK) != typeof(AssetLoadKey)) {
                 value = null;
                 return false;
             }
@@ -130,7 +160,7 @@ namespace vFrame.Bundler
                 return false;
             }
 
-            if (typeof(TK) == typeof(string)) {
+            if (typeof(TK) != typeof(string)) {
                 value = null;
                 return false;
             }
@@ -139,6 +169,74 @@ namespace vFrame.Bundler
             var ret = SceneLoaders.TryGetValue(str, out var loader);
             value = loader as TT;
             return ret;
+        }
+
+        //============================================================
+        // Proxies
+        //============================================================
+
+        private Dictionary<Component, Dictionary<Type, PropertyProxy>> Proxies { get; } =
+            new Dictionary<Component, Dictionary<Type, PropertyProxy>>();
+        private Dictionary<Loader, HashSet<Object>> LinkedObjects { get; } =
+            new Dictionary<Loader, HashSet<Object>>();
+
+        public void AddProxy(Component component, PropertyProxy proxy) {
+            if (!Proxies.TryGetValue(component, out var dict)) {
+                dict = Proxies[component] = DictionaryPool<Type, PropertyProxy>.Get();
+            }
+            if (dict.TryGetValue(proxy.GetType(), out var current)) {
+                throw new ArgumentException("An element already exist with same type: " + proxy.GetType().Name);
+            }
+            dict.Add(proxy.GetType(), proxy);
+        }
+
+        public void RemoveProxy(Component component, Type type) {
+            if (!Proxies.TryGetValue(component, out var dict)) {
+                return;
+            }
+            dict.Remove(type);
+
+            if (dict.Count > 0) {
+                return;
+            }
+            Proxies.Remove(component);
+
+            DictionaryPool<Type, PropertyProxy>.Return(dict);
+        }
+
+        public bool TryGetProxy(Component component, Type type, out PropertyProxy proxy) {
+            if (Proxies.TryGetValue(component, out var dict)) {
+                return dict.TryGetValue(type, out proxy);
+            }
+            proxy = null;
+            return false;
+        }
+
+        public void AddLinkedObject(Loader loader, Object target) {
+            if (!LinkedObjects.TryGetValue(loader, out var set)) {
+                set = LinkedObjects[loader] = HashSetPool<Object>.Get();
+            }
+            set.Add(target);
+        }
+
+        public void RemoveLinkedObject(Loader loader, Object target) {
+            if (!LinkedObjects.TryGetValue(loader, out var set)) {
+                return;
+            }
+            set.Remove(target);
+
+            if (set.Count > 0) {
+                return;
+            }
+            LinkedObjects.Remove(loader);
+
+            HashSetPool<Object>.Return(set);
+        }
+
+        public void ForEachLinkedObject(Action<Loader, HashSet<Object>> action) {
+            foreach (var kv in LinkedObjects) {
+                action(kv.Key, kv.Value);
+            }
         }
     }
 }

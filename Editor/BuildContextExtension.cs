@@ -12,9 +12,9 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using vFrame.Bundler.Editor.Helper;
+using vFrame.Bundler.Helper;
 
-namespace vFrame.Bundler.Editor
+namespace vFrame.Bundler
 {
     internal static class BuildContextExtension
     {

@@ -10,7 +10,7 @@
 
 using System.Collections.Generic;
 
-namespace vFrame.Bundler.Editor.Task
+namespace vFrame.Bundler.Task.Formal
 {
     internal class BuildBundlesInfoTask : BuildTaskBase
     {

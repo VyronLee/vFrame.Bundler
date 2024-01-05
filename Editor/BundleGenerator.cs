@@ -8,14 +8,16 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
-using vFrame.Bundler.Editor.Pipeline;
+using vFrame.Bundler.Pipeline;
 
-namespace vFrame.Bundler.Editor
+namespace vFrame.Bundler
 {
     public static class BundleGenerator
     {
         public static IPipeline BuiltinPipeline => new BuiltinPipeline();
 
         public static IPipeline ScriptalbePipeline => new ScriptablePipeline();
+
+        public static IPipeline SimulationPipeline => new SimulationPipeline();
     }
 }

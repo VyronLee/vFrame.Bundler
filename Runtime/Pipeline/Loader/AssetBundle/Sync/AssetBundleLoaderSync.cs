@@ -24,11 +24,19 @@ namespace vFrame.Bundler
         public override float Progress => IsDone ? 1f : 0f;
 
         protected override void OnStart() {
-            _assetBundle = Adapter.CreateRequest(BundlePath);
-            if (_assetBundle) {
-                Finish();
+            try {
+                _assetBundle = Adapter.CreateAssetBundle(BundlePath);
+                if (_assetBundle) {
+                    Finish();
+                    return;
+                }
+            }
+            catch (System.Exception e) {
+                Facade.GetSystem<LogSystem>().LogException(e);
+                Abort();
                 return;
             }
+
             Facade.GetSystem<LogSystem>().LogError("Load AssetBundle failed: {0}", BundlePath);
             Abort();
         }

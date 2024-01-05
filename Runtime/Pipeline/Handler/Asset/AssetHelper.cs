@@ -22,6 +22,10 @@ namespace vFrame.Bundler
                        + (loaderHandler.Loader?.GetType().Name ?? "null"));
         }
 
+        public static Bundler GetFacade(T loaderHandler) {
+            return loaderHandler.BundlerContexts.Bundler;
+        }
+
         public static Object GetRawAsset(T loaderHandler) {
             return GetAssetLoader(loaderHandler).AssetObject;
         }
@@ -32,18 +36,18 @@ namespace vFrame.Bundler
 
         public static Object Instantiate(T loaderHandler, Transform parent = null, bool stayWorldPosition = false) {
             var ret = Object.Instantiate(GetAssetLoader(loaderHandler).AssetObject, parent, stayWorldPosition);
-            // TODO: Retain object
+            var proxySystem = GetFacade(loaderHandler).GetSystem<LinkSystem>();
+            proxySystem.LinkObject(ret, loaderHandler);
             return ret;
         }
 
-        public static void SetTo<TComponent, TObject, TSetter>(T loaderHandler, TComponent target)
+        public static void SetTo<TComponent, TObject, TProxy>(T loaderHandler, TComponent target)
             where TComponent : Component
             where TObject : Object
-            where TSetter : PropertySetterProxy<TComponent, TObject>, new() {
+            where TProxy : PropertySetterProxy<TComponent, TObject>, new() {
 
-            var setter = ObjectPool<TSetter>.Get();
-            setter.Set(target, GetRawAsset(loaderHandler) as TObject);
-            ObjectPool<TSetter>.Return(setter);
+            var proxySystem = GetFacade(loaderHandler).GetSystem<LinkSystem>();
+            proxySystem.RebindProxy<TComponent, TObject, TProxy>(loaderHandler, target);
         }
     }
 }

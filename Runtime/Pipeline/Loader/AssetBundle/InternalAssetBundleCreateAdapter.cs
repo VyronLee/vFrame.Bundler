@@ -14,9 +14,9 @@ using UnityEngine.Profiling;
 
 namespace vFrame.Bundler
 {
-    internal class InternalAssetBundleCreateRequestAdapter : BundlerObject, IAssetBundleCreateRequestAdapter
+    internal class InternalAssetBundleCreateAdapter : BundlerObject, IAssetBundleCreateAdapter
     {
-        public InternalAssetBundleCreateRequestAdapter(BundlerContexts bundlerContexts) : base(bundlerContexts) {
+        public InternalAssetBundleCreateAdapter(BundlerContexts bundlerContexts) : base(bundlerContexts) {
 
         }
 
@@ -24,7 +24,7 @@ namespace vFrame.Bundler
 
         }
 
-        public AssetBundleCreateRequest CreateRequestAsync(string bundlePath) {
+        public AssetBundleCreateRequest CreateRequest(string bundlePath) {
             Facade.GetSystem<LogSystem>().LogDebug("Create AssetBundleCreateRequest: {0}", bundlePath);
 
             var searchPaths = BundlerContexts.Options.SearchPaths;
@@ -47,7 +47,7 @@ namespace vFrame.Bundler
             return null;
         }
 
-        public AssetBundle CreateRequest(string bundlePath) {
+        public AssetBundle CreateAssetBundle(string bundlePath) {
             Facade.GetSystem<LogSystem>().LogDebug("Load AssetBundle: {0}", bundlePath);
 
             var searchPaths = BundlerContexts.Options.SearchPaths;

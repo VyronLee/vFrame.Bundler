@@ -55,10 +55,12 @@ namespace vFrame.Bundler
 
         protected void Abort() {
             TaskState = TaskState.Error;
+            Facade.GetSystem<LogSystem>().LogError("Loader abort: {0}", this);
         }
 
         protected void Finish() {
             TaskState = TaskState.Finished;
+            Facade.GetSystem<LogSystem>().LogInfo("Loader finished: {0}", this);
         }
 
         protected void ThrowIfNotFinished() {
@@ -82,6 +84,16 @@ namespace vFrame.Bundler
         protected abstract void OnStop();
         protected abstract void OnUpdate();
         protected abstract void OnForceComplete();
+
+        public override void Retain() {
+            LoaderContexts.ParentLoader?.Retain();
+            base.Retain();
+        }
+
+        public override void Release() {
+            LoaderContexts.ParentLoader?.Release();
+            base.Release();
+        }
 
         public override string ToString() {
             return $"[Type: {GetType().Name}, TaskState: {TaskState}]";

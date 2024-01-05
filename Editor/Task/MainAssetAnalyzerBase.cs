@@ -13,9 +13,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using vFrame.Bundler.Editor.Helper;
+using vFrame.Bundler.Helper;
 
-namespace vFrame.Bundler.Editor.Task.MainAssetAnalyzers
+namespace vFrame.Bundler.Task
 {
     internal abstract class MainAssetAnalyzerBase
     {
@@ -53,44 +53,6 @@ namespace vFrame.Bundler.Editor.Task.MainAssetAnalyzers
             bool FilterTest(string path) {
                 return IsFilteringTestPassed(rule, path);
             }
-        }
-
-        protected bool TryBuiltinAnalyzer(BuildContext context, string path) {
-            var ret = false;
-            ret |= !AssetHelper.IsBuildableAssets(path);
-            ret |= TryAddIfIsShader(context, path);
-            ret |= TryAddIfIsScene(context, path);
-            return ret;
-        }
-
-        private bool TryAddIfIsShader(BuildContext context, string path) {
-            if (!AssetHelper.IsShader(path)) {
-                return false;
-            }
-            if (!context.BuildSettings.SeparateShaderBundle) {
-                return false;
-            }
-
-            var bundlePath = context.BuildSharedShaderBundlePath();
-            var assetInfo = new MainAssetInfo {
-                AssetPath = path,
-                BundlePath = bundlePath
-            };
-            SafeAddMainAssetInfo(context, assetInfo);
-            return true;
-        }
-
-        private bool TryAddIfIsScene(BuildContext context, string path) {
-            if (!AssetHelper.IsScene(path)) {
-                return false;
-            }
-
-            var assetInfo = new MainAssetInfo {
-                AssetPath = path,
-                BundlePath = context.BuildSceneBundlePath(path)
-            };
-            SafeAddMainAssetInfo(context, assetInfo);
-            return true;
         }
 
         protected void SafeAddMainAssetInfo(BuildContext context, MainAssetInfo assetInfo) {

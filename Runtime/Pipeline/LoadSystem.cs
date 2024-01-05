@@ -170,7 +170,10 @@ namespace vFrame.Bundler
         }
 
         private T CreateHandler<T>(Loader loader) where T: ILoaderHandler, new() {
-            var ret = new T { Loader = loader };
+            var ret = new T {
+                Loader = loader,
+                BundlerContexts = BundlerContexts
+            };
             BundlerContexts.AddHandler(ret);
             return ret;
         }

@@ -10,7 +10,7 @@
 
 using UnityEditor;
 
-namespace vFrame.Bundler.Editor
+namespace vFrame.Bundler
 {
     public class BundleBuildSettings
     {

@@ -12,7 +12,8 @@ namespace vFrame.Bundler
 {
     internal interface ILoaderHandler
     {
-        internal Loader Loader { set; get; }
-        internal void Update();
+        Loader Loader { set; get; }
+        BundlerContexts BundlerContexts { set; get; }
+        void Update();
     }
 }
