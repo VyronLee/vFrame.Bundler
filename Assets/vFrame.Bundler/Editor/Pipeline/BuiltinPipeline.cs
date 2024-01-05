@@ -8,9 +8,10 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
-using vFrame.Bundler.Editor.Task;
+using vFrame.Bundler.Task;
+using vFrame.Bundler.Task.Formal;
 
-namespace vFrame.Bundler.Editor.Pipeline
+namespace vFrame.Bundler.Pipeline
 {
     internal class BuiltinPipeline : PipelineBase
     {

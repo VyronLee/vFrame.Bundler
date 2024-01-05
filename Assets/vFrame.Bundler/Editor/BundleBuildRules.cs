@@ -11,7 +11,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace vFrame.Bundler.Editor
+namespace vFrame.Bundler
 {
     public enum PackType
     {

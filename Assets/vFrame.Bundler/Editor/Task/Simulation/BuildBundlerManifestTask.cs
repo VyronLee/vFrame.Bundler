@@ -1,26 +1,24 @@
 // ------------------------------------------------------------
-//         File: BuildBundleManifestTask.cs
-//        Brief: BuildBundleManifestTask.cs
+//         File: BuildSimulationBundlerManifestTask.cs
+//        Brief: BuildSimulationBundlerManifestTask.cs
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2023-12-25 22:42
+//      Created: 2024-1-5 19:16
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
-using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace vFrame.Bundler.Editor.Task
+namespace vFrame.Bundler.Task.Simulation
 {
     internal class BuildBundlerManifestTask : BuildTaskBase
     {
         public override void Run(BuildContext context) {
             var manifest = new BundlerManifest();
             GrantAssetInfos(context, manifest);
-            GrantAssetBundleInfos(context, manifest);
             WriteToDisk(context, manifest);
             context.BundlerManifest = manifest;
         }
@@ -41,25 +39,6 @@ namespace vFrame.Bundler.Editor.Task
             }
         }
 
-        private void GrantAssetBundleInfos(BuildContext context, BundlerManifest manifest) {
-            var index = 0f;
-            var total = context.MainAssetInfos.Count;
-            var abs = context.BundleInfos.Keys;
-
-            try {
-                foreach (var ab in abs) {
-                    EditorUtility.DisplayProgressBar("Building Bundler Manifest",
-                        $"Granting assetBundle: {ab}", ++index / total );
-
-                    var dependencies = context.AssetBundleManifest.GetAllDependencies(ab) ?? Array.Empty<string>();
-                    manifest.Bundles[ab] = new BundleDependencySet(dependencies);
-                }
-            }
-            finally {
-                EditorUtility.ClearProgressBar();
-            }
-        }
-
         private void WriteToDisk(BuildContext context, BundlerManifest manifest) {
             var jsonData = JsonUtility.ToJson(manifest);
             var savePath = PathUtils.Combine(
@@ -71,6 +50,5 @@ namespace vFrame.Bundler.Editor.Task
             }
             File.WriteAllText(savePath, jsonData);
         }
-
     }
 }

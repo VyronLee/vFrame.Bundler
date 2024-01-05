@@ -8,7 +8,7 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
-namespace vFrame.Bundler.Editor.Pipeline
+namespace vFrame.Bundler.Pipeline
 {
     public interface IPipeline
     {

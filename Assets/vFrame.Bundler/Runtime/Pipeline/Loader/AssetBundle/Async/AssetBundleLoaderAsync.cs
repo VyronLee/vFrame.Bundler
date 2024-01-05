@@ -8,6 +8,7 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+using System;
 using UnityEngine;
 
 namespace vFrame.Bundler
@@ -43,13 +44,21 @@ namespace vFrame.Bundler
         }
 
         protected override void OnStart() {
-            _createRequest = Adapter.CreateRequestAsync(BundlePath);
-            if (null == _createRequest) {
-                Facade.GetSystem<LogSystem>().LogError("Create AssetBundleCreateRequest failed: {0}", BundlePath);
+            try {
+                _createRequest = Adapter.CreateRequest(BundlePath);
+                if (null != _createRequest) {
+                    _createRequest.allowSceneActivation = true;
+                    return;
+                }
+            }
+            catch (System.Exception e) {
+                Facade.GetSystem<LogSystem>().LogException(e);
                 Abort();
                 return;
             }
-            _createRequest.allowSceneActivation = true;
+
+            Facade.GetSystem<LogSystem>().LogError("Create AssetBundleCreateRequest failed: {0}", BundlePath);
+            Abort();
         }
 
         protected override void OnStop() {

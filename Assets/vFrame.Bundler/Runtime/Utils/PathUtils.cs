@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------
-//        File:  PathUtility.cs
-//       Brief:  PathUtility
+//        File:  PathUtils.cs
+//       Brief:  PathUtils
 //
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //

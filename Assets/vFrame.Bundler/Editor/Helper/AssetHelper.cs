@@ -15,7 +15,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace vFrame.Bundler.Editor.Helper
+namespace vFrame.Bundler.Helper
 {
     internal static class AssetHelper
     {

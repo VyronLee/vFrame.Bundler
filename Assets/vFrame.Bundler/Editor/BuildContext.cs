@@ -11,7 +11,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace vFrame.Bundler.Editor
+namespace vFrame.Bundler
 {
     internal class BuildContext
     {

@@ -123,6 +123,20 @@ namespace vFrame.Bundler
             Finish();
         }
 
+        public override void Retain() {
+            foreach (var loader in _loaders) {
+                loader.Retain();
+            }
+            base.Retain();
+        }
+
+        public override void Release() {
+            foreach (var loader in _loaders) {
+                loader.Release();
+            }
+            base.Release();
+        }
+
         public override string ToString() {
             return $"[Type: {GetType().Name}, MainBundlePath: {MainBundlePath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }

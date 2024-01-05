@@ -17,24 +17,33 @@ namespace vFrame.Bundler
     public class Scene : ILoaderHandler
     {
         private AsyncOperation _request;
+        private UnloadOperation _unloadOperation;
 
         internal SceneLoader SceneLoader => ((ILoaderHandler)this).Loader as SceneLoader
-                   ?? throw new ArgumentException("SceneLoader expected, got: "
-                       + (((ILoaderHandler)this).Loader?.GetType().Name ?? "null"));
+                                            ?? throw new ArgumentException("SceneLoader expected, got: "
+                                                                           + (((ILoaderHandler)this).Loader?.GetType().Name ?? "null"));
 
         Loader ILoaderHandler.Loader { get; set; }
+        BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
-        public void Unload() {
+        public UnloadOperation Unload() {
 #if UNITY_EDITOR
             if (!UnityEditor.EditorApplication.isPlaying) {
                 UnityEditor.SceneManagement.EditorSceneManager.CloseScene(SceneLoader.SceneObject, true);
-                return;
+                return UnloadOperation.Completed;
             }
 #endif
             _request = SceneManager.UnloadSceneAsync(SceneLoader.AssetPath);
+            _unloadOperation = new UnloadOperation();
+            return _unloadOperation;
         }
 
-        public void Activate() {
+        public void Activate(bool setAsActiveScene = true) {
+            Retain();
+
+            if (!setAsActiveScene) {
+                return;
+            }
             if (!SceneLoader.SceneObject.IsValid()) {
                 throw new InvalidOperationException("Scene invalid: " + SceneLoader.AssetPath);
             }
@@ -45,7 +54,9 @@ namespace vFrame.Bundler
             if (null == _request || !_request.isDone) {
                 return;
             }
-            // TODO: Release bundles
+            Release();
+
+            _unloadOperation?.SetDone(true);
         }
 
         public void Retain() {

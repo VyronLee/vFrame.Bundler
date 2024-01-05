@@ -21,25 +21,27 @@ namespace vFrame.Bundler
         private static readonly Type[] _embedSystems = {
             typeof(LogSystem),
             typeof(LoadSystem),
+            typeof(LinkSystem),
+            typeof(CollectSystem)
         };
 
         private readonly BundlerContexts _contexts;
         private readonly Dictionary<Type, BundlerSystem> _systems = new Dictionary<Type, BundlerSystem>();
 
-        public Bundler(BundlerManifest manifest = null, BundlerOptions options = null) {
+        public Bundler(BundlerManifest manifest, BundlerOptions options = null) {
             options = options ?? new BundlerOptions();
             _contexts = new BundlerContexts {
                 Options = options,
                 Manifest = manifest,
                 Bundler = this
             };
-            InitializeEmbedSystems();
+            InitializeSystems();
         }
 
-        private void InitializeEmbedSystems() {
-            var baseSystemType = typeof(BundlerSystem);
+        private void InitializeSystems() {
+            var baseType = typeof(BundlerSystem);
             foreach (var type in _embedSystems) {
-                if (!baseSystemType.IsAssignableFrom(type)) {
+                if (!baseType.IsAssignableFrom(type)) {
                     throw new ArgumentException("Cannot create bundler system of type: " + type);
                 }
                 _systems[type] = Activator.CreateInstance(type, _contexts) as BundlerSystem;
@@ -109,6 +111,7 @@ namespace vFrame.Bundler
         }
 
         public void Collect() {
+            GetSystem<CollectSystem>().Collect();
         }
 
         public void SetLogLevel(int level) {

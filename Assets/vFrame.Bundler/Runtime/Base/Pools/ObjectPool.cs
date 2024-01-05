@@ -43,7 +43,7 @@ namespace vFrame.Bundler
 
     public abstract class ObjectPool<TClass> where TClass : class, new()
     {
-        private static readonly Stack<TClass> Objects = new();
+        private static readonly Stack<TClass> Objects = new Stack<TClass>();
 
         public static TClass Get() {
             return Objects.Count > 0 ? Objects.Pop() : new TClass();

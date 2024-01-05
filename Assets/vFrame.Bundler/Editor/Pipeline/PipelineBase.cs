@@ -10,10 +10,10 @@
 
 using System;
 using System.Diagnostics;
-using vFrame.Bundler.Editor.Helper;
-using vFrame.Bundler.Editor.Task;
+using vFrame.Bundler.Helper;
+using vFrame.Bundler.Task;
 
-namespace vFrame.Bundler.Editor.Pipeline
+namespace vFrame.Bundler.Pipeline
 {
     internal abstract class PipelineBase : IPipeline
     {

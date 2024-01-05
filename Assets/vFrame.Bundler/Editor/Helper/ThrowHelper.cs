@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using vFrame.Bundler.Exception;
 
-namespace vFrame.Bundler.Editor.Helper
+namespace vFrame.Bundler.Helper
 {
     internal static class ThrowHelper
     {

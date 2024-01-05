@@ -16,6 +16,7 @@ namespace vFrame.Bundler
     public struct Asset : ILoaderHandler
     {
         Loader ILoaderHandler.Loader { get; set; }
+        BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
         void ILoaderHandler.Update() {
 
@@ -33,12 +34,12 @@ namespace vFrame.Bundler
             return AssetHelper<Asset>.Instantiate(this, parent, stayWorldPosition);
         }
 
-        public void SetTo<TComponent, TObject, TSetter>(TComponent target)
+        public void SetTo<TComponent, TObject, TProxy>(TComponent target)
             where TComponent : Component
             where TObject : Object
-            where TSetter : PropertySetterProxy<TComponent, TObject>, new() {
+            where TProxy : PropertySetterProxy<TComponent, TObject>, new() {
 
-            AssetHelper<Asset>.SetTo<TComponent, TObject, TSetter>(this, target);
+            AssetHelper<Asset>.SetTo<TComponent, TObject, TProxy>(this, target);
         }
 
         public void Retain() {
@@ -53,6 +54,7 @@ namespace vFrame.Bundler
     public struct Asset<T> : ILoaderHandler where T : Object
     {
         Loader ILoaderHandler.Loader { get; set; }
+        BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
         void ILoaderHandler.Update() {
 
@@ -70,11 +72,11 @@ namespace vFrame.Bundler
             return AssetHelper<Asset<T>>.Instantiate(this, parent, stayWorldPosition) as T;
         }
 
-        public void SetTo<TComponent, TSetter>(TComponent target)
+        public void SetTo<TComponent, TProxy>(TComponent target)
             where TComponent : Component
-            where TSetter : PropertySetterProxy<TComponent, T>, new() {
+            where TProxy : PropertySetterProxy<TComponent, T>, new() {
 
-            AssetHelper<Asset<T>>.SetTo<TComponent, T, TSetter>(this, target);
+            AssetHelper<Asset<T>>.SetTo<TComponent, T, TProxy>(this, target);
         }
 
         public void Retain() {

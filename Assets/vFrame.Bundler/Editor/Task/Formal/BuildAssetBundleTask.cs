@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 
-namespace vFrame.Bundler.Editor.Task
+namespace vFrame.Bundler.Task.Formal
 {
     internal class BuildAssetBundleTask : BuildTaskBase
     {

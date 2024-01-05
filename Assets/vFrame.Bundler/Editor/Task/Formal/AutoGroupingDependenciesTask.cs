@@ -13,9 +13,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using vFrame.Bundler.Editor.Helper;
+using vFrame.Bundler.Helper;
 
-namespace vFrame.Bundler.Editor.Task
+namespace vFrame.Bundler.Task.Formal
 {
     internal class AutoGroupingDependenciesTask : BuildTaskBase
     {

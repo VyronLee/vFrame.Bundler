@@ -19,10 +19,10 @@ namespace vFrame.Bundler
     [Serializable]
     public class BundlerManifest : ISerializationCallbackReceiver
     {
-        [NonSerialized] public AssetsTable Assets = new();
-        [NonSerialized] public BundlesTable Bundles = new();
+        [NonSerialized] public AssetsTable Assets = new AssetsTable();
+        [NonSerialized] public BundlesTable Bundles = new BundlesTable();
 
-        public BundlerManifest FromJson(string jsonData) {
+        public static BundlerManifest FromJson(string jsonData) {
             if (string.IsNullOrEmpty(jsonData))
                 throw new BundleArgumentException($"Argument '{nameof(jsonData)}' cannot be null or empty.");
             return JsonUtility.FromJson<BundlerManifest>(jsonData);
@@ -32,11 +32,11 @@ namespace vFrame.Bundler
         // ISerializationCallbackReceiver
         //=============================================
 
-        [SerializeField] private List<string> _assets = new();
-        [SerializeField] private List<int> _assetContainsInBundle = new();
+        [SerializeField] private List<string> _assets = new List<string>();
+        [SerializeField] private List<int> _assetContainsInBundle = new List<int>();
 
-        [SerializeField] private List<string> _bundles = new();
-        [SerializeField] private List<BundleDependencySetInt> _bundleDependencies = new();
+        [SerializeField] private List<string> _bundles = new List<string>();
+        [SerializeField] private List<BundleDependencySetInt> _bundleDependencies = new List<BundleDependencySetInt>();
 
         public void OnBeforeSerialize() {
             _assets = Assets.Keys.ToList();
@@ -91,7 +91,7 @@ namespace vFrame.Bundler
     [Serializable]
     public class BundleDependencySet
     {
-        [SerializeField] private List<string> _values = new();
+        [SerializeField] private List<string> _values = new List<string>();
 
         public IEnumerable<string> Values => _values;
 
@@ -107,7 +107,7 @@ namespace vFrame.Bundler
     [Serializable]
     internal class BundleDependencySetInt
     {
-        [SerializeField] private List<int> _values = new();
+        [SerializeField] private List<int> _values = new List<int>();
 
         public IEnumerable<int> Values => _values;
 

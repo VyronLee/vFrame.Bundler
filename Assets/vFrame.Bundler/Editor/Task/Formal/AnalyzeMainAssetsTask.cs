@@ -9,10 +9,10 @@
 // ============================================================
 
 using System;
-using vFrame.Bundler.Editor.Helper;
-using vFrame.Bundler.Editor.Task.MainAssetAnalyzers;
+using vFrame.Bundler.Helper;
+using vFrame.Bundler.Task.Formal.MainAssetAnalyzers;
 
-namespace vFrame.Bundler.Editor.Task
+namespace vFrame.Bundler.Task.Formal
 {
     internal class AnalyzeMainAssetsTask : BuildTaskBase
     {
@@ -26,7 +26,7 @@ namespace vFrame.Bundler.Editor.Task
             foreach (var rule in rules) {
                 ThrowHelper.ThrowIfNullOrEmpty(rule.PackType,
                     ThrowHelper.Variables(nameof(rule), nameof(rule.PackType)));
-                MainAssetAnalyzerBase analyzer = null;
+                FormalMainAssetAnalyzerBase analyzer = null;
                 var packType = Enum.Parse(typeof(PackType), rule.PackType);
                 switch (packType) {
                     case PackType.PackBySingleFile:

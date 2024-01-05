@@ -18,12 +18,12 @@ namespace vFrame.Bundler
             : base(bundlerContexts, loaderContexts) {
 
             BundlePath = bundlePath;
-            Adapter = bundlerContexts.Options.AssetBundleCreateRequestAdapter ??
-                       new InternalAssetBundleCreateRequestAdapter(bundlerContexts);
+            Adapter = bundlerContexts.Options.AssetBundleCreateAdapter ??
+                       new InternalAssetBundleCreateAdapter(bundlerContexts);
         }
 
         public string BundlePath { get; }
-        protected IAssetBundleCreateRequestAdapter Adapter { get; }
+        protected IAssetBundleCreateAdapter Adapter { get; }
 
         public abstract AssetBundle AssetBundle { get; }
 

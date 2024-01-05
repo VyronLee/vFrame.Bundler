@@ -11,9 +11,9 @@
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using vFrame.Bundler.Editor.Helper;
+using vFrame.Bundler.Helper;
 
-namespace vFrame.Bundler.Editor.Task
+namespace vFrame.Bundler.Task.Formal
 {
     internal class ValidateBuildOutcomesTask : BuildTaskBase
     {
