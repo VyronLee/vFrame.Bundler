@@ -111,7 +111,7 @@ namespace vFrame.Bundler
         }
 
         public void Collect() {
-            GetSystem<CollectSystem>().Collect();
+            //GetSystem<CollectSystem>().Collect();
         }
 
         public void SetLogLevel(int level) {

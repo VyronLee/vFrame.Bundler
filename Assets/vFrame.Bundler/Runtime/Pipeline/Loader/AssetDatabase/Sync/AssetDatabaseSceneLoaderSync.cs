@@ -36,7 +36,7 @@ namespace vFrame.Bundler
             Finish();
 #else
             Facade.GetSystem<LogSystem>().LogError(
-                $"{nameof(AssetDatabaseSceneLoader)} is not supported in runtime mode.");
+                $"{nameof(AssetDatabaseSceneLoaderSync)} is not supported in runtime mode.");
             Abort();
 #endif
         }

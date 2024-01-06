@@ -8,6 +8,7 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using vFrame.Bundler.Exception;
@@ -36,7 +37,12 @@ namespace vFrame.Bundler
         }
 
         protected override void OnStart() {
-            _request = SceneManager.LoadSceneAsync(AssetPath, LoadSceneMode);
+#if UNITY_EDITOR
+            var sceneName = Path.GetFileNameWithoutExtension(AssetPath);
+            _request = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode);
+#else
+            _request = SceneManager.LoadSceneAsync(AssetPath, LoadSceneMode);  // Less GC
+#endif
             if (null != _request) {
                 _request.allowSceneActivation = true;
                 return;

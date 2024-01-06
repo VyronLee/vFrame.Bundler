@@ -48,7 +48,7 @@ namespace vFrame.Bundler.Exception
 
     public class BundleLoadFailedException : BundleException
     {
-        public BundleLoadFailedException(string message) : base(message) {
+        public BundleLoadFailedException(string path) : base($"Could not load bundle at path: {path}") {
         }
     }
 
@@ -60,7 +60,7 @@ namespace vFrame.Bundler.Exception
 
     public class BundleAssetLoadFailedException : BundleException
     {
-        public BundleAssetLoadFailedException(string message) : base(message) {
+        public BundleAssetLoadFailedException(string path) : base($"Could not load asset at path: {path}") {
         }
     }
 

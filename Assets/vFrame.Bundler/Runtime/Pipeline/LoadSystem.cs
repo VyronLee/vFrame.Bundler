@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using vFrame.Bundler.Exception;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler
@@ -35,42 +36,54 @@ namespace vFrame.Bundler
 
         public Asset LoadAsset(string path, Type type, AssetLoadType loadType) {
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, type), out AssetLoader loader)) {
-                loader = CreateAssetLoadSyncPipeline(path, type, loadType).Startup<AssetLoader>();
+                if (!CreateAssetLoadSyncPipeline(path, type, loadType).Startup(out loader)) {
+                    throw new BundleAssetLoadFailedException(path);
+                }
             }
             return CreateHandler<Asset>(loader);
         }
 
         public AssetAsync LoadAssetAsync(string path, Type type, AssetLoadType loadType) {
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, type), out AssetLoader loader)) {
-                loader = CreateAssetLoadAsyncPipeline(path, type, loadType).Startup<AssetLoader>();
+                if (!CreateAssetLoadAsyncPipeline(path, type, loadType).Startup(out loader)) {
+                    throw new BundleAssetLoadFailedException(path);
+                }
             }
             return CreateHandler<AssetAsync>(loader);
         }
 
         public Asset<T> LoadAsset<T>(string path, AssetLoadType loadType) where T : Object {
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, typeof(T)), out AssetLoader loader)) {
-                loader = CreateAssetLoadSyncPipeline(path, typeof(T), loadType).Startup<AssetLoader>();
+                if (!CreateAssetLoadSyncPipeline(path, typeof(T), loadType).Startup(out loader)) {
+                    throw new BundleAssetLoadFailedException(path);
+                }
             }
             return CreateHandler<Asset<T>>(loader);
         }
 
         public AssetAsync<T> LoadAssetAsync<T>(string path, AssetLoadType loadType) where T : Object {
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, typeof(T)), out AssetLoader loader)) {
-                loader = CreateAssetLoadAsyncPipeline(path, typeof(T), loadType).Startup<AssetLoader>();
+                if (!CreateAssetLoadAsyncPipeline(path, typeof(T), loadType).Startup(out loader)) {
+                    throw new BundleAssetLoadFailedException(path);
+                }
             }
             return CreateHandler<AssetAsync<T>>(loader);
         }
 
         public Scene LoadScene(string path, LoadSceneMode loadSceneMode) {
-            if (BundlerContexts.TryGetLoader(path, out SceneLoader loader)) {
-                loader = CreateSceneLoadSyncPipeline(path, loadSceneMode).Startup<SceneLoader>();
+            if (!BundlerContexts.TryGetLoader(path, out SceneLoader loader)) {
+                if (!CreateSceneLoadSyncPipeline(path, loadSceneMode).Startup(out loader)) {
+                    throw new BundleAssetLoadFailedException(path);
+                }
             }
             return CreateHandler<Scene>(loader);
         }
 
         public SceneAsync LoadSceneAsync(string path, LoadSceneMode loadSceneMode) {
             if (!BundlerContexts.TryGetLoader(path, out SceneLoader loader)) {
-                loader = CreateSceneLoadAsyncPipeline(path, loadSceneMode).Startup<SceneLoader>();
+                if (!CreateSceneLoadAsyncPipeline(path, loadSceneMode).Startup(out loader)) {
+                    throw new BundleAssetLoadFailedException(path);
+                }
             }
             return CreateHandler<SceneAsync>(loader);
         }

@@ -10,7 +10,7 @@
 
 namespace vFrame.Bundler
 {
-    public class SceneAsync : Scene
+    public class SceneAsync : Scene, IAsync
     {
         public bool MoveNext() {
             return !IsDone;

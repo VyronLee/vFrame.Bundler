@@ -9,7 +9,6 @@
 // ============================================================
 
 using System;
-using UnityEditor;
 using vFrame.Bundler.Exception;
 using Object = UnityEngine.Object;
 
@@ -27,13 +26,14 @@ namespace vFrame.Bundler
         public override float Progress => IsDone ? 1f : 0f;
 
         protected override void OnStart() {
+#if UNITY_EDITOR
             switch (AssetLoadType) {
                 case AssetLoadType.LoadAsset:
                 case AssetLoadType.LoadAssetWithSubAsset:
-                    _assetObject = AssetDatabase.LoadAssetAtPath(AssetPath, AssetType);
+                    _assetObject = UnityEditor.AssetDatabase.LoadAssetAtPath(AssetPath, AssetType);
                     break;
                 case AssetLoadType.LoadAllAssets:
-                    _assetObjects = AssetDatabase.LoadAllAssetsAtPath(AssetPath);
+                    _assetObjects = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(AssetPath);
                     if (_assetObjects.Length > 0) {
                         _assetObject = _assetObjects[0];
                     }
@@ -49,6 +49,11 @@ namespace vFrame.Bundler
 
             Facade.GetSystem<LogSystem>().LogError("Load asset from AssetDatabase failed: {0}", AssetPath);
             Abort();
+#else
+            Facade.GetSystem<LogSystem>().LogError(
+                $"{nameof(AssetDatabaseAssetLoaderSync)} is not supported in runtime mode.");
+            Abort();
+#endif
         }
 
         protected override void OnStop() {

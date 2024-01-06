@@ -24,6 +24,7 @@ namespace vFrame.Bundler
         public TaskState TaskState { get; private set; }
 
         protected override void OnDestroy() {
+            Facade.GetSystem<LogSystem>().LogInfo("Loader destroyed: {0}", this);
             Stop();
         }
 
@@ -51,6 +52,7 @@ namespace vFrame.Bundler
         }
 
         public bool IsDone => TaskState == TaskState.Finished;
+        public bool IsError => TaskState == TaskState.Error;
         public abstract float Progress { get; }
 
         protected void Abort() {
@@ -70,14 +72,23 @@ namespace vFrame.Bundler
         }
 
         public void ForceComplete() {
-            Start();
-            if (TaskState != TaskState.Processing) {
-                Facade.GetSystem<LogSystem>().LogWarning(
-                    "Cannot force loading because task is not processing: {0}", this);
-                return;
+            while (true) {
+                switch (TaskState) {
+                    case TaskState.NotStarted:
+                        Start();
+                        break;
+                    case TaskState.Processing:
+                        Facade.GetSystem<LogSystem>().LogInfo("Force loader complete: {0}", this);
+                        OnForceComplete();
+                        break;
+                    case TaskState.Finished:
+                        return;
+                    default:
+                        Facade.GetSystem<LogSystem>().LogWarning(
+                            "Cannot force loading because task is not processing: {0}", this);
+                        return;
+                }
             }
-            Facade.GetSystem<LogSystem>().LogInfo("Force loader complete: {0}", this);
-            OnForceComplete();
         }
 
         protected abstract void OnStart();
