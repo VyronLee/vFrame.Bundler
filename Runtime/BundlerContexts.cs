@@ -57,7 +57,7 @@ namespace vFrame.Bundler
                     AssetBundleLoaders.Add(bundlerLoader.BundlePath, bundlerLoader);
                     break;
                 case AssetBundleLoaderGroup bundlerLoaderGroup:
-                    AssetBundleLoaderGroups.Add(bundlerLoaderGroup.MainBundlePath, bundlerLoaderGroup);
+                    AssetBundleLoaderGroups.Add(bundlerLoaderGroup.MainAssetPath, bundlerLoaderGroup);
                     break;
             }
         }
@@ -74,18 +74,26 @@ namespace vFrame.Bundler
                     AssetBundleLoaders.Remove(bundlerLoader.BundlePath);
                     break;
                 case AssetBundleLoaderGroup bundlerLoaderGroup:
-                    AssetBundleLoaderGroups.Remove(bundlerLoaderGroup.MainBundlePath);
+                    AssetBundleLoaderGroups.Remove(bundlerLoaderGroup.MainAssetPath);
                     break;
             }
         }
 
         public bool TryGetLoader<TKey, TType>(TKey key, out TType value) where TType: Loader {
-            var ret = false;
-            ret |= TryGetAssetBundleLoader(key, out value);
-            ret |= TryGetAssetBundleLoaderGroup(key, out value);
-            ret |= TryGetAssetLoader(key, out value);
-            ret |= TryGetSceneLoader(key, out value);
-            return ret;
+            if (TryGetAssetBundleLoaderGroup(key, out value)) {
+                return true;
+            }
+            if (TryGetAssetBundleLoader(key, out value)) {
+                return true;
+            }
+            if (TryGetAssetLoader(key, out value)) {
+                return true;
+            }
+            if (TryGetSceneLoader(key, out value)) {
+                return true;
+            }
+            value = default(TType);
+            return false;
         }
 
         public void ForEachLoader(Action<Loader> action) {

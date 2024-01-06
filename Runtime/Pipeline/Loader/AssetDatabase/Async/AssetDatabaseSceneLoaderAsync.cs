@@ -47,7 +47,7 @@ namespace vFrame.Bundler
             _request = UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(AssetPath, param);
 #else
             Facade.GetSystem<LogSystem>().LogError(
-                $"{nameof(AssetDatabaseSceneLoader)} is not supported in runtime mode.");
+                $"{nameof(AssetDatabaseSceneLoaderAsync)} is not supported in runtime mode.");
             Abort();
 #endif
         }

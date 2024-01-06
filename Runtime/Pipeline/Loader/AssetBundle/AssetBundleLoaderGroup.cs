@@ -46,6 +46,7 @@ namespace vFrame.Bundler
             }
         }
 
+        public string MainAssetPath => LoaderContexts.AssetPath;
         public string MainBundlePath => MainBundleLoader?.BundlePath;
 
         public AssetBundle AssetBundle {
@@ -88,7 +89,7 @@ namespace vFrame.Bundler
                 foreach (var loader in _loaders) {
                     ret += loader.Progress;
                 }
-                return ret;
+                return ret / _loaders.Count;
             }
         }
 
@@ -117,10 +118,14 @@ namespace vFrame.Bundler
         }
 
         protected override void OnForceComplete() {
+            var finished = true;
             foreach (var loader in _loaders) {
                 loader.ForceComplete();
+                finished &= loader.IsDone;
             }
-            Finish();
+            if (finished) {
+                Finish();
+            }
         }
 
         public override void Retain() {

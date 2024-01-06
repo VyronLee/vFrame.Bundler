@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler
 {
-    public struct AssetAsync : ILoaderHandler
+    public struct AssetAsync : ILoaderHandler, IAsync
     {
         Loader ILoaderHandler.Loader { get; set; }
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
@@ -57,7 +57,7 @@ namespace vFrame.Bundler
         public float Progress => AssetHelper<AssetAsync>.GetAssetLoader(this).Progress;
     }
 
-    public struct AssetAsync<T> : ILoaderHandler where T : Object
+    public struct AssetAsync<T> : ILoaderHandler, IAsync where T : Object
     {
         Loader ILoaderHandler.Loader { get; set; }
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }

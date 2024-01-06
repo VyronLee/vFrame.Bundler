@@ -20,30 +20,59 @@ namespace vFrame.Bundler
         private readonly LoaderContexts _loaderContexts;
         private readonly List<Loader> _loaders;
         private int _processing;
+        private bool _error;
 
         public LoaderPipeline(BundlerContexts bundlerContexts, LoaderContexts loaderContexts) {
             _bundlerContexts = bundlerContexts;
             _loaderContexts = loaderContexts;
             _loaders = new List<Loader>();
             _processing = -1;
+            _error = false;
         }
 
-        public LoaderPipeline Add<T>() where T : Loader {
+        public void Add<T>() where T : Loader {
             var loaderContexts = _loaderContexts;
             loaderContexts.ParentLoader = Last();
             var loader = Activator.CreateInstance(typeof(T), _bundlerContexts, loaderContexts) as T;
-            _bundlerContexts.AddLoader(loader);
+            if (null == loader || loader.IsError) {
+                _error = true;
+                return;
+            }
             _loaders.Add(loader);
-            return this;
         }
 
-        public T Startup<T>() where T: Loader {
+        public bool Startup<T>(out T result) where T: Loader {
             if (_loaders.Count <= 0) {
                 throw new BundleException("No loaders in pipeline, please add some loaders first.");
             }
+
+            if (IsError) {
+                GetLogSystem().LogWarning("Pipeline will not startup due to some errors in loaders.");
+                result = default;
+                return false;
+            }
+
+            if (StartupLoaderQueue()) {
+                result = Last<T>();
+                return true;
+            }
+            result = default;
+            return false;
+        }
+
+        private bool StartupLoaderQueue() {
+            foreach (var loader in _loaders) {
+                _bundlerContexts.AddLoader(loader);
+            }
             _processing = 0;
+
             Update();
-            return Last<T>();
+
+            return !IsError;
+        }
+
+        private LogSystem GetLogSystem() {
+            return _bundlerContexts.Bundler.GetSystem<LogSystem>();
         }
 
         private Loader Last() {
@@ -72,18 +101,19 @@ namespace vFrame.Bundler
                         loader.Start();
                         break;
                     case TaskState.Processing:
-                        goto End;
+                        return;
                     case TaskState.Finished:
                         ++_processing;
                         break;
                     case TaskState.Error:
-                        goto End;
+                        GetLogSystem().LogWarning("Error occurred while processing loader: {0}", loader);
+                        _error = true;
+                        return;
                 }
             }
-            End: ;
         }
 
         public bool IsDone => _processing >= _loaders.Count;
-        public bool IsError => Processing()?.TaskState == TaskState.Error;
+        public bool IsError => _error;
     }
 }
