@@ -75,14 +75,14 @@ namespace vFrame.Bundler
             return _bundlerContexts.Bundler.GetSystem<LogSystem>();
         }
 
-        private Loader Last() {
+        public Loader Last() {
             if (_loaders.Count <= 0) {
                 return null;
             }
             return _loaders[_loaders.Count - 1];
         }
 
-        private T Last<T>() where T: Loader {
+        public T Last<T>() where T: Loader {
             return Last() as T;
         }
 

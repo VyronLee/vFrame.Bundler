@@ -66,16 +66,21 @@ namespace vFrame.Bundler
             where TObject : Object
             where TProxy : PropertySetterProxy<TComponent, TObject>, new() {
 
-            ReleaseCurrentProxy<TProxy>(target);
+            ReleaseCurrentProxy<TComponent, TObject, TProxy>(target);
             CreateAndBindProxy<TComponent, TObject, TProxy>(handler, target);
         }
 
-        private void ReleaseCurrentProxy<TProxy>(Component component) {
+        private void ReleaseCurrentProxy<TComponent, TObject, TProxy>(TComponent component)
+            where TComponent : Component
+            where TObject : Object
+            where TProxy : PropertySetterProxy<TComponent, TObject>, new() {
             if (!BundlerContexts.TryGetProxy(component, typeof(TProxy), out var current)) {
                 return;
             }
-            BundlerContexts.RemoveProxy(component, typeof(TProxy));
             current.Release();
+
+            var proxy = BundlerContexts.RemoveProxy(component, typeof(TProxy)) as TProxy;
+            ObjectPool<TProxy>.Return(proxy);
         }
 
         private void CreateAndBindProxy<TComponent, TObject, TProxy>(ILoaderHandler handler, TComponent target)

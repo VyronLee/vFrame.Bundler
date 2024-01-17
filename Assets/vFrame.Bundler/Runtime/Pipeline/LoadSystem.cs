@@ -192,11 +192,23 @@ namespace vFrame.Bundler
         }
 
         protected override void OnUpdate() {
-            foreach (var pipeline in _pipelines) {
-                pipeline.Update();
-            }
+            UpdateAndRemovePipelines();
             BundlerContexts.ForEachLoader(_updateLoaderAction);
             BundlerContexts.ForEachHandler(_updateHandlerAction);
+        }
+
+        private void UpdateAndRemovePipelines() {
+            for (var i = _pipelines.Count - 1; i >= 0; i--) {
+                var pipeline = _pipelines[i];
+                pipeline.Update();
+
+                if (!pipeline.IsDone) {
+                    continue;
+                }
+                _pipelines.RemoveAt(i);
+
+                Facade.GetSystem<LogSystem>().LogInfo("Removing finished pipeline: {0}", pipeline.Last());
+            }
         }
 
         private static void UpdateLoader(Loader loader) {
