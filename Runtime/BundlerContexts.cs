@@ -198,18 +198,19 @@ namespace vFrame.Bundler
             dict.Add(proxy.GetType(), proxy);
         }
 
-        public void RemoveProxy(Component component, Type type) {
+        public PropertyProxy RemoveProxy(Component component, Type type) {
             if (!Proxies.TryGetValue(component, out var dict)) {
-                return;
+                return null;
             }
-            dict.Remove(type);
+            dict.Remove(type, out var proxy);
 
             if (dict.Count > 0) {
-                return;
+                return proxy;
             }
             Proxies.Remove(component);
 
             DictionaryPool<Type, PropertyProxy>.Return(dict);
+            return proxy;
         }
 
         public bool TryGetProxy(Component component, Type type, out PropertyProxy proxy) {
