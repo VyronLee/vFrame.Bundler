@@ -1,0 +1,15 @@
+Label {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 200);
+    width: 300px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.border-color {
+    border-left-color: rgba(210, 210, 210, 255);
+    border-right-color: rgba(210, 210, 210, 255);
+    border-top-color: rgba(210, 210, 210, 255);
+    border-bottom-color: rgba(210, 210, 210, 255);
+}

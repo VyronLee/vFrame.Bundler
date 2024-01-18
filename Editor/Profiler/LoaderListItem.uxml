@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="LoaderListItem" style="height: 25px; flex-direction: row;">
+        <ui:Label text="Name" display-tooltip-when-elided="true" name="LabelName" style="width: 15%; -unity-text-align: middle-center;" />
+        <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+        <ui:Label text="Path" display-tooltip-when-elided="true" name="LabelPath" style="width: 40%; -unity-text-align: middle-center;" />
+        <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+        <ui:Label text="Type" display-tooltip-when-elided="true" name="LabelType" style="width: 15%; -unity-text-align: middle-center;" />
+        <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+        <ui:Label text="Progress" display-tooltip-when-elided="true" name="LabelProgress" style="width: 10%; -unity-text-align: middle-center;" />
+        <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+        <ui:Label text="Status" display-tooltip-when-elided="true" name="LabelStatus" style="width: 10%; -unity-text-align: middle-center;" />
+    </ui:VisualElement>
+</ui:UXML>
