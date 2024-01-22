@@ -6,6 +6,6 @@
 
         void Release();
 
-        int GetReferences();
+        int References { get; }
     }
 }

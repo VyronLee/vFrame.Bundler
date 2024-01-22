@@ -22,7 +22,8 @@ namespace vFrame.Bundler
             typeof(LogSystem),
             typeof(LoadSystem),
             typeof(LinkSystem),
-            typeof(CollectSystem)
+            typeof(CollectSystem),
+            typeof(ProfileSystem)
         };
 
         private readonly BundlerContexts _contexts;

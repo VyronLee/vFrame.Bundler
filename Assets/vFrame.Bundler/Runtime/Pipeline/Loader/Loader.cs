@@ -12,7 +12,7 @@ using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
 {
-    internal abstract class Loader : BundlerReferenceObject, ITask
+    internal abstract class Loader : BundlerReferenceObject, ITask, IJsonSerializable
     {
         private readonly LoaderContexts _loaderContexts;
 
@@ -21,6 +21,8 @@ namespace vFrame.Bundler
         }
 
         protected LoaderContexts LoaderContexts => _loaderContexts;
+
+        [JsonSerializableProperty]
         public TaskState TaskState { get; private set; }
 
         protected override void OnDestroy() {
@@ -53,6 +55,8 @@ namespace vFrame.Bundler
 
         public bool IsDone => TaskState == TaskState.Finished;
         public bool IsError => TaskState == TaskState.Error;
+
+        [JsonSerializableProperty]
         public abstract float Progress { get; }
 
         protected void Abort() {

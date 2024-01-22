@@ -22,8 +22,6 @@ namespace vFrame.Bundler
             --_references;
         }
 
-        public virtual int GetReferences() {
-            return _references;
-        }
+        public virtual int References => _references;
     }
 }
