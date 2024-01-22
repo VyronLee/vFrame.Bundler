@@ -22,6 +22,7 @@ namespace vFrame.Bundler
                        new InternalAssetBundleCreateAdapter(bundlerContexts);
         }
 
+        [JsonSerializableProperty]
         public string BundlePath { get; }
         protected IAssetBundleCreateAdapter Adapter { get; }
 

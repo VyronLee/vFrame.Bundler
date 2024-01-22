@@ -21,8 +21,12 @@ namespace vFrame.Bundler
             LoadSceneMode = loaderContexts.SceneMode;
         }
 
+        [JsonSerializableProperty]
         public string AssetPath { get; }
+
+        [JsonSerializableProperty]
         protected LoadSceneMode LoadSceneMode { get; }
+
         public abstract UnityEngine.SceneManagement.Scene SceneObject { get; }
     }
 }

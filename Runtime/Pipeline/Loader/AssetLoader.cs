@@ -24,7 +24,9 @@ namespace vFrame.Bundler
             AssetLoadKey = (AssetPath, AssetType);
         }
 
+        [JsonSerializableProperty]
         internal string AssetPath { get; }
+        [JsonSerializableProperty]
         internal Type AssetType { get; }
         internal AssetLoadKey AssetLoadKey { get; }
         internal AssetLoadType AssetLoadType { get; }

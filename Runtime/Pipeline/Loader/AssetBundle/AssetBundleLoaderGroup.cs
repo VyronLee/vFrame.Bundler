@@ -46,7 +46,10 @@ namespace vFrame.Bundler
             }
         }
 
+        [JsonSerializableProperty]
         public string MainAssetPath => LoaderContexts.AssetPath;
+
+        [JsonSerializableProperty]
         public string MainBundlePath => MainBundleLoader?.BundlePath;
 
         public AssetBundle AssetBundle {

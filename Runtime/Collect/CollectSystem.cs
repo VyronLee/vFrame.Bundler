@@ -39,7 +39,7 @@ namespace vFrame.Bundler
             if (!loader.IsDone) {
                 return;
             }
-            if (loader.GetReferences() > 0) {
+            if (loader.References > 0) {
                 return;
             }
             _nonReferenceLoaders.Add(loader);
