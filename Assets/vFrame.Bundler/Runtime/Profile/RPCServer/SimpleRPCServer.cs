@@ -9,6 +9,7 @@
 // ============================================================
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -21,7 +22,7 @@ namespace vFrame.Bundler
         private readonly HttpListener _listener;
         private readonly BundlerContexts _bundlerContexts;
         private readonly Dictionary<string, IRPCHandler> _handlers;
-        private readonly List<RequestContext> _works;
+        private readonly ConcurrentQueue<RequestContext> _works;
         private bool _started;
 
         private static readonly Dictionary<string, object> _emptyRespondJsonData = new Dictionary<string, object>();
@@ -32,7 +33,7 @@ namespace vFrame.Bundler
             }
             _bundlerContexts = contexts;
             _handlers = new Dictionary<string, IRPCHandler>();
-            _works = new List<RequestContext>();
+            _works = new ConcurrentQueue<RequestContext>();
 
             _listener = new HttpListener();
             _listener.Prefixes.Add(listenAddress);
@@ -57,14 +58,14 @@ namespace vFrame.Bundler
             _started = false;
             _listener.Stop();
             _handlers.Clear();
-            _works.Clear();
         }
 
         public void AddHandler(IRPCHandler handler) {
-            if (_handlers.TryAdd(handler.MethodName, handler)) {
+            if (_handlers.ContainsKey(handler.MethodName)) {
+                GetLogSystem().LogWarning("Handler with same method name has already been added: {0}", handler.MethodName);
                 return;
             }
-            GetLogSystem().LogWarning("Handler with same method name has already been added: {0}", handler.MethodName);
+            _handlers.Add(handler.MethodName, handler);
         }
 
         private LogSystem GetLogSystem() {
@@ -72,10 +73,9 @@ namespace vFrame.Bundler
         }
 
         public void Update() {
-            foreach (var state in _works) {
+            while (_works.TryDequeue(out var state)) {
                 HandleRequest(state.Context, state.RequestData, state.Handler);
             }
-            _works.Clear();
         }
 
         private void WaitNextRequest() {
@@ -110,7 +110,7 @@ namespace vFrame.Bundler
                         RequestData = requestData,
                         Handler = handler
                     };
-                    _works.Add(requestContext);
+                    _works.Enqueue(requestContext);
                     break;
                 }
             }
@@ -126,7 +126,7 @@ namespace vFrame.Bundler
             var respondData = Json.Serialize(respondJsonData);
             var buffer = request.ContentEncoding.GetBytes(respondData);
             respond.ContentLength64 = buffer.Length;
-            respond.OutputStream.Write(buffer);
+            respond.OutputStream.Write(buffer, 0, buffer.Length);
             respond.OutputStream.Close();
         }
 

@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uss?fileID=7433441132597879392&amp;guid=6cddb02146a34a943a8fa96ed17ec69a&amp;type=3#BundleProfiler" />
     <ui:VisualElement name="ToolbarContainer" style="flex-direction: row; align-items: stretch;">
-        <ui:TextField picking-mode="Ignore" label="Client" text="127.0.0.1" name="TextFieldClientAddress" style="flex-direction: row; align-items: flex-start; justify-content: flex-start; height: 19px; width: 80%; flex-grow: 1; -unity-text-align: upper-center;" />
+        <ui:TextField picking-mode="Ignore" label="Client" text="http://127.0.0.1:16667" name="TextFieldClientAddress" style="flex-direction: row; align-items: flex-start; justify-content: flex-start; height: 19px; width: 80%; flex-grow: 1; -unity-text-align: upper-center;" />
         <ui:Button text="Connect" display-tooltip-when-elided="true" name="ButtonConnect" style="-unity-text-align: middle-center; align-items: center; width: 120px; visibility: visible; display: flex; white-space: nowrap; flex-direction: row; justify-content: space-around; flex-grow: 1; flex-shrink: 0;" />
     </ui:VisualElement>
     <ui:VisualElement name="BundleContainer" style="height: 692px; flex-direction: column; margin-top: 5px; margin-bottom: 5px; margin-right: 10px;">

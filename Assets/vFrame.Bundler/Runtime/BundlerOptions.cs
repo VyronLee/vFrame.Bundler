@@ -20,6 +20,6 @@ namespace vFrame.Bundler
         public ILogHandler LogHandler;
         public int MinAsyncFrameCountOnSimulation { get; set; } = 1;
         public int MaxAsyncFrameCountOnSimulation { get; set; } = 10;
-        public string ListenAddress { get; set; } = "127.0.0.1:16667";
+        public string ListenAddress { get; set; } = "http://127.0.0.1:16667/";
     }
 }

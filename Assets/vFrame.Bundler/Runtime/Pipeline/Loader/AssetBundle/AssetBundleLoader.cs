@@ -29,7 +29,7 @@ namespace vFrame.Bundler
         public abstract AssetBundle AssetBundle { get; }
 
         public override string ToString() {
-            return $"[Type: {GetType().Name}, BundlePath: {BundlePath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
+            return $"[@TypeName: {GetType().Name}, BundlePath: {BundlePath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }
 }

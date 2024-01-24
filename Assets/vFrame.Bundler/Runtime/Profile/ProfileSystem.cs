@@ -35,7 +35,9 @@ namespace vFrame.Bundler
 
         private void CreateRPCHandlers() {
             var handlerTypes = typeof(IRPCHandler).Assembly.GetTypes()
-                .Where(v => typeof(IRPCHandler).IsAssignableFrom(v));
+                .Where(v => typeof(IRPCHandler) != v)
+                .Where(v => typeof(IRPCHandler).IsAssignableFrom(v))
+                .Where(v => !v.IsAbstract);
             foreach (var handlerType in handlerTypes) {
                 var handler = Activator.CreateInstance(handlerType) as IRPCHandler;
                 if (null == handler) {
