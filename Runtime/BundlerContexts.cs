@@ -202,7 +202,8 @@ namespace vFrame.Bundler
             if (!Proxies.TryGetValue(component, out var dict)) {
                 return null;
             }
-            dict.Remove(type, out var proxy);
+            var proxy = dict[type];
+            dict.Remove(type);
 
             if (dict.Count > 0) {
                 return proxy;

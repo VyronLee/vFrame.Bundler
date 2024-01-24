@@ -12,6 +12,7 @@ namespace vFrame.Bundler
 {
     public static class RPCMethods
     {
+        public const string PingPong = "PingPong";
         public const string QueryLoadersInfo = "QueryLoadersInfo";
         public const string QueryHandlersInfo = "QueryHandlersInfo";
         public const string QueryLinkedObjectsInfo = "QueryLinkedObjectsInfo";

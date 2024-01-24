@@ -146,7 +146,7 @@ namespace vFrame.Bundler
         }
 
         public override string ToString() {
-            return $"[Type: {GetType().Name}, MainBundlePath: {MainBundlePath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
+            return $"[@TypeName: {GetType().Name}, MainBundlePath: {MainBundlePath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }
 }

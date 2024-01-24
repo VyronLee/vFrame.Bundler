@@ -111,7 +111,7 @@ namespace vFrame.Bundler
         }
 
         public override string ToString() {
-            return $"[Type: {GetType().Name}, TaskState: {TaskState}]";
+            return $"[@TypeName: {GetType().Name}, TaskState: {TaskState}]";
         }
     }
 }
