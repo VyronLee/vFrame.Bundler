@@ -16,11 +16,11 @@ namespace vFrame.Bundler
     {
         public override string MethodName => RPCMethods.QueryLoadersInfo;
 
-        public override Dictionary<string, object> HandleRequest(Dictionary<string, object> args = null) {
+        public override JsonObject HandleRequest(JsonObject args = null) {
             var loaders = new List<Dictionary<string, object>>();
             BundlerContexts.ForEachLoader(v => loaders.Add(v.ToJsonData()));
 
-            var jsonData = new Dictionary<string, object> {
+            var jsonData = new JsonObject {
                 ["loaders"] = loaders
             };
             return jsonData;

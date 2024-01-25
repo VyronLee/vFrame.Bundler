@@ -8,16 +8,14 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
-using System.Collections.Generic;
-
 namespace vFrame.Bundler
 {
     internal class PingPongHandler : RPCHandlerBase
     {
         public override string MethodName => RPCMethods.PingPong;
 
-        public override Dictionary<string, object> HandleRequest(Dictionary<string, object> args = null) {
-            var jsonData = new Dictionary<string, object> {
+        public override JsonObject HandleRequest(JsonObject args = null) {
+            var jsonData = new JsonObject {
                 { "success", true }
             };
             return jsonData;

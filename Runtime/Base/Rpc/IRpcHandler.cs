@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-//         File: IRPCHandler.cs
-//        Brief: IRPCHandler.cs
+//         File: IRpcHandler.cs
+//        Brief: IRpcHandler.cs
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,14 +8,11 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
-using System.Collections.Generic;
-
 namespace vFrame.Bundler
 {
-    internal interface IRPCHandler
+    public interface IRpcHandler
     {
-        BundlerContexts BundlerContexts { get; set; }
         string MethodName { get; }
-        Dictionary<string, object> HandleRequest(Dictionary<string, object> args = null);
+        JsonObject HandleRequest(JsonObject args = null);
     }
 }

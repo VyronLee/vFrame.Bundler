@@ -67,6 +67,14 @@ namespace vFrame.Bundler {
     //      }
     //  }
 
+    public class JsonObject : Dictionary<string, object> {
+
+    }
+
+    public class JsonList : List<object> {
+
+    }
+
     /// <summary>
     /// This class encodes and decodes JSON strings.
     /// Spec. details, see http://www.json.org/
@@ -74,7 +82,7 @@ namespace vFrame.Bundler {
     /// JSON uses Arrays and Objects. These correspond here to the datatypes IList and IDictionary.
     /// All numbers are parsed to doubles.
     /// </summary>
-    public static class Json {
+    internal static class Json {
         /// <summary>
         /// Parses the string json into a value
         /// </summary>
@@ -128,8 +136,8 @@ namespace vFrame.Bundler {
                 json = null;
             }
 
-            Dictionary<string, object> ParseObject() {
-                Dictionary<string, object> table = new Dictionary<string, object>();
+            JsonObject ParseObject() {
+                JsonObject table = new JsonObject();
 
                 // ditch opening brace
                 json.Read();
@@ -164,8 +172,8 @@ namespace vFrame.Bundler {
                 }
             }
 
-            List<object> ParseArray() {
-                List<object> array = new List<object>();
+            JsonList ParseArray() {
+                JsonList array = new JsonList();
 
                 // ditch opening bracket
                 json.Read();
