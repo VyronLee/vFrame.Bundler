@@ -15,10 +15,12 @@ namespace vFrame.Bundler
 {
     internal class ProfileSystem : BundlerSystem
     {
-        private SimpleRPCServer _rpcServer;
+        private JsonRpcServer _rpcServer;
 
         public ProfileSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
-            _rpcServer = new SimpleRPCServer(bundlerContexts, bundlerContexts.Options.ListenAddress);
+            _rpcServer = JsonRpcServer.CreateSimple(
+                bundlerContexts.Options.ListenAddress,
+                bundlerContexts.Bundler.GetSystem<LogSystem>());
             _rpcServer.Start();
 
             CreateRPCHandlers();
@@ -34,12 +36,12 @@ namespace vFrame.Bundler
         }
 
         private void CreateRPCHandlers() {
-            var handlerTypes = typeof(IRPCHandler).Assembly.GetTypes()
-                .Where(v => typeof(IRPCHandler) != v)
-                .Where(v => typeof(IRPCHandler).IsAssignableFrom(v))
+            var handlerTypes = typeof(RPCHandlerBase).Assembly.GetTypes()
+                .Where(v => typeof(RPCHandlerBase) != v)
+                .Where(v => typeof(RPCHandlerBase).IsAssignableFrom(v))
                 .Where(v => !v.IsAbstract);
             foreach (var handlerType in handlerTypes) {
-                var handler = Activator.CreateInstance(handlerType) as IRPCHandler;
+                var handler = Activator.CreateInstance(handlerType) as RPCHandlerBase;
                 if (null == handler) {
                     continue;
                 }

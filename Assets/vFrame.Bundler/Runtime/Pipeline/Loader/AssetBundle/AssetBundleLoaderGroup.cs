@@ -86,6 +86,7 @@ namespace vFrame.Bundler
             return ret;
         }
 
+        [JsonSerializableProperty]
         public override float Progress {
             get {
                 var ret = 0f;

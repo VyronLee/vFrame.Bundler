@@ -1,4 +1,15 @@
+// ------------------------------------------------------------
+//         File: BundleProfiler.cs
+//        Brief: BundleProfiler.cs
+//
+//       Author: VyronLee, lwz_jz@hotmail.com
+//
+//      Created: 2024-1-25 21:32
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 #if UNITY_2019_1_OR_NEWER
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEditor;
@@ -6,38 +17,40 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
 
-namespace vFrame.Bundler.Profiler
+namespace vFrame.Bundler
 {
     public class BundleProfiler : EditorWindow
     {
         private TextField _clientAddress;
-        private Button _buttonConnect;
+        private Button _buttonStart;
+        private Button _buttonClear;
         private ListView _loaders;
 
-        private List<LoaderListItem> _listItems = new List<LoaderListItem>();
+        private JsonRpcClient _rpcClient;
+        private bool _isStarted;
+        private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+        private const float RefreshFrequency = 2f;
 
-        private SimpleRPCClient _rpcClient;
-        private bool _isConnected = false;
-        private readonly Stopwatch _stopwatch = new Stopwatch();
-
-        [MenuItem("Tools/vFrame/Bundler/BundleProfiler")]
-        public static void ShowWindow()
-        {
+        [MenuItem("Tools/vFrame/Bundler/Profiler")]
+        public static void ShowWindow() {
             var wnd = GetWindow<BundleProfiler>();
             wnd.titleContent = new GUIContent("Bundle Profiler");
         }
 
-        public void CreateGUI()
-        {
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uxml");
+        public void CreateGUI() {
+            var visualTree =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                    "Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uxml");
             VisualElement tree = visualTree.Instantiate();
 
             var root = rootVisualElement;
             root.Add(tree);
 
             _clientAddress = tree.Q<TextField>("TextFieldClientAddress");
-            _buttonConnect = tree.Q<Button>("ButtonConnect");
-            _buttonConnect.RegisterCallback<ClickEvent>(OnButtonConnectClicked);
+            _buttonStart = tree.Q<Button>("ButtonStart");
+            _buttonStart.RegisterCallback<ClickEvent>(OnButtonStartClicked);
+            _buttonClear = tree.Q<Button>("ButtonClear");
+            _buttonClear.RegisterCallback<ClickEvent>(OnButtonClearClicked);
 
             _loaders = tree.Q<ListView>("ListViewLoaders");
             _loaders.makeItem = () => new LoaderListItem();
@@ -45,8 +58,8 @@ namespace vFrame.Bundler.Profiler
             _loaders.unbindItem = UnBindLoaderItem;
         }
 
-        private void OnButtonConnectClicked(ClickEvent evt) {
-            if (_isConnected) {
+        private void OnButtonStartClicked(ClickEvent evt) {
+            if (_isStarted) {
                 StopProfiler();
             }
             else {
@@ -54,9 +67,15 @@ namespace vFrame.Bundler.Profiler
             }
         }
 
+        private void OnButtonClearClicked(ClickEvent evt) {
+            _loaders.itemsSource = null;
+            _loaders.RefreshItems();
+        }
+
         private void StopProfiler() {
-            _isConnected = false;
-            _buttonConnect.text = "Connect";
+            _isStarted = false;
+            _buttonStart.text = "Start";
+            _clientAddress.SetEnabled(true);
             _stopwatch.Stop();
         }
 
@@ -66,26 +85,22 @@ namespace vFrame.Bundler.Profiler
                 Debug.LogWarning("Address is empty.");
                 return;
             }
-            _rpcClient = new SimpleRPCClient(address);
-            _isConnected = _rpcClient.Ping();
-            if (!_isConnected) {
-                return;
-            }
-            _buttonConnect.text = "Connected";
+            _rpcClient = JsonRpcClient.CreateSimple(address);
+            _isStarted = true;
+            _buttonStart.text = "Stop";
+            _clientAddress.SetEnabled(false);
             _stopwatch.Restart();
         }
 
         private void BindLoaderItem(VisualElement element, int index) {
-            Debug.Log($"BindLoaderItem, index: {index}");
             var listItem = element as LoaderListItem;
             if (null == listItem) {
                 return;
             }
-            listItem.SetData(_loaders.itemsSource[index] as Dictionary<string, object>);
+            listItem.SetData(_loaders.itemsSource[index] as JsonObject);
         }
 
         private void UnBindLoaderItem(VisualElement element, int index) {
-            Debug.Log($"UnBindLoaderItem, index: {index}");
         }
 
         public void OnDestroy() {
@@ -93,23 +108,37 @@ namespace vFrame.Bundler.Profiler
         }
 
         private void Update() {
-            RequestProfileDataIfConnected();
+            UpdateRPCClient();
+            RequestProfileData();
         }
 
-        private void RequestProfileDataIfConnected() {
-            if (!_isConnected || _stopwatch.Elapsed.TotalSeconds < 2f) {
+        private void UpdateRPCClient() {
+            if (!_isStarted) {
                 return;
             }
-            _stopwatch.Reset();
+            _rpcClient?.Update();
+        }
+
+        private void RequestProfileData() {
+            if (!_isStarted || IsRefreshmentCooling()) {
+                return;
+            }
+            _stopwatch.Restart();
             _rpcClient.SendRequest(RPCMethods.QueryLoadersInfo, OnQueryLoadersInfoCallback);
         }
 
-        private void OnQueryLoadersInfoCallback(Dictionary<string, object> jsonData) {
-            if (jsonData.TryGetValue("loaders", out var loadersInfo)) {
-                _loaders.itemsSource = loadersInfo as List<object>;
-                _loaders.RefreshItems();
+        private bool IsRefreshmentCooling() {
+            return !_stopwatch.IsRunning || _stopwatch.Elapsed.TotalSeconds < RefreshFrequency;
+        }
+
+        private void OnQueryLoadersInfoCallback(JsonObject jsonData) {
+            if (!jsonData.TryGetValue("loaders", out var loadersInfo)) {
+                return;
             }
+            _loaders.itemsSource = loadersInfo as List<object>;
+            _loaders.RefreshItems();
         }
     }
 }
+
 #endif

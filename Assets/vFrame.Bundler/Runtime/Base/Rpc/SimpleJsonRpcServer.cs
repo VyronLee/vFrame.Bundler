@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-//         File: SimpleRPCServer.cs
-//        Brief: SimpleRPCServer.cs
+//         File: SimpleJsonRpcServer.cs
+//        Brief: SimpleJsonRpcServer.cs
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -17,29 +17,29 @@ using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
 {
-    internal class SimpleRPCServer
+    internal class SimpleJsonRpcServer : JsonRpcServer
     {
         private readonly HttpListener _listener;
-        private readonly BundlerContexts _bundlerContexts;
-        private readonly Dictionary<string, IRPCHandler> _handlers;
+        private readonly ILogger _logger;
+        private readonly Dictionary<string, IRpcHandler> _handlers;
         private readonly ConcurrentQueue<RequestContext> _works;
         private bool _started;
 
-        private static readonly Dictionary<string, object> _emptyRespondJsonData = new Dictionary<string, object>();
+        private static readonly JsonObject _emptyRespondJsonData = new JsonObject();
 
-        public SimpleRPCServer(BundlerContexts contexts, string listenAddress) {
+        public SimpleJsonRpcServer(string listenAddress, ILogger logger) {
             if (string.IsNullOrEmpty(listenAddress)) {
                 throw new BundleArgumentException("Listen address cannot be null or empty.");
             }
-            _bundlerContexts = contexts;
-            _handlers = new Dictionary<string, IRPCHandler>();
+            _logger = logger;
+            _handlers = new Dictionary<string, IRpcHandler>();
             _works = new ConcurrentQueue<RequestContext>();
 
             _listener = new HttpListener();
             _listener.Prefixes.Add(listenAddress);
         }
 
-        public void Start() {
+        public override void Start() {
             try {
                 _listener.Start();
                 _started = true;
@@ -47,11 +47,11 @@ namespace vFrame.Bundler
             }
             catch (HttpListenerException e) {
                 _started = false;
-                GetLogSystem().LogWarning("Start HttpListener failed, error code: {0}", e.ErrorCode);
+                _logger?.LogWarning("Start HttpListener failed, error code: {0}", e.ErrorCode);
             }
         }
 
-        public void Stop() {
+        public override void Stop() {
             if (!_started) {
                 return;
             }
@@ -60,19 +60,15 @@ namespace vFrame.Bundler
             _handlers.Clear();
         }
 
-        public void AddHandler(IRPCHandler handler) {
+        public override void AddHandler(IRpcHandler handler) {
             if (_handlers.ContainsKey(handler.MethodName)) {
-                GetLogSystem().LogWarning("Handler with same method name has already been added: {0}", handler.MethodName);
+                _logger?.LogWarning("Handler with same method name has already been added: {0}", handler.MethodName);
                 return;
             }
             _handlers.Add(handler.MethodName, handler);
         }
 
-        private LogSystem GetLogSystem() {
-            return _bundlerContexts.Bundler.GetSystem<LogSystem>();
-        }
-
-        public void Update() {
+        public override void Update() {
             while (_works.TryDequeue(out var state)) {
                 HandleRequest(state.Context, state.RequestData, state.Handler);
             }
@@ -89,19 +85,19 @@ namespace vFrame.Bundler
                 using (var streamReader = new StreamReader(request.InputStream, request.ContentEncoding)) {
                     var body = streamReader.ReadToEnd();
                     if (string.IsNullOrEmpty(body)) {
-                        GetLogSystem().LogDebug("Request body is empty, skip.");
+                        _logger?.LogDebug("Request body is empty, skip.");
                         break;
                     }
 
-                    var requestData = Json.Deserialize(body) as Dictionary<string, object>;
+                    var requestData = Json.Deserialize(body) as JsonObject;
                     if (null == requestData) {
-                        GetLogSystem().LogDebug("RPCRequestData is null, skip.");
+                        _logger?.LogDebug("RPCRequestData is null, skip.");
                         break;
                     }
 
                     var method = (string)requestData["method"];
                     if (!_handlers.TryGetValue(method, out var handler)) {
-                        GetLogSystem().LogWarning("Handler not found for method: {0}, skip.", method);
+                        _logger?.LogWarning("Handler not found for method: {0}, skip.", method);
                         break;
                     }
 
@@ -117,11 +113,11 @@ namespace vFrame.Bundler
             WaitNextRequest();
         }
 
-        private void HandleRequest(HttpListenerContext context, Dictionary<string, object> requestData, IRPCHandler handler) {
+        private void HandleRequest(HttpListenerContext context, JsonObject requestData, IRpcHandler handler) {
             var request = context.Request;
             var respond = context.Response;
 
-            var args = requestData["args"] as Dictionary<string, object>;
+            var args = requestData["args"] as JsonObject;
             var respondJsonData = handler.HandleRequest(args) ?? _emptyRespondJsonData;
             var respondData = Json.Serialize(respondJsonData);
             var buffer = request.ContentEncoding.GetBytes(respondData);
@@ -133,8 +129,8 @@ namespace vFrame.Bundler
         private class RequestContext
         {
             public HttpListenerContext Context { get; set; }
-            public Dictionary<string, object> RequestData { get; set; }
-            public IRPCHandler Handler { get; set; }
+            public JsonObject RequestData { get; set; }
+            public IRpcHandler Handler { get; set; }
         }
     }
 }

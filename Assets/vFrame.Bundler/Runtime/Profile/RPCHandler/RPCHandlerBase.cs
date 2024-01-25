@@ -12,10 +12,10 @@ using System.Collections.Generic;
 
 namespace vFrame.Bundler
 {
-    internal abstract class RPCHandlerBase : IRPCHandler
+    internal abstract class RPCHandlerBase : IRpcHandler
     {
         public BundlerContexts BundlerContexts { get; set; }
         public abstract string MethodName { get; }
-        public abstract Dictionary<string, object> HandleRequest(Dictionary<string, object> args = null);
+        public abstract JsonObject HandleRequest(JsonObject args = null);
     }
 }

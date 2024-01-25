@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-//         File: SimpleRPCClient.cs
-//        Brief: SimpleRPCClient.cs
+//         File: SimpleJsonRpcClient.cs
+//        Brief: SimpleJsonRpcClient.cs
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -9,44 +9,33 @@
 // ============================================================
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
-using System.Threading;
 using UnityEngine;
 
-namespace vFrame.Bundler.Profiler
+namespace vFrame.Bundler
 {
-    internal class SimpleRPCClient
+    internal class SimpleJsonRpcClient : JsonRpcClient
     {
         private readonly string _address;
-        private const int ConnectionTimeout = 2000;
+        private readonly ILogger _logger;
+        private readonly ConcurrentQueue<RequestContext> _works;
 
-        public SimpleRPCClient(string address) {
+        public SimpleJsonRpcClient(string address, ILogger logger) {
             _address = address;
+            _logger = logger;
+            _works = new ConcurrentQueue<RequestContext>();
         }
 
-        public bool Ping() {
-            var resetEvent = new ManualResetEventSlim(false);
-            SendRequest(RPCMethods.PingPong, ResetOnPing);
-            return resetEvent.Wait(ConnectionTimeout);
-
-            void ResetOnPing(Dictionary<string, object> jsonData) {
-                if (!jsonData.TryGetValue("success", out var success)) {
-                    return;
-                }
-                if ((bool)success) {
-                    resetEvent.Set();
-                }
+        public override void Update() {
+            while (_works.TryDequeue(out var state)) {
+                state.Callback?.Invoke(state.RespondData);
             }
         }
 
-        public void SendRequest(string method, Action<Dictionary<string, object>> callback) {
-            SendRequest(method, null, callback);
-        }
-
-        public void SendRequest(string method, Dictionary<string, object> args, Action<Dictionary<string, object>> callback) {
-            var requestData = new Dictionary<string, object> {
+        public override void SendRequest(string method, JsonObject args, Action<JsonObject> callback) {
+            var requestData = new JsonObject {
                 { "method", method },
                 { "args", args }
             };
@@ -88,25 +77,32 @@ namespace vFrame.Bundler.Profiler
                     }
                     using (var streamReader = new StreamReader(respondStream)) {
                         var responseData = streamReader.ReadToEnd();
+                        _logger?.LogInfo($"RPC: {context.RequestData["method"]}, respond: {responseData}");
                         if (string.IsNullOrEmpty(responseData)) {
                             return;
                         }
-                        Debug.Log($"OnResponse: {responseData}");
-                        var jsonData = Json.Deserialize(responseData) as Dictionary<string, object>;
-                        context.Callback?.Invoke(jsonData);
+
+                        var jsonData = Json.Deserialize(responseData) as JsonObject;
+                        if (null == jsonData) {
+                            return;
+                        }
+                        context.RespondData = jsonData;
+
+                        _works.Enqueue(context);
                     }
                 }
             }
             catch (WebException e) {
-                Debug.LogWarning(e.Message);
+                _logger?.LogWarning(e.Message);
             }
         }
 
         private class RequestContext
         {
             public HttpWebRequest Request { get; set; }
-            public Dictionary<string, object> RequestData { get; set; }
-            public Action<Dictionary<string, object>> Callback { get; set; }
+            public JsonObject RequestData { get; set; }
+            public JsonObject RespondData { get; set; }
+            public Action<JsonObject> Callback { get; set; }
         }
     }
 }
