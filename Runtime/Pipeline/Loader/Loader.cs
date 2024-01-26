@@ -8,6 +8,7 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+using System.Diagnostics;
 using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
@@ -15,9 +16,11 @@ namespace vFrame.Bundler
     internal abstract class Loader : BundlerReferenceObject, ITask, IJsonSerializable
     {
         private readonly LoaderContexts _loaderContexts;
+        private readonly Stopwatch _stopwatch;
 
         protected Loader(BundlerContexts bundlerContexts, LoaderContexts loaderContexts) : base(bundlerContexts) {
             _loaderContexts = loaderContexts;
+            _stopwatch = new Stopwatch();
         }
 
         protected LoaderContexts LoaderContexts => _loaderContexts;
@@ -35,6 +38,7 @@ namespace vFrame.Bundler
                 return;
             }
             TaskState = TaskState.Processing;
+            _stopwatch.Start();
             OnStart();
         }
 
@@ -43,6 +47,7 @@ namespace vFrame.Bundler
                 return;
             }
             TaskState = TaskState.NotStarted;
+            _stopwatch.Stop();
             OnStop();
         }
 
@@ -59,13 +64,18 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public abstract float Progress { get; }
 
+        [JsonSerializableProperty]
+        public double ElapsedSeconds => _stopwatch.Elapsed.TotalSeconds;
+
         protected void Abort() {
             TaskState = TaskState.Error;
+            _stopwatch.Stop();
             Facade.GetSystem<LogSystem>().LogError("Loader abort: {0}", this);
         }
 
         protected void Finish() {
             TaskState = TaskState.Finished;
+            _stopwatch.Stop();
             Facade.GetSystem<LogSystem>().LogInfo("Loader finished: {0}", this);
         }
 

@@ -35,6 +35,7 @@ namespace vFrame.Bundler
         public static void ShowWindow() {
             var wnd = GetWindow<BundleProfiler>();
             wnd.titleContent = new GUIContent("Bundle Profiler");
+            wnd.minSize = new Vector2(1280, 720);
         }
 
         public void CreateGUI() {
