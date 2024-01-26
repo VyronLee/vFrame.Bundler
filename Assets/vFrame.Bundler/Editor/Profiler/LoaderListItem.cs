@@ -21,6 +21,7 @@ namespace vFrame.Bundler
         private readonly Label _labelPath;
         private readonly Label _labelRefs;
         private readonly Label _labelProgress;
+        private readonly Label _labelElapsed;
         private readonly Label _labelStatus;
 
         public LoaderListItem() {
@@ -29,6 +30,7 @@ namespace vFrame.Bundler
             _labelName = root.Q<Label>("LabelName");
             _labelPath = root.Q<Label>("LabelPath");
             _labelProgress = root.Q<Label>("LabelProgress");
+            _labelElapsed = root.Q<Label>("LabelElapsed");
             _labelStatus = root.Q<Label>("LabelStatus");
             _labelRefs = root.Q<Label>("LabelReferences");
             Add(root);
@@ -42,6 +44,7 @@ namespace vFrame.Bundler
             var typeName = data.SafeGetValue<string>("@TypeName");
             var references = data.SafeGetValue<string>("References");
             var progress = data.SafeGetValue<string>("Progress");
+            var elapsed = data.SafeGetValue<string>("ElapsedSeconds");
             var taskState = data.SafeGetValue<string>("TaskState");
             var assetPath = data.SafeGetValue<string>("AssetPath");
             var bundlePath = data.SafeGetValue<string>("BundlePath");
@@ -50,6 +53,7 @@ namespace vFrame.Bundler
             _labelName.text = typeName ?? string.Empty;
             _labelPath.text = mainBundlePath ?? bundlePath ?? assetPath ?? string.Empty;
             _labelProgress.text = progress ?? string.Empty;
+            _labelElapsed.text = elapsed ?? string.Empty;
             _labelStatus.text = taskState ?? string.Empty;
             _labelRefs.text = references ?? string.Empty;
         }

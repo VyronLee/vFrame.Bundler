@@ -2,9 +2,11 @@
     <ui:VisualElement name="LoaderListItem" style="height: 25px; flex-direction: row;">
         <ui:Label text="Type Name" display-tooltip-when-elided="true" name="LabelName" style="width: 25%; -unity-text-align: middle-center; overflow: hidden; justify-content: center;" />
         <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
-        <ui:Label text="Path" display-tooltip-when-elided="true" name="LabelPath" style="width: 45%; -unity-text-align: middle-center; overflow: hidden;" />
+        <ui:Label text="Path" display-tooltip-when-elided="true" name="LabelPath" style="width: 39%; -unity-text-align: middle-center; overflow: hidden;" />
         <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
-        <ui:Label text="Progress" display-tooltip-when-elided="true" name="LabelProgress" style="width: 10%; -unity-text-align: middle-center; overflow: hidden;" />
+        <ui:Label text="Progress" display-tooltip-when-elided="true" name="LabelProgress" style="width: 8%; -unity-text-align: middle-center; overflow: hidden;" />
+        <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+        <ui:Label text="Elapsed" display-tooltip-when-elided="true" name="LabelElapsed" style="width: 8%; -unity-text-align: middle-center; overflow: hidden;" />
         <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
         <ui:Label text="Status" display-tooltip-when-elided="true" name="LabelStatus" style="width: 10%; -unity-text-align: middle-center; overflow: hidden;" />
         <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />

@@ -89,9 +89,12 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public override float Progress {
             get {
+                if (null == _loaders) {
+                    return 1f;
+                }
                 var ret = 0f;
                 foreach (var loader in _loaders) {
-                    ret += loader.Progress;
+                    ret += loader?.Progress ?? 0f;
                 }
                 return ret / _loaders.Count;
             }
