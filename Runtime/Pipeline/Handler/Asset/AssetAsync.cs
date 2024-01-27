@@ -22,6 +22,14 @@ namespace vFrame.Bundler
 
         }
 
+        public UnloadOperation Unload() {
+            IsUnloaded = true;
+            return UnloadOperation.Completed;
+        }
+
+        [JsonSerializableProperty]
+        public bool IsUnloaded { get; private set; }
+
         public Object GetRawAsset() {
             return AssetHelper<AssetAsync>.GetRawAsset(this);
         }
@@ -65,6 +73,14 @@ namespace vFrame.Bundler
         void ILoaderHandler.Update() {
 
         }
+
+        public UnloadOperation Unload() {
+            IsUnloaded = true;
+            return UnloadOperation.Completed;
+        }
+
+        [JsonSerializableProperty]
+        public bool IsUnloaded { get; private set; }
 
         public T GetRawAsset() {
             return AssetHelper<AssetAsync<T>>.GetRawAsset(this) as T;

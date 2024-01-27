@@ -10,10 +10,12 @@
 
 namespace vFrame.Bundler
 {
-    internal interface ILoaderHandler
+    internal interface ILoaderHandler : IJsonSerializable
     {
         Loader Loader { set; get; }
         BundlerContexts BundlerContexts { set; get; }
         void Update();
+        UnloadOperation Unload();
+        bool IsUnloaded { get; }
     }
 }

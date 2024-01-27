@@ -21,7 +21,7 @@ namespace vFrame.Bundler
 
         }
 
-        [JsonSerializableProperty]
+        [JsonSerializableProperty("F3")]
         public override float Progress => IsDone ? 1f : 0f;
 
         protected override void OnStart() {

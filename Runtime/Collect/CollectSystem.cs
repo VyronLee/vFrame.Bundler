@@ -15,13 +15,16 @@ namespace vFrame.Bundler
     internal class CollectSystem : BundlerSystem
     {
         private readonly List<Loader> _nonReferenceLoaders;
+        private readonly List<ILoaderHandler> _unloadedHandlers;
 
         public CollectSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
             _nonReferenceLoaders = new List<Loader>();
+            _unloadedHandlers = new List<ILoaderHandler>();
         }
 
         protected override void OnDestroy() {
-
+            _nonReferenceLoaders.Clear();
+            _unloadedHandlers.Clear();
         }
 
         protected override void OnUpdate() {
@@ -32,6 +35,10 @@ namespace vFrame.Bundler
             using (new ClearAtExist(_nonReferenceLoaders)) {
                 BundlerContexts.ForEachLoader(FilterNonReferenceLoader);
                 CollectNonReferenceLoaders();
+            }
+            using (new ClearAtExist(_unloadedHandlers)) {
+                BundlerContexts.ForEachHandler(FilterUnloadedHandler);
+                CollectUnloadedHandlers();
             }
         }
 
@@ -45,10 +52,24 @@ namespace vFrame.Bundler
             _nonReferenceLoaders.Add(loader);
         }
 
+        private void FilterUnloadedHandler(ILoaderHandler handler) {
+            if (handler.IsUnloaded) {
+                _unloadedHandlers.Add(handler);
+            }
+        }
+
         private void CollectNonReferenceLoaders() {
             foreach (var loader in _nonReferenceLoaders) {
+                Facade.GetSystem<LogSystem>().LogInfo("Removing non-referenced loader: {0}", loader);
                 BundlerContexts.RemoveLoader(loader);
                 loader.Destroy();
+            }
+        }
+
+        private void CollectUnloadedHandlers() {
+            foreach (var handler in _unloadedHandlers) {
+                Facade.GetSystem<LogSystem>().LogInfo("Removing unloaded handler: {0}", handler);
+                BundlerContexts.RemoveHandler(handler);
             }
         }
     }

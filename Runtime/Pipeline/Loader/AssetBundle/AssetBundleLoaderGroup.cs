@@ -86,7 +86,7 @@ namespace vFrame.Bundler
             return ret;
         }
 
-        [JsonSerializableProperty]
+        [JsonSerializableProperty("F3")]
         public override float Progress {
             get {
                 if (null == _loaders) {

@@ -26,7 +26,7 @@ namespace vFrame.Bundler
 
         }
 
-        [JsonSerializableProperty]
+        [JsonSerializableProperty("F3")]
         public override float Progress {
             get {
                 if (null == _request) {
@@ -99,6 +99,10 @@ namespace vFrame.Bundler
                 ThrowIfNotFinished();
                 return _sceneObject;
             }
+        }
+
+        public override string ToString() {
+            return $"[@TypeName: {GetType().Name}, AssetPath: {AssetPath}, LoadSceneMode: {LoadSceneMode}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }
 }

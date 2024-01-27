@@ -8,6 +8,7 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+using System;
 using System.Reflection;
 
 namespace vFrame.Bundler
@@ -59,15 +60,28 @@ namespace vFrame.Bundler
                 ["@TypeName"] = serializableType.Name
             };
             foreach (var property in properties) {
-                if (!property.IsDefined(typeof(JsonSerializableProperty), true)) {
+                var attribute = property.GetCustomAttribute<JsonSerializableProperty>(true);
+                if (null == attribute) {
                     continue;
                 }
+                var format = attribute.Format;
                 var value = property.GetValue(serializable);
                 var fieldName = property.Name;
-                var fieldValue = value?.ToString() ?? "null";
+                var fieldValue = value.ToString(format, null);
                 jsonData.Add(fieldName, fieldValue);
             }
             return jsonData;
+        }
+
+        private static string ToString(this object value, string format, IFormatProvider formatProvider) {
+            switch (value) {
+                case null:
+                    return "null";
+                case IFormattable formattable:
+                    return formattable.ToString(format, formatProvider);
+                default:
+                    return value.ToString();
+            }
         }
 
         public static T SafeGetValue<T>(this JsonObject jsonData, string key, T defaultValue = default(T)) {

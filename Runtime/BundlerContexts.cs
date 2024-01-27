@@ -26,6 +26,14 @@ namespace vFrame.Bundler
             }
         }
 
+        public void RemoveHandler(ILoaderHandler loaderHandler) {
+            switch (loaderHandler) {
+                case Scene scene:
+                    SceneHandlers.Remove(scene.SceneLoader.AssetPath);
+                    break;
+            }
+        }
+
         public void ForEachHandler(Action<ILoaderHandler> action) {
             foreach (var kv in SceneHandlers) {
                 action(kv.Value);
@@ -44,6 +52,8 @@ namespace vFrame.Bundler
             new Dictionary<string, AssetBundleLoader>();
         private Dictionary<string, AssetBundleLoaderGroup> AssetBundleLoaderGroups { get; } =
             new Dictionary<string, AssetBundleLoaderGroup>();
+        private Dictionary<string, RandomDelayLoader> RandomDelayLoaders { get; } =
+            new Dictionary<string, RandomDelayLoader>();
 
         public void AddLoader(Loader loader) {
             switch (loader) {
@@ -58,6 +68,9 @@ namespace vFrame.Bundler
                     break;
                 case AssetBundleLoaderGroup bundlerLoaderGroup:
                     AssetBundleLoaderGroups.Add(bundlerLoaderGroup.MainAssetPath, bundlerLoaderGroup);
+                    break;
+                case RandomDelayLoader randomDelayLoader:
+                    RandomDelayLoaders.Add(randomDelayLoader.Guid, randomDelayLoader);
                     break;
             }
         }
@@ -76,6 +89,9 @@ namespace vFrame.Bundler
                 case AssetBundleLoaderGroup bundlerLoaderGroup:
                     AssetBundleLoaderGroups.Remove(bundlerLoaderGroup.MainAssetPath);
                     break;
+                case RandomDelayLoader randomDelayLoader:
+                    RandomDelayLoaders.Remove(randomDelayLoader.Guid);
+                    break;
             }
         }
 
@@ -90,6 +106,9 @@ namespace vFrame.Bundler
                 return true;
             }
             if (TryGetSceneLoader(key, out value)) {
+                return true;
+            }
+            if (TryGetRandomDelayLoader(key, out value)) {
                 return true;
             }
             value = default(TType);
@@ -107,6 +126,9 @@ namespace vFrame.Bundler
                 action(kv.Value);
             }
             foreach (var kv in SceneLoaders) {
+                action(kv.Value);
+            }
+            foreach (var kv in RandomDelayLoaders) {
                 action(kv.Value);
             }
         }
@@ -175,6 +197,23 @@ namespace vFrame.Bundler
 
             var str = key as string ?? throw new BundleArgumentNullException();
             var ret = SceneLoaders.TryGetValue(str, out var loader);
+            value = loader as TT;
+            return ret;
+        }
+
+        private bool TryGetRandomDelayLoader<TK, TT>(TK key, out TT value) where TT: Loader {
+            if (!typeof(RandomDelayLoader).IsAssignableFrom(typeof(TT))) {
+                value = null;
+                return false;
+            }
+
+            if (typeof(TK) != typeof(string)) {
+                value = null;
+                return false;
+            }
+
+            var str = key as string ?? throw new BundleArgumentNullException();
+            var ret = RandomDelayLoaders.TryGetValue(str, out var loader);
             value = loader as TT;
             return ret;
         }

@@ -82,7 +82,7 @@ namespace vFrame.Bundler {
     /// JSON uses Arrays and Objects. These correspond here to the datatypes IList and IDictionary.
     /// All numbers are parsed to doubles.
     /// </summary>
-    internal static class Json {
+    public static class Json {
         /// <summary>
         /// Parses the string json into a value
         /// </summary>

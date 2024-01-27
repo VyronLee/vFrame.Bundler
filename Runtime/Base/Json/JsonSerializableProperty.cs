@@ -14,6 +14,12 @@ namespace vFrame.Bundler
 {
     internal class JsonSerializableProperty : Attribute
     {
+        private readonly string _format;
 
+        public JsonSerializableProperty(string format = null) {
+            _format = format;
+        }
+
+        public string Format => _format;
     }
 }

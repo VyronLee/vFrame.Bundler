@@ -21,6 +21,7 @@ namespace vFrame.Bundler
         protected Loader(BundlerContexts bundlerContexts, LoaderContexts loaderContexts) : base(bundlerContexts) {
             _loaderContexts = loaderContexts;
             _stopwatch = new Stopwatch();
+            RetainParent();
         }
 
         protected LoaderContexts LoaderContexts => _loaderContexts;
@@ -30,6 +31,7 @@ namespace vFrame.Bundler
 
         protected override void OnDestroy() {
             Facade.GetSystem<LogSystem>().LogInfo("Loader destroyed: {0}", this);
+            ReleaseParent();
             Stop();
         }
 
@@ -61,10 +63,9 @@ namespace vFrame.Bundler
         public bool IsDone => TaskState == TaskState.Finished;
         public bool IsError => TaskState == TaskState.Error;
 
-        [JsonSerializableProperty]
         public abstract float Progress { get; }
 
-        [JsonSerializableProperty]
+        [JsonSerializableProperty("F6")]
         public double ElapsedSeconds => _stopwatch.Elapsed.TotalSeconds;
 
         protected void Abort() {
@@ -110,14 +111,12 @@ namespace vFrame.Bundler
         protected abstract void OnUpdate();
         protected abstract void OnForceComplete();
 
-        public override void Retain() {
+        private void RetainParent() {
             LoaderContexts.ParentLoader?.Retain();
-            base.Retain();
         }
 
-        public override void Release() {
+        private void ReleaseParent() {
             LoaderContexts.ParentLoader?.Release();
-            base.Release();
         }
 
         public override string ToString() {
