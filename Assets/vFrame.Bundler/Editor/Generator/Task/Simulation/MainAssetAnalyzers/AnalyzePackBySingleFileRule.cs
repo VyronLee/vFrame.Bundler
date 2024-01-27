@@ -23,6 +23,7 @@ namespace vFrame.Bundler.Task.Simulation.MainAssetAnalyzers
 
                 var assetInfo = new MainAssetInfo {
                     AssetPath = asset,
+                    BundlePath = "<AssetDatabase>"
                 };
                 SafeAddMainAssetInfo(context, assetInfo);
             }

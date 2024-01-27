@@ -22,11 +22,8 @@ namespace vFrame.Bundler
 
         public override bool keepWaiting => !_isDone;
 
-        public static UnloadOperation Completed {
-            get {
-                return new UnloadOperation { _isDone = true };
-            }
-        }
-
+        public static UnloadOperation Completed { get; } = new UnloadOperation {
+            _isDone = true
+        };
     }
 }

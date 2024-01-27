@@ -34,7 +34,15 @@ namespace vFrame.Bundler
 
         private BundlerMode BundlerMode => BundlerContexts.Options.Mode;
 
+        private void ThrowIfAssetNotManaged(string path) {
+            if (BundlerContexts.Manifest.Assets.TryGetValue(path, out var mainBundle)) {
+                return;
+            }
+            throw new BundleNoneConfigurationException($"Asset path is not managed by MainRules: {path}");
+        }
+
         public Asset LoadAsset(string path, Type type, AssetLoadType loadType) {
+            ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, type), out AssetLoader loader)) {
                 if (!CreateAssetLoadSyncPipeline(path, type, loadType).Startup(out loader)) {
                     throw new BundleAssetLoadFailedException(path);
@@ -44,6 +52,7 @@ namespace vFrame.Bundler
         }
 
         public AssetAsync LoadAssetAsync(string path, Type type, AssetLoadType loadType) {
+            ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, type), out AssetLoader loader)) {
                 if (!CreateAssetLoadAsyncPipeline(path, type, loadType).Startup(out loader)) {
                     throw new BundleAssetLoadFailedException(path);
@@ -53,6 +62,7 @@ namespace vFrame.Bundler
         }
 
         public Asset<T> LoadAsset<T>(string path, AssetLoadType loadType) where T : Object {
+            ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, typeof(T)), out AssetLoader loader)) {
                 if (!CreateAssetLoadSyncPipeline(path, typeof(T), loadType).Startup(out loader)) {
                     throw new BundleAssetLoadFailedException(path);
@@ -62,6 +72,7 @@ namespace vFrame.Bundler
         }
 
         public AssetAsync<T> LoadAssetAsync<T>(string path, AssetLoadType loadType) where T : Object {
+            ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, typeof(T)), out AssetLoader loader)) {
                 if (!CreateAssetLoadAsyncPipeline(path, typeof(T), loadType).Startup(out loader)) {
                     throw new BundleAssetLoadFailedException(path);
@@ -71,6 +82,7 @@ namespace vFrame.Bundler
         }
 
         public Scene LoadScene(string path, LoadSceneMode loadSceneMode) {
+            ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader(path, out SceneLoader loader)) {
                 if (!CreateSceneLoadSyncPipeline(path, loadSceneMode).Startup(out loader)) {
                     throw new BundleAssetLoadFailedException(path);
@@ -80,6 +92,7 @@ namespace vFrame.Bundler
         }
 
         public SceneAsync LoadSceneAsync(string path, LoadSceneMode loadSceneMode) {
+            ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader(path, out SceneLoader loader)) {
                 if (!CreateSceneLoadAsyncPipeline(path, loadSceneMode).Startup(out loader)) {
                     throw new BundleAssetLoadFailedException(path);

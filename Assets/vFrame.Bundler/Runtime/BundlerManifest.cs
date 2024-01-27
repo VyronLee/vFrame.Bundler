@@ -61,7 +61,11 @@ namespace vFrame.Bundler
         public void OnAfterDeserialize() {
             for (var i = 0; i < _assets.Count && i < _assetContainsInBundle.Count; i++) {
                 var assetPath = _assets[i];
-                var bundlePath = _bundles[_assetContainsInBundle[i]];
+                var bundlePath = string.Empty;
+                var bundleIdx = _assetContainsInBundle[i];
+                if (bundleIdx >= 0 && bundleIdx < _bundles.Count) {
+                    bundlePath = _bundles[bundleIdx];
+                }
                 Assets.Add(assetPath, bundlePath);
             }
 

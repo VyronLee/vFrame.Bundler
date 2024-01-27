@@ -18,12 +18,21 @@ namespace vFrame.Bundler
     {
         private AsyncOperation _request;
         private UnloadOperation _unloadOperation;
+        private bool _unloaded;
+        private Loader _loader;
 
         internal SceneLoader SceneLoader => ((ILoaderHandler)this).Loader as SceneLoader
                                             ?? throw new ArgumentException("SceneLoader expected, got: "
                                                                            + (((ILoaderHandler)this).Loader?.GetType().Name ?? "null"));
 
-        Loader ILoaderHandler.Loader { get; set; }
+        Loader ILoaderHandler.Loader {
+            get => _loader;
+            set {
+                _loader = value;
+                _loader.Retain();
+            }
+        }
+
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
         public UnloadOperation Unload() {
@@ -34,16 +43,10 @@ namespace vFrame.Bundler
             }
 #endif
             _request = SceneManager.UnloadSceneAsync(SceneLoader.AssetPath);
-            _unloadOperation = new UnloadOperation();
-            return _unloadOperation;
+            return _unloadOperation ?? (_unloadOperation = new UnloadOperation());
         }
 
-        public void Activate(bool setAsActiveScene = true) {
-            Retain();
-
-            if (!setAsActiveScene) {
-                return;
-            }
+        public void Activate() {
             if (!SceneLoader.SceneObject.IsValid()) {
                 throw new InvalidOperationException("Scene invalid: " + SceneLoader.AssetPath);
             }
@@ -51,20 +54,34 @@ namespace vFrame.Bundler
         }
 
         void ILoaderHandler.Update() {
+            UpdateUnloadProcess();
+        }
+
+        private void UpdateUnloadProcess() {
+            if (_unloaded) {
+                return;
+            }
             if (null == _request || !_request.isDone) {
                 return;
             }
-            Release();
-
+            _loader.Release();
             _unloadOperation?.SetDone(true);
+            _unloaded = true;
         }
 
         public void Retain() {
-            SceneLoader.Retain();
+            _loader?.Retain();
         }
 
         public void Release() {
-            SceneLoader.Release();
+            _loader?.Release();
+        }
+
+        [JsonSerializableProperty]
+        public bool IsUnloaded => _unloaded;
+
+        public override string ToString() {
+            return $"[@TypeName: {GetType().Name}, AssetPath: {SceneLoader.AssetPath}]";
         }
     }
 }

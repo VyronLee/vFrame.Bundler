@@ -9,7 +9,6 @@
 // ============================================================
 
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 
 namespace vFrame.Bundler.Task.Simulation
@@ -24,18 +23,9 @@ namespace vFrame.Bundler.Task.Simulation
         }
 
         private void GrantAssetInfos(BuildContext context, BundlerManifest manifest) {
-            var index = 0f;
-            var total = context.MainAssetInfos.Count;
-            try {
-                foreach (var kv in context.MainAssetInfos) {
-                    var assetInfo = kv.Value;
-                    EditorUtility.DisplayProgressBar("Building Bundler Manifest",
-                        $"Granting asset info: {assetInfo.AssetPath}", ++index / total );
-                    manifest.Assets[assetInfo.AssetPath] = assetInfo.BundlePath;
-                }
-            }
-            finally {
-                EditorUtility.ClearProgressBar();
+            foreach (var kv in context.MainAssetInfos) {
+                var assetInfo = kv.Value;
+                manifest.Assets[assetInfo.AssetPath] = assetInfo.BundlePath;
             }
         }
 

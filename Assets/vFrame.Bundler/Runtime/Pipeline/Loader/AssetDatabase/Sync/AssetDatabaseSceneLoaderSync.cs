@@ -20,7 +20,7 @@ namespace vFrame.Bundler
             : base(bundlerContexts, loaderContexts) {
         }
 
-        [JsonSerializableProperty]
+        [JsonSerializableProperty("F3")]
         public override float Progress => IsDone ? 1f : 0f;
 
         protected override void OnStart() {
@@ -59,6 +59,10 @@ namespace vFrame.Bundler
                 ThrowIfNotFinished();
                 return _sceneObject;
             }
+        }
+
+        public override string ToString() {
+            return $"[@TypeName: {GetType().Name}, AssetPath: {AssetPath}, LoadSceneMode: {LoadSceneMode}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }
 }

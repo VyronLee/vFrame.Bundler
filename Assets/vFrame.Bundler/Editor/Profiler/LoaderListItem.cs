@@ -49,9 +49,10 @@ namespace vFrame.Bundler
             var assetPath = data.SafeGetValue<string>("AssetPath");
             var bundlePath = data.SafeGetValue<string>("BundlePath");
             var mainBundlePath = data.SafeGetValue<string>("MainBundlePath");
+            var guid = data.SafeGetValue<string>("Guid");
 
             _labelName.text = typeName ?? string.Empty;
-            _labelPath.text = mainBundlePath ?? bundlePath ?? assetPath ?? string.Empty;
+            _labelPath.text = mainBundlePath ?? bundlePath ?? assetPath ?? guid ?? string.Empty;
             _labelProgress.text = progress ?? string.Empty;
             _labelElapsed.text = elapsed ?? string.Empty;
             _labelStatus.text = taskState ?? string.Empty;
