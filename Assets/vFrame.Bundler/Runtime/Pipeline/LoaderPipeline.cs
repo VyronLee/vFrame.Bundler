@@ -14,11 +14,12 @@ using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
 {
-    internal class LoaderPipeline
+    internal class LoaderPipeline : IJsonSerializable
     {
         private readonly BundlerContexts _bundlerContexts;
         private readonly LoaderContexts _loaderContexts;
         private readonly List<Loader> _loaders;
+        private readonly string _guid;
         private int _processing;
         private bool _error;
 
@@ -26,6 +27,7 @@ namespace vFrame.Bundler
             _bundlerContexts = bundlerContexts;
             _loaderContexts = loaderContexts;
             _loaders = new List<Loader>();
+            _guid = System.Guid.NewGuid().ToString();
             _processing = -1;
             _error = false;
         }
@@ -86,13 +88,6 @@ namespace vFrame.Bundler
             return Last() as T;
         }
 
-        private Loader Processing() {
-            if (_processing > 0 && _processing < _loaders.Count) {
-                return _loaders[_processing];
-            }
-            return null;
-        }
-
         public void Update() {
             while (_processing < _loaders.Count) {
                 var loader = _loaders[_processing];
@@ -113,7 +108,26 @@ namespace vFrame.Bundler
             }
         }
 
+        [JsonSerializableProperty]
+        public string Guid => _guid;
+
+        [JsonSerializableProperty]
         public bool IsDone => _processing >= _loaders.Count;
+
+        [JsonSerializableProperty]
         public bool IsError => _error;
+
+        [JsonSerializableProperty]
+        public int Processing => _processing;
+
+        [JsonSerializableProperty]
+        public int LoaderCount => _loaders?.Count ?? 0;
+
+        [JsonSerializableProperty]
+        public string AssetPath => Last<AssetLoader>()?.AssetPath ?? Last<SceneLoader>()?.AssetPath;
+
+        public override string ToString() {
+            return $"[Guid: {Guid}, AssetPath: {AssetPath}, IsDone: {IsDone}, IsError: {IsError}, Processing: {Processing}, LoaderCount: {LoaderCount}]";
+        }
     }
 }

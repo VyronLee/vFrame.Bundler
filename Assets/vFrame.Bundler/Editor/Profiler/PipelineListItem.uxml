@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="PipelineListItem" style="height: 25px; flex-direction: row;">
+        <ui:Foldout text="Pipeline Info" value="false" name="FoldoutInfo" style="flex-grow: 1;">
+            <ui:ListView focusable="true" name="ListViewLoaderList" show-alternating-row-backgrounds="All" />
+        </ui:Foldout>
+    </ui:VisualElement>
+</ui:UXML>

@@ -15,6 +15,7 @@ using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using vFrame.Bundler.CustomElements;
 using Debug = UnityEngine.Debug;
 
 namespace vFrame.Bundler
@@ -25,6 +26,7 @@ namespace vFrame.Bundler
         private Button _buttonStart;
         private Button _buttonClear;
         private ListView _loaders;
+        private TabbedMenu _tabbedMenu;
 
         private JsonRpcClient _rpcClient;
         private bool _isStarted;
@@ -53,10 +55,18 @@ namespace vFrame.Bundler
             _buttonClear = tree.Q<Button>("ButtonClear");
             _buttonClear.RegisterCallback<ClickEvent>(OnButtonClearClicked);
 
+            var pageButtons = tree.Q<VisualElement>("PageButtonGroup");
+            _tabbedMenu = new TabbedMenu(pageButtons, "tab-button-selected");
+            _tabbedMenu.RegisterCallback(OnSelectedTabChanged);
+
             _loaders = tree.Q<ListView>("ListViewLoaders");
             _loaders.makeItem = () => new LoaderListItem();
             _loaders.bindItem = BindLoaderItem;
             _loaders.unbindItem = UnBindLoaderItem;
+        }
+
+        private void OnSelectedTabChanged(string tabName) {
+            Debug.Log(tabName);
         }
 
         private void OnButtonStartClicked(ClickEvent evt) {
