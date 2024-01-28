@@ -1,5 +1,6 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:Template name="LoaderListPage" src="project://database/Assets/vFrame.Bundler/Editor/Profiler/LoaderListPage.uxml?fileID=11400000&amp;guid=b0490c9c25eb7c8409ca1d033c21f11d&amp;type=3#LoaderListPage" />
+    <ui:Template name="PipelineListPage" src="project://database/Assets/vFrame.Bundler/Editor/Profiler/PipelineListPage.uxml?fileID=11400000&amp;guid=3088dce91c8b71448aae96fc4085ad39&amp;type=3#PipelineListPage" />
     <Style src="project://database/Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uss?fileID=11400000&amp;guid=6cddb02146a34a943a8fa96ed17ec69a&amp;type=3#BundleProfiler" />
     <ui:VisualElement name="ToolbarContainer" style="flex-direction: row; align-items: center; margin-right: 8px; margin-top: 5px;">
         <ui:TextField picking-mode="Ignore" label="Client" text="http://127.0.0.1:16667" name="TextFieldClientAddress" style="flex-direction: row; align-items: center; justify-content: flex-start; height: 20px; width: auto; flex-grow: 1; -unity-text-align: upper-center;" />
@@ -8,10 +9,11 @@
     </ui:VisualElement>
     <ui:VisualElement name="PageContainer" style="margin-top: 10px;">
         <ui:VisualElement name="PageButtonGroup" style="border-top-width: 0; border-right-width: 0; border-bottom-width: 1px; border-left-width: 0; flex-direction: row; align-items: flex-end; border-bottom-color: rgb(84, 81, 81); height: 35px;">
-            <ui:Button text="Loaders" display-tooltip-when-elided="true" name="ButtonLoaders" class="tab-button-boarder tab-button-normal" />
-            <ui:Button text="Pipelines" display-tooltip-when-elided="true" name="ButtonPipeline" class="tab-button-boarder tab-button-normal" />
-            <ui:Button text="Handlers" display-tooltip-when-elided="true" name="ButtonHandlers" class="tab-button-boarder tab-button-normal" />
+            <ui:Button text="Loaders" display-tooltip-when-elided="true" name="ButtonLoaders" focusable="false" class="tab-button-boarder tab-button-normal" />
+            <ui:Button text="Pipelines" display-tooltip-when-elided="true" name="ButtonPipeline" focusable="false" class="tab-button-boarder tab-button-normal" />
+            <ui:Button text="Handlers" display-tooltip-when-elided="true" name="ButtonHandlers" focusable="false" class="tab-button-boarder tab-button-normal" />
         </ui:VisualElement>
-        <ui:Instance template="LoaderListPage" name="LoaderListPage" style="display: flex; visibility: visible;" />
+        <ui:Instance template="LoaderListPage" name="LoaderListPage" style="display: none; visibility: visible;" />
+        <ui:Instance template="PipelineListPage" name="PipelineListPage" />
     </ui:VisualElement>
 </ui:UXML>
