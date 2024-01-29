@@ -10,7 +10,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 
 namespace vFrame.Bundler
 {
@@ -53,6 +55,36 @@ namespace vFrame.Bundler
             return Json.Serialize(ToJsonData(serializable));
         }
 
+        public static JsonList ParseFromList(this IList list) {
+            var jsonList = new JsonList();
+            foreach (var item in list) {
+                switch (item) {
+                    case IJsonSerializable serializable:
+                        jsonList.Add(ToJsonData(serializable));
+                        break;
+                    default:
+                        jsonList.Add(item);
+                        break;
+                }
+            }
+            return jsonList;
+        }
+
+        public static JsonObject ParseFromDictionary(this IDictionary<string, object> dictionary) {
+            var jsonObject = new JsonObject();
+            foreach (var item in dictionary) {
+                switch (item.Value) {
+                    case IJsonSerializable serializable:
+                        jsonObject.Add(item.Key, ToJsonData(serializable));
+                        break;
+                    default:
+                        jsonObject.Add(item.Key, item.Value);
+                        break;
+                }
+            }
+            return jsonObject;
+        }
+
         public static JsonObject ToJsonData(this IJsonSerializable serializable) {
             var serializableType = serializable.GetType();
             var properties = serializableType.GetProperties(PropertyBindingFlags);
@@ -65,29 +97,55 @@ namespace vFrame.Bundler
                 if (null == attribute) {
                     continue;
                 }
+                var formatToString = attribute.FormatToString;
                 var format = attribute.Format;
                 var value = property.GetValue(serializable);
                 var fieldName = property.Name;
-                var fieldValue = value.ToString(format, null);
-                jsonData.Add(fieldName, fieldValue);
+                switch (value) {
+                    case null:
+                        break;
+                    case IList list:
+                        jsonData.Add(fieldName, ParseFromList(list));
+                        break;
+                    case IDictionary<string, object> dictionary:
+                        jsonData.Add(fieldName, ParseFromDictionary(dictionary));
+                        break;
+                    case IJsonSerializable jsonSerializable:
+                        jsonData.Add(fieldName, ToJsonData(jsonSerializable));
+                        break;
+                    case IFormattable formattable:
+                        if (formatToString) {
+                            jsonData.Add(fieldName, formattable.ToString(format, null));
+                        }
+                        else {
+                            jsonData.Add(fieldName, formattable);
+                        }
+                        break;
+                    default:
+                        jsonData.Add(fieldName, value);
+                        break;
+                }
             }
             return jsonData;
         }
 
-        private static string ToString(this object value, string format, IFormatProvider formatProvider) {
-            switch (value) {
-                case null:
-                    return "null";
-                case IFormattable formattable:
-                    return formattable.ToString(format, formatProvider);
-                default:
-                    return value.ToString();
-            }
-        }
-
         public static T SafeGetValue<T>(this JsonObject jsonData, string key, T defaultValue = default(T)) {
             if (jsonData.TryGetValue(key, out var value)) {
-                return (T) value;
+                try {
+                    // Number deserialize from MiniJson will only convert to long or double.
+                    switch (value) {
+                        case long longValue:
+                            return (T) Convert.ChangeType(longValue, typeof(T));
+                        case double doubleValue:
+                            return (T) Convert.ChangeType(doubleValue, typeof(T));
+                    }
+                    return (T) value;
+                }
+                catch (InvalidCastException) {
+                    Debug.LogErrorFormat("Cannot convert value: {0} from type: {1} to type: {2}",
+                        value, value.GetType(), typeof(T));
+                    return defaultValue;
+                }
             }
             return defaultValue;
         }

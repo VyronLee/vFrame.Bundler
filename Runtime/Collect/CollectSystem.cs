@@ -16,15 +16,18 @@ namespace vFrame.Bundler
     {
         private readonly List<Loader> _nonReferenceLoaders;
         private readonly List<ILoaderHandler> _unloadedHandlers;
+        private readonly List<LoaderPipeline> _finishedPipelines;
 
         public CollectSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
             _nonReferenceLoaders = new List<Loader>();
             _unloadedHandlers = new List<ILoaderHandler>();
+            _finishedPipelines = new List<LoaderPipeline>();
         }
 
         protected override void OnDestroy() {
             _nonReferenceLoaders.Clear();
             _unloadedHandlers.Clear();
+            _finishedPipelines.Clear();
         }
 
         protected override void OnUpdate() {
@@ -39,6 +42,10 @@ namespace vFrame.Bundler
             using (new ClearAtExist(_unloadedHandlers)) {
                 BundlerContexts.ForEachHandler(FilterUnloadedHandler);
                 CollectUnloadedHandlers();
+            }
+            using (new ClearAtExist(_finishedPipelines)) {
+                BundlerContexts.ForEachPipeline(FilterFinishedPipeline);
+                CollectFinishedPipelines();
             }
         }
 
@@ -58,6 +65,12 @@ namespace vFrame.Bundler
             }
         }
 
+        private void FilterFinishedPipeline(LoaderPipeline pipeline) {
+            if (pipeline.IsDone) {
+                _finishedPipelines.Add(pipeline);
+            }
+        }
+
         private void CollectNonReferenceLoaders() {
             foreach (var loader in _nonReferenceLoaders) {
                 Facade.GetSystem<LogSystem>().LogInfo("Removing non-referenced loader: {0}", loader);
@@ -70,6 +83,13 @@ namespace vFrame.Bundler
             foreach (var handler in _unloadedHandlers) {
                 Facade.GetSystem<LogSystem>().LogInfo("Removing unloaded handler: {0}", handler);
                 BundlerContexts.RemoveHandler(handler);
+            }
+        }
+
+        private void CollectFinishedPipelines() {
+            foreach (var pipeline in _finishedPipelines) {
+                Facade.GetSystem<LogSystem>().LogInfo("Removing finished pipeline: {0}", pipeline);
+                BundlerContexts.RemovePipeline(pipeline);
             }
         }
     }

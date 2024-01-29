@@ -26,7 +26,7 @@ namespace vFrame.Bundler
             _guid = System.Guid.NewGuid().ToString();
         }
 
-        [JsonSerializableProperty("F3")]
+        [JsonSerializableProperty]
         public override float Progress => Mathf.Min((float) (Time.frameCount - _startFrame) / _frameLength, 1f);
 
         protected override void OnStart() {

@@ -8,12 +8,14 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+#if UNITY_2019_1_OR_NEWER
+
 using System;
 using UnityEngine.UIElements;
 
-namespace vFrame.Bundler.CustomElements
+namespace vFrame.Bundler
 {
-    public class TabbedMenu
+    internal class TabbedMenu
     {
         private readonly string _selectedStyle;
         private readonly VisualElement _root;
@@ -74,3 +76,5 @@ namespace vFrame.Bundler.CustomElements
         }
     }
 }
+
+#endif

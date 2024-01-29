@@ -9,7 +9,6 @@
 // ============================================================
 
 using System;
-using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using vFrame.Bundler.Exception;
 using Object = UnityEngine.Object;
@@ -18,14 +17,14 @@ namespace vFrame.Bundler
 {
     internal class LoadSystem : BundlerSystem
     {
-        private readonly List<LoaderPipeline> _pipelines;
         private readonly Action<Loader> _updateLoaderAction;
         private readonly Action<ILoaderHandler> _updateHandlerAction;
+        private readonly Action<LoaderPipeline> _updatePipelineAction;
 
         public LoadSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
-            _pipelines = new List<LoaderPipeline>(512);
             _updateLoaderAction = UpdateLoader;
             _updateHandlerAction = UpdateHandler;
+            _updatePipelineAction = UpdatePipeline;
         }
 
         protected override void OnDestroy() {
@@ -120,7 +119,7 @@ namespace vFrame.Bundler
                     pipeline.Add<AssetBundleAssetLoaderSync>();
                     break;
             }
-            _pipelines.Add(pipeline);
+            BundlerContexts.AddPipeline(pipeline);
             return pipeline;
         }
 
@@ -144,7 +143,7 @@ namespace vFrame.Bundler
                     pipeline.Add<AssetBundleAssetLoaderAsync>();
                     break;
             }
-            _pipelines.Add(pipeline);
+            BundlerContexts.AddPipeline(pipeline);
             return pipeline;
         }
 
@@ -167,7 +166,7 @@ namespace vFrame.Bundler
                     pipeline.Add<AssetBundleSceneLoaderSync>();
                     break;
             }
-            _pipelines.Add(pipeline);
+            BundlerContexts.AddPipeline(pipeline);
             return pipeline;
         }
 
@@ -191,7 +190,7 @@ namespace vFrame.Bundler
                     pipeline.Add<AssetBundleSceneLoaderAsync>();
                     break;
             }
-            _pipelines.Add(pipeline);
+            BundlerContexts.AddPipeline(pipeline);
             return pipeline;
         }
 
@@ -205,23 +204,9 @@ namespace vFrame.Bundler
         }
 
         protected override void OnUpdate() {
-            UpdateAndRemovePipelines();
+            BundlerContexts.ForEachPipeline(_updatePipelineAction);
             BundlerContexts.ForEachLoader(_updateLoaderAction);
             BundlerContexts.ForEachHandler(_updateHandlerAction);
-        }
-
-        private void UpdateAndRemovePipelines() {
-            for (var i = _pipelines.Count - 1; i >= 0; i--) {
-                var pipeline = _pipelines[i];
-                pipeline.Update();
-
-                if (!pipeline.IsDone) {
-                    continue;
-                }
-                _pipelines.RemoveAt(i);
-
-                Facade.GetSystem<LogSystem>().LogInfo("Removing finished pipeline: {0}", pipeline.Last());
-            }
         }
 
         private static void UpdateLoader(Loader loader) {
@@ -230,6 +215,10 @@ namespace vFrame.Bundler
 
         private static void UpdateHandler(ILoaderHandler handler) {
             handler.Update();
+        }
+
+        private static void UpdatePipeline(LoaderPipeline pipeline) {
+            pipeline.Update();
         }
     }
 }

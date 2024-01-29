@@ -16,11 +16,11 @@ namespace vFrame.Bundler
     {
         public abstract void Update();
 
-        public void SendRequest(string method, Action<JsonObject> callback) {
+        public void SendRequest(string method, Action<RespondContext> callback) {
             SendRequest(method, null, callback);
         }
 
-        public abstract void SendRequest(string method, JsonObject args, Action<JsonObject> callback);
+        public abstract void SendRequest(string method, JsonObject args, Action<RespondContext> callback);
 
         public static JsonRpcClient CreateSimple(string url, ILogger logger = null) {
             return new SimpleJsonRpcClient(url, logger);

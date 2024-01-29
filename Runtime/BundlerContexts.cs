@@ -219,6 +219,26 @@ namespace vFrame.Bundler
         }
 
         //============================================================
+        // Pipelines
+        //============================================================
+
+        private List<LoaderPipeline> Pipelines { get; } = new List<LoaderPipeline>();
+
+        public void AddPipeline(LoaderPipeline pipeline) {
+            Pipelines.Add(pipeline);
+        }
+
+        public void RemovePipeline(LoaderPipeline pipeline) {
+            Pipelines.Remove(pipeline);
+        }
+
+        public void ForEachPipeline(Action<LoaderPipeline> action) {
+            foreach (var pipeline in Pipelines) {
+                action(pipeline);
+            }
+        }
+
+        //============================================================
         // Proxies
         //============================================================
 

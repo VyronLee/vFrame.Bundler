@@ -26,7 +26,7 @@ namespace vFrame.Bundler
 
         protected LoaderContexts LoaderContexts => _loaderContexts;
 
-        [JsonSerializableProperty]
+        [JsonSerializableProperty(true)]
         public TaskState TaskState { get; private set; }
 
         protected override void OnDestroy() {
@@ -65,8 +65,8 @@ namespace vFrame.Bundler
 
         public abstract float Progress { get; }
 
-        [JsonSerializableProperty("F6")]
-        public double ElapsedSeconds => _stopwatch.Elapsed.TotalSeconds;
+        [JsonSerializableProperty]
+        public double ElapsedSeconds => _stopwatch.Elapsed.TotalMilliseconds;
 
         protected void Abort() {
             TaskState = TaskState.Error;

@@ -21,4 +21,21 @@ namespace vFrame.Bundler
             return new SimpleJsonRpcServer(listenAddress, logger);
         }
     }
+
+    public class RespondContext : IJsonSerializable
+    {
+        [JsonSerializableProperty]
+        public int ErrorCode { get; set; }
+
+        [JsonSerializableProperty]
+        public JsonObject RespondData { get; set; }
+
+        public static RespondContext FromJson(JsonObject data) {
+            var ret = new RespondContext {
+                ErrorCode = (int) data.SafeGetValue<long>("ErrorCode"),
+                RespondData = data.SafeGetValue<JsonObject>("RespondData")
+            };
+            return ret;
+        }
+    }
 }
