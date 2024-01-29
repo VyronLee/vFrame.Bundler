@@ -15,7 +15,6 @@ using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using vFrame.Bundler.CustomElements;
 using Debug = UnityEngine.Debug;
 
 namespace vFrame.Bundler
@@ -26,12 +25,35 @@ namespace vFrame.Bundler
         private Button _buttonStart;
         private Button _buttonClear;
         private ListView _loaders;
-        private TabbedMenu _tabbedMenu;
+        private ScrollView _pipelines;
+        private TabbedPanelGroup _tabbedPanelGroup;
 
         private JsonRpcClient _rpcClient;
         private bool _isStarted;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-        private const float RefreshFrequency = 2f;
+        private readonly ProfileLogger _logger = new ProfileLogger();
+
+        private const float RefreshFrequency = 1f;
+
+        private const string TabButtonLoadersName = "ButtonLoaders";
+        private const string TabButtonPipelinesName = "ButtonPipelines";
+        private const string TabButtonHandlersName = "ButtonHandlers";
+        private const string TabButtonLinkedObjectsName = "ButtonLinkedObjects";
+
+        private const string LoaderListPageName = "LoaderListPage";
+        private const string PipelineListPageName = "PipelineListPage";
+        private const string HandlerListPageName = "HandlerListPage";
+        private const string LinkedObjectListPageName = "LinkedObjectListPageName";
+
+        private static readonly Dictionary<string, string> _tabNameMapping = new Dictionary<string, string> {
+            {TabButtonLoadersName, LoaderListPageName},
+            {TabButtonPipelinesName, PipelineListPageName},
+            {TabButtonHandlersName, HandlerListPageName},
+            {TabButtonLinkedObjectsName, LinkedObjectListPageName}
+        };
+
+        private VisualElement _tree;
+        private string _selectedPage;
 
         [MenuItem("Tools/vFrame/Bundler/Profiler")]
         public static void ShowWindow() {
@@ -41,32 +63,50 @@ namespace vFrame.Bundler
         }
 
         public void CreateGUI() {
-            var visualTree =
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                     "Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uxml");
-            VisualElement tree = visualTree.Instantiate();
+            _tree = visualTree.Instantiate();
+            rootVisualElement.Add(_tree);
 
-            var root = rootVisualElement;
-            root.Add(tree);
-
-            _clientAddress = tree.Q<TextField>("TextFieldClientAddress");
-            _buttonStart = tree.Q<Button>("ButtonStart");
-            _buttonStart.RegisterCallback<ClickEvent>(OnButtonStartClicked);
-            _buttonClear = tree.Q<Button>("ButtonClear");
-            _buttonClear.RegisterCallback<ClickEvent>(OnButtonClearClicked);
-
-            var pageButtons = tree.Q<VisualElement>("PageButtonGroup");
-            _tabbedMenu = new TabbedMenu(pageButtons, "tab-button-selected");
-            _tabbedMenu.RegisterCallback(OnSelectedTabChanged);
-
-            _loaders = tree.Q<ListView>("ListViewLoaders");
-            _loaders.makeItem = () => new LoaderListItem();
-            _loaders.bindItem = BindLoaderItem;
-            _loaders.unbindItem = UnBindLoaderItem;
+            CreateToolbar();
+            CreateLoaderListPage();
+            CreatePipelineListPage();
+            CreateTabbedPanelGroup();
         }
 
-        private void OnSelectedTabChanged(string tabName) {
-            Debug.Log(tabName);
+        private void CreateToolbar() {
+            _clientAddress = _tree.Q<TextField>("TextFieldClientAddress");
+            _buttonStart = _tree.Q<Button>("ButtonStart");
+            _buttonStart.RegisterCallback<ClickEvent>(OnButtonStartClicked);
+            _buttonClear = _tree.Q<Button>("ButtonClear");
+            _buttonClear.RegisterCallback<ClickEvent>(OnButtonClearClicked);
+        }
+
+        private void CreateTabbedPanelGroup() {
+            var pageButtons = _tree.Q<VisualElement>("PageButtonGroup");
+            var pageContainer = _tree.Q<VisualElement>("PageContainer");
+            _tabbedPanelGroup = new TabbedPanelGroup(pageButtons,
+                pageContainer,
+                _tabNameMapping,
+                "tab-button-selected");
+            _tabbedPanelGroup.RegisterCallback(OnSelectedPageChanged);
+            _tabbedPanelGroup.SelectTab(TabButtonLoadersName);
+        }
+
+        private void CreateLoaderListPage() {
+            _loaders = _tree.Q<ListView>("ListViewLoaders");
+            _loaders.makeItem = () => new LoaderListItem();
+            _loaders.bindItem = BindLoaderItem;
+        }
+
+        private void CreatePipelineListPage() {
+            _pipelines = _tree.Q<ScrollView>("ScrollViewPipelines");
+            _pipelines.contentContainer.Clear();
+        }
+
+        private void OnSelectedPageChanged(string pageName) {
+            _logger.LogInfo("Selected page changed to: {0}", pageName);
+            _selectedPage = pageName;
         }
 
         private void OnButtonStartClicked(ClickEvent evt) {
@@ -96,7 +136,7 @@ namespace vFrame.Bundler
                 Debug.LogWarning("Address is empty.");
                 return;
             }
-            _rpcClient = JsonRpcClient.CreateSimple(address);
+            _rpcClient = JsonRpcClient.CreateSimple(address, _logger);
             _isStarted = true;
             _buttonStart.text = "Stop";
             _clientAddress.SetEnabled(false);
@@ -109,9 +149,6 @@ namespace vFrame.Bundler
                 return;
             }
             listItem.SetData(_loaders.itemsSource[index] as JsonObject);
-        }
-
-        private void UnBindLoaderItem(VisualElement element, int index) {
         }
 
         public void OnDestroy() {
@@ -135,19 +172,76 @@ namespace vFrame.Bundler
                 return;
             }
             _stopwatch.Restart();
-            _rpcClient.SendRequest(RPCMethods.QueryLoadersInfo, OnQueryLoadersInfoCallback);
+
+            switch (_selectedPage) {
+                case LoaderListPageName:
+                    _rpcClient.SendRequest(RPCMethods.QueryLoadersInfo, OnQueryLoadersInfoCallback);
+                    break;
+                case PipelineListPageName:
+                    _rpcClient.SendRequest(RPCMethods.QueryPipelinesInfo, OnQueryPipelinesInfoCallback);
+                    break;
+                case HandlerListPageName:
+                    _rpcClient.SendRequest(RPCMethods.QueryHandlersInfo, OnQueryHandlersInfoCallback);
+                    break;
+                case LinkedObjectListPageName:
+                    _rpcClient.SendRequest(RPCMethods.QueryLinkedObjectsInfo, OnQueryLinkedObjectsInfoCallback);
+                    break;
+                default:
+                    _logger.LogWarning("Unhandled page name: {0}", _selectedPage);
+                    break;
+            }
         }
 
         private bool IsRefreshmentCooling() {
             return !_stopwatch.IsRunning || _stopwatch.Elapsed.TotalSeconds < RefreshFrequency;
         }
 
-        private void OnQueryLoadersInfoCallback(JsonObject jsonData) {
+        private void OnQueryLoadersInfoCallback(RespondContext respond) {
+            if (respond.ErrorCode != JsonRpcErrorCode.Success) {
+                return;
+            }
+            var jsonData = respond.RespondData;
             if (!jsonData.TryGetValue("loaders", out var loadersInfo)) {
                 return;
             }
             _loaders.itemsSource = loadersInfo as List<object>;
             _loaders.RefreshItems();
+        }
+
+        private void OnQueryPipelinesInfoCallback(RespondContext respond) {
+            if (respond.ErrorCode != JsonRpcErrorCode.Success) {
+                return;
+            }
+            var jsonData = respond.RespondData;
+            if (!jsonData.TryGetValue("pipelines", out var pipelinesInfo)) {
+                return;
+            }
+
+            var pipelines = pipelinesInfo as JsonList;
+            if (pipelines == null) {
+                return;
+            }
+
+            _pipelines.contentContainer.Clear();
+            foreach (var pipeline in pipelines) {
+                var item = new PipelineListItem();
+                item.SetData(pipeline as JsonObject);
+                _pipelines.contentContainer.Add(item);
+            }
+        }
+
+        private void OnQueryHandlersInfoCallback(RespondContext respond) {
+            if (respond.ErrorCode != JsonRpcErrorCode.Success) {
+                return;
+            }
+
+        }
+
+        private void OnQueryLinkedObjectsInfoCallback(RespondContext respond) {
+            if (respond.ErrorCode != JsonRpcErrorCode.Success) {
+                return;
+            }
+
         }
     }
 }

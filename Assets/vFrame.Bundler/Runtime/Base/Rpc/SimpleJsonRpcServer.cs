@@ -22,7 +22,7 @@ namespace vFrame.Bundler
         private readonly HttpListener _listener;
         private readonly ILogger _logger;
         private readonly Dictionary<string, IRpcHandler> _handlers;
-        private readonly ConcurrentQueue<RequestContext> _works;
+        private readonly ConcurrentQueue<(RequestContext, RespondContext)> _works;
         private bool _started;
 
         private static readonly JsonObject _emptyRespondJsonData = new JsonObject();
@@ -33,7 +33,7 @@ namespace vFrame.Bundler
             }
             _logger = logger;
             _handlers = new Dictionary<string, IRpcHandler>();
-            _works = new ConcurrentQueue<RequestContext>();
+            _works = new ConcurrentQueue<(RequestContext, RespondContext)>();
 
             _listener = new HttpListener();
             _listener.Prefixes.Add(listenAddress);
@@ -70,7 +70,7 @@ namespace vFrame.Bundler
 
         public override void Update() {
             while (_works.TryDequeue(out var state)) {
-                HandleRequest(state.Context, state.RequestData, state.Handler);
+                HandleRequest(state.Item1, state.Item2);
             }
         }
 
@@ -81,54 +81,73 @@ namespace vFrame.Bundler
         private void ListenerCallback(IAsyncResult result) {
             var context = _listener.EndGetContext(result);
             var request = context.Request;
+
+            var errorCode = JsonRpcErrorCode.Success;
+            var requestData = (JsonObject)null;
+            var handler = (IRpcHandler) null;
             while (true) {
                 using (var streamReader = new StreamReader(request.InputStream, request.ContentEncoding)) {
                     var body = streamReader.ReadToEnd();
                     if (string.IsNullOrEmpty(body)) {
+                        errorCode = JsonRpcErrorCode.InvalidArgs;
                         _logger?.LogDebug("Request body is empty, skip.");
                         break;
                     }
 
-                    var requestData = Json.Deserialize(body) as JsonObject;
+                    requestData = Json.Deserialize(body) as JsonObject;
                     if (null == requestData) {
+                        errorCode = JsonRpcErrorCode.InvalidArgs;
                         _logger?.LogDebug("RPCRequestData is null, skip.");
                         break;
                     }
 
                     var method = (string)requestData["method"];
-                    if (!_handlers.TryGetValue(method, out var handler)) {
+                    if (!_handlers.TryGetValue(method, out handler)) {
+                        errorCode = JsonRpcErrorCode.UnhandledMethod;
                         _logger?.LogWarning("Handler not found for method: {0}, skip.", method);
                         break;
                     }
 
-                    var requestContext = new RequestContext {
-                        Context = context,
-                        RequestData = requestData,
-                        Handler = handler
-                    };
-                    _works.Enqueue(requestContext);
                     break;
                 }
             }
+
+            var requestContext = new RequestContext {
+                HttpContext = context,
+                RequestData = requestData,
+                Handler = handler
+            };
+            var respondContext = new RespondContext {
+                ErrorCode = errorCode
+            };
+            _works.Enqueue((requestContext, respondContext));
+
             WaitNextRequest();
         }
 
-        private void HandleRequest(HttpListenerContext context, JsonObject requestData, IRpcHandler handler) {
-            var request = context.Request;
-            var respond = context.Response;
+        private void HandleRequest(RequestContext requestContext, RespondContext respondContext) {
+            var context = requestContext.HttpContext;
+            var requestData = requestContext.RequestData;
+            var handler = requestContext.Handler;
+            var httpRequest = context.Request;
+            var httpRespond = context.Response;
 
-            var args = requestData["args"] as JsonObject;
-            var respondJsonData = handler.HandleRequest(args) ?? _emptyRespondJsonData;
-            var respondData = Json.Serialize(respondJsonData);
-            var buffer = request.ContentEncoding.GetBytes(respondData);
-            respond.ContentLength64 = buffer.Length;
-            respond.OutputStream.Write(buffer, 0, buffer.Length);
-            respond.OutputStream.Close();
+            if (respondContext.ErrorCode <= 0) {
+                var args = requestData["args"] as JsonObject;
+                var respondJsonData = handler.HandleRequest(args) ?? _emptyRespondJsonData;
+                respondContext.RespondData = respondJsonData;
+            }
+
+            var respondJson = respondContext.ToJsonString();
+            var buffer = httpRequest.ContentEncoding.GetBytes(respondJson);
+            httpRespond.ContentLength64 = buffer.Length;
+            httpRespond.OutputStream.Write(buffer, 0, buffer.Length);
+            httpRespond.OutputStream.Close();
         }
 
         private class RequestContext
         {
-            public HttpListenerContext Context { get; set; }
+            public HttpListenerContext HttpContext { get; set; }
             public JsonObject RequestData { get; set; }
             public IRpcHandler Handler { get; set; }
         }

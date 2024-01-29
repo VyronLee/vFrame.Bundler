@@ -15,7 +15,7 @@ using UnityEngine.UIElements;
 
 namespace vFrame.Bundler
 {
-    public class LoaderListItem : VisualElement
+    internal class LoaderListItem : VisualElement
     {
         private readonly Label _labelName;
         private readonly Label _labelPath;
@@ -42,9 +42,9 @@ namespace vFrame.Bundler
             }
 
             var typeName = data.SafeGetValue<string>("@TypeName");
-            var references = data.SafeGetValue<string>("References");
-            var progress = data.SafeGetValue<string>("Progress");
-            var elapsed = data.SafeGetValue<string>("ElapsedSeconds");
+            var references = data.SafeGetValue<long>("References");
+            var progress = data.SafeGetValue<double>("Progress");
+            var elapsed = data.SafeGetValue<double>("ElapsedSeconds");
             var taskState = data.SafeGetValue<string>("TaskState");
             var assetPath = data.SafeGetValue<string>("AssetPath");
             var bundlePath = data.SafeGetValue<string>("BundlePath");
@@ -53,10 +53,10 @@ namespace vFrame.Bundler
 
             _labelName.text = typeName ?? string.Empty;
             _labelPath.text = mainBundlePath ?? bundlePath ?? assetPath ?? guid ?? string.Empty;
-            _labelProgress.text = progress ?? string.Empty;
-            _labelElapsed.text = elapsed ?? string.Empty;
+            _labelProgress.text = progress.ToString("F2");
+            _labelElapsed.text = elapsed.ToString("F2");
             _labelStatus.text = taskState ?? string.Empty;
-            _labelRefs.text = references ?? string.Empty;
+            _labelRefs.text = references.ToString();
         }
     }
 }

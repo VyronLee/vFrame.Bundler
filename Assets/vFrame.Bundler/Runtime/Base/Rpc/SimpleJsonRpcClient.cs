@@ -30,11 +30,14 @@ namespace vFrame.Bundler
 
         public override void Update() {
             while (_works.TryDequeue(out var state)) {
+                if (state.RespondData.ErrorCode != JsonRpcErrorCode.Success) {
+                    _logger.LogWarning("Send request failed, error code: {0}", state.RespondData.ErrorCode);
+                }
                 state.Callback?.Invoke(state.RespondData);
             }
         }
 
-        public override void SendRequest(string method, JsonObject args, Action<JsonObject> callback) {
+        public override void SendRequest(string method, JsonObject args, Action<RespondContext> callback) {
             var requestData = new JsonObject {
                 { "method", method },
                 { "args", args }
@@ -86,7 +89,7 @@ namespace vFrame.Bundler
                         if (null == jsonData) {
                             return;
                         }
-                        context.RespondData = jsonData;
+                        context.RespondData = RespondContext.FromJson(jsonData);
 
                         _works.Enqueue(context);
                     }
@@ -101,8 +104,8 @@ namespace vFrame.Bundler
         {
             public HttpWebRequest Request { get; set; }
             public JsonObject RequestData { get; set; }
-            public JsonObject RespondData { get; set; }
-            public Action<JsonObject> Callback { get; set; }
+            public RespondContext RespondData { get; set; }
+            public Action<RespondContext> Callback { get; set; }
         }
     }
 }

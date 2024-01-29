@@ -14,6 +14,7 @@ namespace vFrame.Bundler
     {
         public const string PingPong = "PingPong";
         public const string QueryLoadersInfo = "QueryLoadersInfo";
+        public const string QueryPipelinesInfo = "QueryPipelinesInfo";
         public const string QueryHandlersInfo = "QueryHandlersInfo";
         public const string QueryLinkedObjectsInfo = "QueryLinkedObjectsInfo";
     }

@@ -24,7 +24,7 @@ namespace vFrame.Bundler
             : base(bundlerContexts, loaderContexts) {
         }
 
-        [JsonSerializableProperty("F3")]
+        [JsonSerializableProperty]
         public override float Progress {
             get {
                 if (null == _request) {
