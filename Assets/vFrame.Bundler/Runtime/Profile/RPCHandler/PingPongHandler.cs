@@ -14,11 +14,9 @@ namespace vFrame.Bundler
     {
         public override string MethodName => RPCMethods.PingPong;
 
-        public override JsonObject HandleRequest(JsonObject args = null) {
-            var jsonData = new JsonObject {
-                { "success", true }
-            };
-            return jsonData;
+        public override int HandleRequest(JsonObject args, out JsonObject result) {
+            result = new JsonObject();
+            return JsonRpcErrorCode.Success;
         }
     }
 }

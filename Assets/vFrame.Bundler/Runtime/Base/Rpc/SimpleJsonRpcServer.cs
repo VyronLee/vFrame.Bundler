@@ -134,8 +134,8 @@ namespace vFrame.Bundler
 
             if (respondContext.ErrorCode <= 0) {
                 var args = requestData["args"] as JsonObject;
-                var respondJsonData = handler.HandleRequest(args) ?? _emptyRespondJsonData;
-                respondContext.RespondData = respondJsonData;
+                respondContext.ErrorCode = handler.HandleRequest(args, out var respondJsonData);
+                respondContext.RespondData = respondJsonData ?? _emptyRespondJsonData;
             }
 
             var respondJson = respondContext.ToJsonString();

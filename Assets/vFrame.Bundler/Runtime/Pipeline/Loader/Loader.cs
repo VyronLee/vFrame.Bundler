@@ -66,7 +66,7 @@ namespace vFrame.Bundler
         public abstract float Progress { get; }
 
         [JsonSerializableProperty]
-        public double ElapsedSeconds => _stopwatch.Elapsed.TotalMilliseconds;
+        public double Elapsed => _stopwatch.Elapsed.TotalMilliseconds;
 
         protected void Abort() {
             TaskState = TaskState.Error;

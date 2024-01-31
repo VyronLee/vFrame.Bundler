@@ -16,14 +16,14 @@ namespace vFrame.Bundler
     {
         public override string MethodName => RPCMethods.QueryPipelinesInfo;
 
-        public override JsonObject HandleRequest(JsonObject args = null) {
+        public override int HandleRequest(JsonObject args, out JsonObject result) {
             var pipelines = new List<Dictionary<string, object>>();
             BundlerContexts.ForEachPipeline(v => pipelines.Add(v.ToJsonData()));
 
-            var jsonData = new JsonObject {
+            result = new JsonObject {
                 ["pipelines"] = pipelines
             };
-            return jsonData;
+            return JsonRpcErrorCode.Success;
         }
     }
 }

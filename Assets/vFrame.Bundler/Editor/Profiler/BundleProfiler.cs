@@ -25,7 +25,7 @@ namespace vFrame.Bundler
         private Button _buttonStart;
         private Button _buttonClear;
         private ListView _loaders;
-        private ScrollView _pipelines;
+        private ListView _pipelines;
         private TabbedPanelGroup _tabbedPanelGroup;
 
         private JsonRpcClient _rpcClient;
@@ -100,8 +100,10 @@ namespace vFrame.Bundler
         }
 
         private void CreatePipelineListPage() {
-            _pipelines = _tree.Q<ScrollView>("ScrollViewPipelines");
-            _pipelines.contentContainer.Clear();
+            _pipelines = _tree.Q<ListView>("ScrollViewPipelines");
+            _pipelines.Clear();
+            _pipelines.makeItem = () => new PipelineListItem().Root;
+            _pipelines.bindItem = BindPipelineItem;
         }
 
         private void OnSelectedPageChanged(string pageName) {
@@ -119,8 +121,23 @@ namespace vFrame.Bundler
         }
 
         private void OnButtonClearClicked(ClickEvent evt) {
-            _loaders.itemsSource = null;
-            _loaders.RefreshItems();
+            switch (_selectedPage) {
+                case LoaderListPageName:
+                    _loaders.itemsSource = null;
+                    _loaders.Rebuild();
+                    break;
+                case PipelineListPageName:
+                    _pipelines.itemsSource = null;
+                    _pipelines.Rebuild();
+                    break;
+                case HandlerListPageName:
+                    break;
+                case LinkedObjectListPageName:
+                    break;
+                default:
+                    _logger.LogWarning("Unhandled page name: {0}", _selectedPage);
+                    break;
+            }
         }
 
         private void StopProfiler() {
@@ -149,6 +166,14 @@ namespace vFrame.Bundler
                 return;
             }
             listItem.SetData(_loaders.itemsSource[index] as JsonObject);
+        }
+
+        private void BindPipelineItem(VisualElement element, int index) {
+            var listItem = element.userData as PipelineListItem;
+            if (null == listItem) {
+                return;
+            }
+            listItem.SetData(_pipelines.itemsSource[index] as JsonObject);
         }
 
         public void OnDestroy() {
@@ -204,7 +229,7 @@ namespace vFrame.Bundler
             if (!jsonData.TryGetValue("loaders", out var loadersInfo)) {
                 return;
             }
-            _loaders.itemsSource = loadersInfo as List<object>;
+            _loaders.itemsSource = loadersInfo as JsonList;
             _loaders.RefreshItems();
         }
 
@@ -213,21 +238,12 @@ namespace vFrame.Bundler
                 return;
             }
             var jsonData = respond.RespondData;
-            if (!jsonData.TryGetValue("pipelines", out var pipelinesInfo)) {
+            if (!jsonData.TryGetValue("pipelines", out var pipelines)) {
                 return;
             }
 
-            var pipelines = pipelinesInfo as JsonList;
-            if (pipelines == null) {
-                return;
-            }
-
-            _pipelines.contentContainer.Clear();
-            foreach (var pipeline in pipelines) {
-                var item = new PipelineListItem();
-                item.SetData(pipeline as JsonObject);
-                _pipelines.contentContainer.Add(item);
-            }
+            _pipelines.itemsSource = pipelines as JsonList;
+            _pipelines.RefreshItems();
         }
 
         private void OnQueryHandlersInfoCallback(RespondContext respond) {

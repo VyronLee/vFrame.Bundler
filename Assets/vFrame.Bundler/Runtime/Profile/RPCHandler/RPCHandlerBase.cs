@@ -8,14 +8,12 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
-using System.Collections.Generic;
-
 namespace vFrame.Bundler
 {
     internal abstract class RPCHandlerBase : IRpcHandler
     {
         public BundlerContexts BundlerContexts { get; set; }
         public abstract string MethodName { get; }
-        public abstract JsonObject HandleRequest(JsonObject args = null);
+        public abstract int HandleRequest(JsonObject args, out JsonObject result);
     }
 }
