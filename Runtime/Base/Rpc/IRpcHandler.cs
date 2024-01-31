@@ -13,6 +13,6 @@ namespace vFrame.Bundler
     public interface IRpcHandler
     {
         string MethodName { get; }
-        JsonObject HandleRequest(JsonObject args = null);
+        int HandleRequest(JsonObject args, out JsonObject result);
     }
 }

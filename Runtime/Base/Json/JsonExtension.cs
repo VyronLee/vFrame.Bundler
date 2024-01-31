@@ -35,6 +35,10 @@ namespace vFrame.Bundler
             return Json.Serialize(serializable);
         }
 
+        public static string ToJsonString(this object obj) {
+            return Json.Serialize(obj);
+        }
+
         public static JsonObject ToJsonObject(this string jsonStr) {
             var json = Json.Deserialize(jsonStr);
             if (json is JsonObject jsonObject) {

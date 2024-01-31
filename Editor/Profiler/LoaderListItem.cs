@@ -44,7 +44,7 @@ namespace vFrame.Bundler
             var typeName = data.SafeGetValue<string>("@TypeName");
             var references = data.SafeGetValue<long>("References");
             var progress = data.SafeGetValue<double>("Progress");
-            var elapsed = data.SafeGetValue<double>("ElapsedSeconds");
+            var elapsed = data.SafeGetValue<double>("Elapsed");
             var taskState = data.SafeGetValue<string>("TaskState");
             var assetPath = data.SafeGetValue<string>("AssetPath");
             var bundlePath = data.SafeGetValue<string>("BundlePath");

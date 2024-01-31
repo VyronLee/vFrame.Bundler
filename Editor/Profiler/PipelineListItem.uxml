@@ -1,7 +1,4 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="PipelineListItem" style="height: 25px; flex-direction: row;">
-        <ui:Foldout text="Pipeline Info" value="false" name="FoldoutInfo" style="flex-grow: 1;">
-            <ui:ListView focusable="true" name="ListViewLoaderList" show-alternating-row-backgrounds="All" />
-        </ui:Foldout>
-    </ui:VisualElement>
+    <Style src="project://database/Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uss?fileID=11400000&amp;guid=6cddb02146a34a943a8fa96ed17ec69a&amp;type=3#BundleProfiler" />
+    <ui:GroupBox name="PipelineListItem" style="flex-grow: 1; min-height: 25px;" />
 </ui:UXML>

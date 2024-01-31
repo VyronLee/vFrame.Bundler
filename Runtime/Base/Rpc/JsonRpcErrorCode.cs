@@ -15,5 +15,6 @@ namespace vFrame.Bundler
         public const int Success = 0;
         public const int InvalidArgs = 1;
         public const int UnhandledMethod = 2;
+        public const int PipelineNotExist = 3;
     }
 }

@@ -126,6 +126,9 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public string AssetPath => Last<AssetLoader>()?.AssetPath ?? Last<SceneLoader>()?.AssetPath;
 
+        [JsonSerializableProperty]
+        public List<Loader> Loaders => _loaders;
+
         public override string ToString() {
             return $"[Guid: {Guid}, AssetPath: {AssetPath}, IsDone: {IsDone}, IsError: {IsError}, Processing: {Processing}, LoaderCount: {LoaderCount}]";
         }

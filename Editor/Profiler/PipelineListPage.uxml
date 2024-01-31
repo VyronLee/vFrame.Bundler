@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uss?fileID=11400000&amp;guid=6cddb02146a34a943a8fa96ed17ec69a&amp;type=3#BundleProfiler" />
-    <vFrame.Bundler.TabbedPanel name="PipelineContainer" style="height: 692px; flex-direction: column; margin-top: 5px; margin-bottom: 5px; margin-right: 10px;">
-        <ui:ScrollView name="ScrollViewPipelines" horizontal-scroller-visibility="Hidden" />
+    <vFrame.Bundler.TabbedPanel name="PipelineContainer" class="border-color" style="border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; flex-grow: 1;">
+        <ui:ListView focusable="true" name="ScrollViewPipelines" virtualization-method="DynamicHeight" show-alternating-row-backgrounds="All" style="flex-grow: 1;" />
     </vFrame.Bundler.TabbedPanel>
 </ui:UXML>

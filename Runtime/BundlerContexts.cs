@@ -222,19 +222,26 @@ namespace vFrame.Bundler
         // Pipelines
         //============================================================
 
-        private List<LoaderPipeline> Pipelines { get; } = new List<LoaderPipeline>();
+        private Dictionary<string, LoaderPipeline> Pipelines { get; } = new Dictionary<string, LoaderPipeline>();
 
         public void AddPipeline(LoaderPipeline pipeline) {
-            Pipelines.Add(pipeline);
+            if (Pipelines.ContainsKey(pipeline.Guid)) {
+                return;
+            }
+            Pipelines.Add(pipeline.Guid, pipeline);
         }
 
         public void RemovePipeline(LoaderPipeline pipeline) {
-            Pipelines.Remove(pipeline);
+            //Pipelines.Remove(pipeline.Guid);
+        }
+
+        public bool TryGetPipeline(string guid, out LoaderPipeline pipeline) {
+            return Pipelines.TryGetValue(guid, out pipeline);
         }
 
         public void ForEachPipeline(Action<LoaderPipeline> action) {
-            foreach (var pipeline in Pipelines) {
-                action(pipeline);
+            foreach (var kv in Pipelines) {
+                action(kv.Value);
             }
         }
 
