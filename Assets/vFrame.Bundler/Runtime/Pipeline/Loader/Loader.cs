@@ -9,6 +9,7 @@
 // ============================================================
 
 using System.Diagnostics;
+using UnityEngine;
 using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
@@ -17,10 +18,12 @@ namespace vFrame.Bundler
     {
         private readonly LoaderContexts _loaderContexts;
         private readonly Stopwatch _stopwatch;
+        private readonly int _createFrame;
 
         protected Loader(BundlerContexts bundlerContexts, LoaderContexts loaderContexts) : base(bundlerContexts) {
             _loaderContexts = loaderContexts;
             _stopwatch = new Stopwatch();
+            _createFrame = Time.frameCount;
             RetainParent();
         }
 
@@ -28,6 +31,9 @@ namespace vFrame.Bundler
 
         [JsonSerializableProperty(true)]
         public TaskState TaskState { get; private set; }
+
+        [JsonSerializableProperty]
+        public int CreateFrame => _createFrame;
 
         protected override void OnDestroy() {
             Facade.GetSystem<LogSystem>().LogInfo("Loader destroyed: {0}", this);

@@ -102,8 +102,13 @@ namespace vFrame.Bundler
 
         private void CreatePipelineListPage() {
             _pipelines = _tree.Q<ListView>("ScrollViewPipelines");
-            _pipelines.Clear();
-            _pipelines.makeItem = () => new PipelineListItem(_contexts).Root;
+            _pipelines.makeItem = () => {
+                var item = new PipelineListItem(_contexts);
+                item.RegisterFoldoutCallback(_ => {
+                    _pipelines.RefreshItems();
+                });
+                return item.Root;
+            };
             _pipelines.bindItem = BindPipelineItem;
         }
 

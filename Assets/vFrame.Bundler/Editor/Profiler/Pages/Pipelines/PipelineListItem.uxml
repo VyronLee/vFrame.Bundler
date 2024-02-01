@@ -1,4 +1,21 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uss?fileID=11400000&amp;guid=6cddb02146a34a943a8fa96ed17ec69a&amp;type=3#BundleProfiler" />
-    <ui:GroupBox name="PipelineListItem" style="flex-grow: 1; min-height: 25px;" />
+    <ui:VisualElement name="PipelineListItem" style="flex-grow: 1; min-height: auto; flex-direction: column; justify-content: flex-start; align-items: flex-start; flex-shrink: 0;">
+        <ui:VisualElement name="ContentContainer" style="flex-shrink: 0; flex-grow: 0; height: 25px; flex-direction: row; width: 100%; position: absolute;">
+            <ui:Label text="Create" display-tooltip-when-elided="true" name="LabelCreateFrame" style="width: 10%; -unity-text-align: middle-center; overflow: hidden; justify-content: flex-start; min-width: auto; min-height: auto; flex-direction: column; align-items: flex-start;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Path" display-tooltip-when-elided="true" name="LabelPath" style="width: 50%; -unity-text-align: middle-center; overflow: hidden;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Is Done" display-tooltip-when-elided="true" name="LabelIsDone" style="width: 10%; -unity-text-align: middle-center; overflow: hidden; justify-content: center;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Is Error" display-tooltip-when-elided="true" name="LabelIsError" style="width: 10%; -unity-text-align: middle-center; overflow: hidden;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Processing" display-tooltip-when-elided="true" name="LabelProcessing" style="width: 10%; -unity-text-align: middle-center; overflow: hidden; padding-left: 1px; padding-right: 0;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Count" display-tooltip-when-elided="true" name="LabelLoaderCount" style="width: 10%; -unity-text-align: middle-center; overflow: hidden;" />
+        </ui:VisualElement>
+        <ui:Foldout name="FoldoutLoaders" value="false" style="display: flex; visibility: visible; flex-grow: 1; flex-direction: column; position: relative; top: auto; flex-shrink: 0; width: 100%; min-width: auto; min-height: auto; border-top-width: 5px; align-items: flex-start;">
+            <ui:GroupBox text="Loaders:" name="GroupBoxLoaders" style="flex-grow: 1; width: auto; margin-left: 5px; border-top-width: 1px; border-left-color: rgb(210, 210, 210); border-right-color: rgb(210, 210, 210); border-top-color: rgb(210, 210, 210); border-bottom-color: rgb(210, 210, 210); padding-top: 10px;" />
+        </ui:Foldout>
+    </ui:VisualElement>
 </ui:UXML>
