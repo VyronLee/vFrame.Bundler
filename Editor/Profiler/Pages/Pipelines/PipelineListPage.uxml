@@ -1,6 +1,19 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uss?fileID=11400000&amp;guid=6cddb02146a34a943a8fa96ed17ec69a&amp;type=3#BundleProfiler" />
-    <vFrame.Bundler.TabbedPanel name="PipelineContainer" class="border-color" style="border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; flex-grow: 1;">
-        <ui:ListView focusable="true" name="ScrollViewPipelines" virtualization-method="DynamicHeight" show-alternating-row-backgrounds="All" style="flex-grow: 1;" />
+    <vFrame.Bundler.TabbedPanel name="PipelineContainer" class="border-color" style="flex-grow: 1;">
+        <ui:VisualElement name="HeaderContainer" class="border-color" style="flex-direction: row; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; height: 25px; padding-right: 15px;">
+            <ui:Label text="Create" display-tooltip-when-elided="true" name="LabelCreateFrame" style="width: 10%; -unity-text-align: middle-center; overflow: hidden; justify-content: center;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Path" display-tooltip-when-elided="true" name="LabelPath" style="width: 50%; -unity-text-align: middle-center; overflow: hidden;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Is Done" display-tooltip-when-elided="true" name="LabelIsDone" style="width: 10%; -unity-text-align: middle-center; overflow: hidden; justify-content: center;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Is Error" display-tooltip-when-elided="true" name="LabelIsError" style="width: 10%; -unity-text-align: middle-center; overflow: hidden;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Processing" display-tooltip-when-elided="true" name="LabelProcessing" style="width: 10%; -unity-text-align: middle-center; overflow: hidden; padding-left: 1px; padding-right: 0;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Count" display-tooltip-when-elided="true" name="LabelLoaderCount" style="width: 8%; -unity-text-align: middle-center; overflow: hidden;" />
+        </ui:VisualElement>
+        <ui:ListView focusable="true" name="ScrollViewPipelines" virtualization-method="DynamicHeight" show-alternating-row-backgrounds="All" style="flex-grow: 1; border-left-color: rgba(210, 210, 210, 255); border-right-color: rgba(210, 210, 210, 255); border-top-color: rgba(210, 210, 210, 255); border-bottom-color: rgba(210, 210, 210, 255); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-top: 5px;" />
     </vFrame.Bundler.TabbedPanel>
 </ui:UXML>

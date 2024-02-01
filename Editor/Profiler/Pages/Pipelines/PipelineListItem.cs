@@ -19,15 +19,45 @@ namespace vFrame.Bundler
 {
     internal class PipelineListItem : ProfilerViewBase<JsonObject>
     {
-        [ViewElement]
-        private readonly GroupBox _groupbox;
+        [ViewElement("LabelCreateFrame")]
+        private readonly Label _labelCreateFrame;
 
-        private readonly ListView _listLoaders;
-        private Action<JsonObject> _callback;
+        [ViewElement("LabelPath")]
+        private readonly Label _labelPath;
+
+        [ViewElement("LabelIsDone")]
+        private readonly Label _labelIsDone;
+
+        [ViewElement("LabelIsError")]
+        private readonly Label _labelIsError;
+
+        [ViewElement("LabelProcessing")]
+        private readonly Label _labelProcessing;
+
+        [ViewElement("LabelLoaderCount")]
+        private readonly Label _labelLoaderCount;
+
+        [ViewElement("FoldoutLoaders")]
+        private readonly Foldout _foldoutLoaders;
+
+        [ViewElement("GroupBoxLoaders")]
+        private readonly GroupBox _groupBoxLoaders;
+
         private readonly List<VisualElement> _loaders = new List<VisualElement>();
 
-        public PipelineListItem(ProfilerContexts contexts) : base(contexts, "Pages/Pipelines/PipelineListItem.uxml"){
+        private Action<bool> _callback;
 
+        public PipelineListItem(ProfilerContexts contexts) : base(contexts, "Pages/Pipelines/PipelineListItem.uxml"){
+            // ReSharper disable once ExpressionIsAlwaysNull
+            _foldoutLoaders.RegisterValueChangedCallback(OnFoldoutLoadersValueChanged);
+        }
+
+        public void RegisterFoldoutCallback(Action<bool> callback) {
+            _callback = callback;
+        }
+
+        private void OnFoldoutLoadersValueChanged(ChangeEvent<bool> evt) {
+            _callback?.Invoke(evt.newValue);
         }
 
         protected override void OnViewDataChanged() {
@@ -36,32 +66,27 @@ namespace vFrame.Bundler
         }
 
         private void SetPipelineInfo() {
+            var createFrame = ViewData.SafeGetValue<int>("CreateFrame");
             var isDone = ViewData.SafeGetValue<bool>("IsDone");
             var isError = ViewData.SafeGetValue<bool>("IsError");
-            var processing = ViewData.SafeGetValue<bool>("Processing");
+            var processing = ViewData.SafeGetValue<int>("Processing");
             var loaderCount = ViewData.SafeGetValue<int>("LoaderCount");
             var assetPath = ViewData.SafeGetValue<string>("AssetPath");
 
-            var sb = new StringBuilder();
-            sb.Append("AssetPath: ");
-            sb.Append(assetPath);
-            sb.Append(", IsDone: ");
-            sb.Append(isDone);
-            sb.Append(", IsError: ");
-            sb.Append(isError);
-            sb.Append(", Processing: ");
-            sb.Append(processing);
-            sb.Append(", LoaderCount: ");
-            sb.Append(loaderCount);
-
-            _groupbox.text = sb.ToString();
+            _labelCreateFrame.text = createFrame.ToString();
+            _labelPath.text = assetPath ?? string.Empty;
+            _labelIsDone.text = isDone.ToString();
+            _labelIsError.text = isError.ToString();
+            _labelProcessing.text = processing.ToString();
+            _labelLoaderCount.text = loaderCount.ToString();
         }
 
         private void SetLoaderInfo() {
             _loaders.ForEach(v => v.RemoveFromHierarchy());
 
             var loaders = ViewData.SafeGetValue<JsonList>("Loaders");
-            foreach (var loader in loaders) {
+            for (var i = 0; i < loaders.Count; i++) {
+                var loader = loaders[i];
                 var data = loader as JsonObject;
                 if (null == data) {
                     continue;
@@ -76,6 +101,7 @@ namespace vFrame.Bundler
                 var mainBundlePath = data.SafeGetValue<string>("MainBundlePath");
 
                 var sb = new StringBuilder();
+                sb.Append($"{i+1}) ");
                 sb.Append("@TypeName: ");
                 sb.Append(typeName);
                 sb.Append(", AssetPath: ");
@@ -92,7 +118,7 @@ namespace vFrame.Bundler
                 var label = new Label(sb.ToString());
                 label.AddToClassList("pipeline-loader-label");
 
-                _groupbox.Add(label);
+                _groupBoxLoaders.Add(label);
                 _loaders.Add(label);
             }
         }

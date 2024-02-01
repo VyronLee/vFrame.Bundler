@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
@@ -20,6 +21,7 @@ namespace vFrame.Bundler
         private readonly LoaderContexts _loaderContexts;
         private readonly List<Loader> _loaders;
         private readonly string _guid;
+        private readonly int _createFrame;
         private int _processing;
         private bool _error;
 
@@ -28,6 +30,7 @@ namespace vFrame.Bundler
             _loaderContexts = loaderContexts;
             _loaders = new List<Loader>();
             _guid = System.Guid.NewGuid().ToString();
+            _createFrame = Time.frameCount;
             _processing = -1;
             _error = false;
         }
@@ -110,6 +113,9 @@ namespace vFrame.Bundler
 
         [JsonSerializableProperty]
         public string Guid => _guid;
+
+        [JsonSerializableProperty]
+        public int CreateFrame => _createFrame;
 
         [JsonSerializableProperty]
         public bool IsDone => _processing >= _loaders.Count;

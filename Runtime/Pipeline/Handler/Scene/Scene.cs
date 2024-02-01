@@ -20,6 +20,7 @@ namespace vFrame.Bundler
         private UnloadOperation _unloadOperation;
         private bool _unloaded;
         private Loader _loader;
+        private readonly int _createFrame = Time.frameCount;
 
         internal SceneLoader SceneLoader => ((ILoaderHandler)this).Loader as SceneLoader
                                             ?? throw new ArgumentException("SceneLoader expected, got: "
@@ -79,6 +80,9 @@ namespace vFrame.Bundler
 
         [JsonSerializableProperty]
         public bool IsUnloaded => _unloaded;
+
+        [JsonSerializableProperty]
+        public int CreateFrame => _createFrame;
 
         public override string ToString() {
             return $"[@TypeName: {GetType().Name}, AssetPath: {SceneLoader.AssetPath}]";

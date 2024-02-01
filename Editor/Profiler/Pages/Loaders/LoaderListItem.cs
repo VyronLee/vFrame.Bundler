@@ -16,6 +16,9 @@ namespace vFrame.Bundler
 {
     internal class LoaderListItem : ProfilerViewBase<JsonObject>
     {
+        [ViewElement("LabelCreateFrame")]
+        private readonly Label _labelCreateFrame;
+
         [ViewElement("LabelName")]
         private readonly Label _labelName;
 
@@ -40,6 +43,7 @@ namespace vFrame.Bundler
 
         protected override void OnViewDataChanged() {
             var typeName = ViewData.SafeGetValue<string>("@TypeName");
+            var createFrame = ViewData.SafeGetValue<int>("CreateFrame");
             var references = ViewData.SafeGetValue<long>("References");
             var progress = ViewData.SafeGetValue<double>("Progress");
             var elapsed = ViewData.SafeGetValue<double>("Elapsed");
@@ -49,6 +53,7 @@ namespace vFrame.Bundler
             var mainBundlePath = ViewData.SafeGetValue<string>("MainBundlePath");
             var guid = ViewData.SafeGetValue<string>("Guid");
 
+            _labelCreateFrame.text = createFrame.ToString();
             _labelName.text = typeName ?? string.Empty;
             _labelPath.text = mainBundlePath ?? bundlePath ?? assetPath ?? guid ?? string.Empty;
             _labelProgress.text = progress.ToString("F2");
