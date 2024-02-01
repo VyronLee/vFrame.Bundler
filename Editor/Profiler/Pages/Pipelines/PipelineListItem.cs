@@ -13,46 +13,34 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using UnityEditor;
 using UnityEngine.UIElements;
 
 namespace vFrame.Bundler
 {
-    internal class PipelineListItem
+    internal class PipelineListItem : ProfilerViewBase<JsonObject>
     {
-        private readonly VisualElement _root;
+        [ViewElement]
         private readonly GroupBox _groupbox;
+
         private readonly ListView _listLoaders;
-        private JsonObject _data;
         private Action<JsonObject> _callback;
         private readonly List<VisualElement> _loaders = new List<VisualElement>();
 
-        public PipelineListItem() {
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/vFrame.Bundler/Editor/Profiler/PipelineListItem.uxml");
-            _root = visualTree.Instantiate();
-            _root.userData = this;
+        public PipelineListItem(ProfilerContexts contexts) : base(contexts, "Pages/Pipelines/PipelineListItem.uxml"){
 
-            _groupbox = _root.Q<GroupBox>();
         }
 
-        public VisualElement Root => _root;
-
-        public void SetData(JsonObject data) {
-            if (null == data) {
-                return;
-            }
-            _data = data;
-
+        protected override void OnViewDataChanged() {
             SetPipelineInfo();
             SetLoaderInfo();
         }
 
         private void SetPipelineInfo() {
-            var isDone = _data.SafeGetValue<bool>("IsDone");
-            var isError = _data.SafeGetValue<bool>("IsError");
-            var processing = _data.SafeGetValue<bool>("Processing");
-            var loaderCount = _data.SafeGetValue<int>("LoaderCount");
-            var assetPath = _data.SafeGetValue<string>("AssetPath");
+            var isDone = ViewData.SafeGetValue<bool>("IsDone");
+            var isError = ViewData.SafeGetValue<bool>("IsError");
+            var processing = ViewData.SafeGetValue<bool>("Processing");
+            var loaderCount = ViewData.SafeGetValue<int>("LoaderCount");
+            var assetPath = ViewData.SafeGetValue<string>("AssetPath");
 
             var sb = new StringBuilder();
             sb.Append("AssetPath: ");
@@ -72,7 +60,7 @@ namespace vFrame.Bundler
         private void SetLoaderInfo() {
             _loaders.ForEach(v => v.RemoveFromHierarchy());
 
-            var loaders = _data.SafeGetValue<JsonList>("Loaders");
+            var loaders = ViewData.SafeGetValue<JsonList>("Loaders");
             foreach (var loader in loaders) {
                 var data = loader as JsonObject;
                 if (null == data) {

@@ -31,7 +31,8 @@ namespace vFrame.Bundler
         private JsonRpcClient _rpcClient;
         private bool _isStarted;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-        private readonly ProfileLogger _logger = new ProfileLogger();
+        private readonly ProfilerLogger _logger = new ProfilerLogger();
+        private readonly ProfilerContexts _contexts = new ProfilerContexts();
 
         private const float RefreshFrequency = 1f;
 
@@ -95,14 +96,14 @@ namespace vFrame.Bundler
 
         private void CreateLoaderListPage() {
             _loaders = _tree.Q<ListView>("ListViewLoaders");
-            _loaders.makeItem = () => new LoaderListItem();
+            _loaders.makeItem = () => new LoaderListItem(_contexts).Root;
             _loaders.bindItem = BindLoaderItem;
         }
 
         private void CreatePipelineListPage() {
             _pipelines = _tree.Q<ListView>("ScrollViewPipelines");
             _pipelines.Clear();
-            _pipelines.makeItem = () => new PipelineListItem().Root;
+            _pipelines.makeItem = () => new PipelineListItem(_contexts).Root;
             _pipelines.bindItem = BindPipelineItem;
         }
 
@@ -161,11 +162,11 @@ namespace vFrame.Bundler
         }
 
         private void BindLoaderItem(VisualElement element, int index) {
-            var listItem = element as LoaderListItem;
+            var listItem = element.userData as LoaderListItem;
             if (null == listItem) {
                 return;
             }
-            listItem.SetData(_loaders.itemsSource[index] as JsonObject);
+            listItem.ViewData = _loaders.itemsSource[index] as JsonObject;
         }
 
         private void BindPipelineItem(VisualElement element, int index) {
@@ -173,7 +174,7 @@ namespace vFrame.Bundler
             if (null == listItem) {
                 return;
             }
-            listItem.SetData(_pipelines.itemsSource[index] as JsonObject);
+            listItem.ViewData = _pipelines.itemsSource[index] as JsonObject;
         }
 
         public void OnDestroy() {

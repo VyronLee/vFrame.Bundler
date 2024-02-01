@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-//         File: ProfileLogger.cs
-//        Brief: ProfileLogger.cs
+//         File: ProfilerLogger.cs
+//        Brief: ProfilerLogger.cs
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace vFrame.Bundler
 {
-    internal class ProfileLogger : ILogger
+    internal class ProfilerLogger : ILogger
     {
         private int _level = LogLevel.Info;
 
