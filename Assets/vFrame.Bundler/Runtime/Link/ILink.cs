@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-//         File: IProxy.cs
-//        Brief: IProxy.cs
+//         File: ILink.cs
+//        Brief: ILink.cs
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,10 +8,13 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+using UnityEngine;
+
 namespace vFrame.Bundler
 {
-    internal interface IProxy
+    internal interface ILink
     {
         Loader Loader { get; set; }
+        Object Target { get; set; }
     }
 }

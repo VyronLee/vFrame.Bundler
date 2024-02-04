@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------
-//        File:  SpriteRendererProxy.cs
-//       Brief:  SpriteRendererProxy
+//        File:  SpriteRendererLink.cs
+//       Brief:  SpriteRendererLink
 //
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
@@ -12,9 +12,9 @@ using UnityEngine;
 
 namespace vFrame.Bundler
 {
-    public static class SpriteRendererProxy
+    public static class SpriteRendererLink
     {
-        private class SpriteSetter : PropertySetterProxy<SpriteRenderer, Sprite>
+        private class SpriteLink : PropertyLink<SpriteRenderer, Sprite>
         {
             public override void Set(SpriteRenderer target, Sprite asset) {
                 target.sprite = asset;
@@ -25,16 +25,16 @@ namespace vFrame.Bundler
         // SetSprite
         //============================================================
         public static void SetSprite(this SpriteRenderer target, Asset asset) {
-            asset.SetTo<SpriteRenderer, Sprite, SpriteSetter>(target);
+            asset.SetTo<SpriteRenderer, Sprite, SpriteLink>(target);
         }
         public static void SetSprite(this SpriteRenderer target, AssetAsync asset) {
-            asset.SetTo<SpriteRenderer, Sprite, SpriteSetter>(target);
+            asset.SetTo<SpriteRenderer, Sprite, SpriteLink>(target);
         }
         public static void SetSprite(this SpriteRenderer target, Asset<Sprite> asset) {
-            asset.SetTo<SpriteRenderer, SpriteSetter>(target);
+            asset.SetTo<SpriteRenderer, SpriteLink>(target);
         }
         public static void SetSprite(this SpriteRenderer target, AssetAsync<Sprite> asset) {
-            asset.SetTo<SpriteRenderer, SpriteSetter>(target);
+            asset.SetTo<SpriteRenderer, SpriteLink>(target);
         }
     }
 }

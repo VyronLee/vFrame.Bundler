@@ -42,12 +42,12 @@ namespace vFrame.Bundler
             return AssetHelper<Asset>.Instantiate(this, parent, stayWorldPosition);
         }
 
-        public void SetTo<TComponent, TObject, TProxy>(TComponent target)
+        public void SetTo<TComponent, TLink, TProxy>(TComponent target)
             where TComponent : Component
-            where TObject : Object
-            where TProxy : PropertySetterProxy<TComponent, TObject>, new() {
+            where TLink : Object
+            where TProxy : PropertyLink<TComponent, TLink>, new() {
 
-            AssetHelper<Asset>.SetTo<TComponent, TObject, TProxy>(this, target);
+            AssetHelper<Asset>.SetTo<TComponent, TLink, TProxy>(this, target);
         }
 
         public void Retain() {
@@ -90,7 +90,7 @@ namespace vFrame.Bundler
 
         public void SetTo<TComponent, TProxy>(TComponent target)
             where TComponent : Component
-            where TProxy : PropertySetterProxy<TComponent, T>, new() {
+            where TProxy : PropertyLink<TComponent, T>, new() {
 
             AssetHelper<Asset<T>>.SetTo<TComponent, T, TProxy>(this, target);
         }

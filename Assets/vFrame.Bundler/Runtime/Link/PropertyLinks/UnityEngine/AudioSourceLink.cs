@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------
-//        File:  AudioSourceProxy.cs
-//       Brief:  AudioSourceProxy
+//        File:  AudioSourceLink.cs
+//       Brief:  AudioSourceLink
 //
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
@@ -12,9 +12,9 @@ using UnityEngine;
 
 namespace vFrame.Bundler
 {
-    public static class AudioSourceProxy
+    public static class AudioSourceLink
     {
-        private class AudioClipSetter : PropertySetterProxy<AudioSource, AudioClip>
+        private class AudioClipLink : PropertyLink<AudioSource, AudioClip>
         {
             public override void Set(AudioSource target, AudioClip asset) {
                 target.clip = asset;
@@ -25,16 +25,16 @@ namespace vFrame.Bundler
         // SetClip
         //============================================================
         public static void SetClip(this AudioSource target, Asset asset) {
-            asset.SetTo<AudioSource, AudioClip, AudioClipSetter>(target);
+            asset.SetTo<AudioSource, AudioClip, AudioClipLink>(target);
         }
         public static void SetClip(this AudioSource target, AssetAsync asset) {
-            asset.SetTo<AudioSource, AudioClip, AudioClipSetter>(target);
+            asset.SetTo<AudioSource, AudioClip, AudioClipLink>(target);
         }
         public static void SetClip(this AudioSource target, Asset<AudioClip> asset) {
-            asset.SetTo<AudioSource, AudioClipSetter>(target);
+            asset.SetTo<AudioSource, AudioClipLink>(target);
         }
         public static void SetClip(this AudioSource target, AssetAsync<AudioClip> asset) {
-            asset.SetTo<AudioSource, AudioClipSetter>(target);
+            asset.SetTo<AudioSource, AudioClipLink>(target);
         }
     }
 }
