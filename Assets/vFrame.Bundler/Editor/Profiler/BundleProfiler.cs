@@ -26,6 +26,8 @@ namespace vFrame.Bundler
         private Button _buttonClear;
         private ListView _loaders;
         private ListView _pipelines;
+        private ListView _handlers;
+        private ListView _linkedObjects;
         private TabbedPanelGroup _tabbedPanelGroup;
 
         private JsonRpcClient _rpcClient;
@@ -65,13 +67,15 @@ namespace vFrame.Bundler
 
         public void CreateGUI() {
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    "Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uxml");
+                    ProfilerAssetLocator.LocatorDir + "BundleProfiler.uxml");
             _tree = visualTree.Instantiate();
             rootVisualElement.Add(_tree);
 
             CreateToolbar();
             CreateLoaderListPage();
             CreatePipelineListPage();
+            CreateHandlerListPage();
+            CreateLinkedObjectPage();
             CreateTabbedPanelGroup();
         }
 
@@ -97,11 +101,17 @@ namespace vFrame.Bundler
         private void CreateLoaderListPage() {
             _loaders = _tree.Q<ListView>("ListViewLoaders");
             _loaders.makeItem = () => new LoaderListItem(_contexts).Root;
-            _loaders.bindItem = BindLoaderItem;
+            _loaders.bindItem = (element, index) => {
+                var listItem = element.userData as LoaderListItem;
+                if (null == listItem) {
+                    return;
+                }
+                listItem.ViewData = _loaders.itemsSource[index] as JsonObject;
+            };
         }
 
         private void CreatePipelineListPage() {
-            _pipelines = _tree.Q<ListView>("ScrollViewPipelines");
+            _pipelines = _tree.Q<ListView>("ListViewPipelines");
             _pipelines.makeItem = () => {
                 var item = new PipelineListItem(_contexts);
                 item.RegisterFoldoutCallback(_ => {
@@ -109,11 +119,32 @@ namespace vFrame.Bundler
                 });
                 return item.Root;
             };
-            _pipelines.bindItem = BindPipelineItem;
+            _pipelines.bindItem = (element, index) => {
+                var listItem = element.userData as PipelineListItem;
+                if (null == listItem) {
+                    return;
+                }
+                listItem.ViewData = _pipelines.itemsSource[index] as JsonObject;
+            };
+        }
+
+        private void CreateHandlerListPage() {
+            _handlers = _tree.Q<ListView>("ListViewHandlers");
+            _handlers.makeItem = () => new HandlerListItem(_contexts).Root;
+            _handlers.bindItem = (element, index) => {
+                var listItem = element.userData as HandlerListItem;
+                if (null == listItem) {
+                    return;
+                }
+                listItem.ViewData = _handlers.itemsSource[index] as JsonObject;
+            };
+        }
+
+        private void CreateLinkedObjectPage() {
+
         }
 
         private void OnSelectedPageChanged(string pageName) {
-            _logger.LogInfo("Selected page changed to: {0}", pageName);
             _selectedPage = pageName;
         }
 
@@ -137,8 +168,12 @@ namespace vFrame.Bundler
                     _pipelines.Rebuild();
                     break;
                 case HandlerListPageName:
+                    _handlers.itemsSource = null;
+                    _handlers.Rebuild();
                     break;
                 case LinkedObjectListPageName:
+                    _linkedObjects.itemsSource = null;
+                    _linkedObjects.Rebuild();
                     break;
                 default:
                     _logger.LogWarning("Unhandled page name: {0}", _selectedPage);
@@ -164,22 +199,6 @@ namespace vFrame.Bundler
             _buttonStart.text = "Stop";
             _clientAddress.SetEnabled(false);
             _stopwatch.Restart();
-        }
-
-        private void BindLoaderItem(VisualElement element, int index) {
-            var listItem = element.userData as LoaderListItem;
-            if (null == listItem) {
-                return;
-            }
-            listItem.ViewData = _loaders.itemsSource[index] as JsonObject;
-        }
-
-        private void BindPipelineItem(VisualElement element, int index) {
-            var listItem = element.userData as PipelineListItem;
-            if (null == listItem) {
-                return;
-            }
-            listItem.ViewData = _pipelines.itemsSource[index] as JsonObject;
         }
 
         public void OnDestroy() {
@@ -232,10 +251,10 @@ namespace vFrame.Bundler
                 return;
             }
             var jsonData = respond.RespondData;
-            if (!jsonData.TryGetValue("loaders", out var loadersInfo)) {
+            if (!jsonData.TryGetValue("loaders", out var loaders)) {
                 return;
             }
-            _loaders.itemsSource = loadersInfo as JsonList;
+            _loaders.itemsSource = loaders as JsonList;
             _loaders.RefreshItems();
         }
 
@@ -257,6 +276,13 @@ namespace vFrame.Bundler
                 return;
             }
 
+            var jsonData = respond.RespondData;
+            if (!jsonData.TryGetValue("handlers", out var handlers)) {
+                return;
+            }
+
+            _handlers.itemsSource = handlers as JsonList;
+            _handlers.RefreshItems();
         }
 
         private void OnQueryLinkedObjectsInfoCallback(RespondContext respond) {

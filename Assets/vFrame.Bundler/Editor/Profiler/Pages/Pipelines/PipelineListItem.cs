@@ -108,7 +108,7 @@ namespace vFrame.Bundler
                 sb.Append(assetPath ?? bundlePath ?? mainBundlePath);
                 sb.Append(", Progress: ");
                 sb.Append(progress);
-                sb.Append(", Elapsed: ");
+                sb.Append(", Elapsed(ms): ");
                 sb.Append(elapsed);
                 sb.Append(", TaskState: ");
                 sb.Append(taskState);
