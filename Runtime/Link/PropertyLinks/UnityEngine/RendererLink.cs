@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------
-//        File:  RendererProxy.cs
-//       Brief:  RendererProxy
+//        File:  RendererLink.cs
+//       Brief:  RendererLink
 //
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
@@ -12,16 +12,16 @@ using UnityEngine;
 
 namespace vFrame.Bundler
 {
-    public static class RendererProxy
+    public static class RendererLink
     {
-        private class MaterialSetter : PropertySetterProxy<Renderer, Material>
+        private class MaterialLink : PropertyLink<Renderer, Material>
         {
             public override void Set(Renderer target, Material asset) {
                 target.material = asset;
             }
         }
 
-        private class SharedMaterialSetter : PropertySetterProxy<Renderer, Material>
+        private class SharedMaterialLink : PropertyLink<Renderer, Material>
         {
             public override void Set(Renderer target, Material asset) {
                 target.sharedMaterial = asset;
@@ -32,32 +32,32 @@ namespace vFrame.Bundler
         // SetMaterial
         //============================================================
         public static void SetMaterial(this Renderer target, Asset asset) {
-            asset.SetTo<Renderer, Material, MaterialSetter>(target);
+            asset.SetTo<Renderer, Material, MaterialLink>(target);
         }
         public static void SetMaterial(this Renderer target, AssetAsync asset) {
-            asset.SetTo<Renderer, Material, MaterialSetter>(target);
+            asset.SetTo<Renderer, Material, MaterialLink>(target);
         }
         public static void SetMaterial(this Renderer target, Asset<Material> asset) {
-            asset.SetTo<Renderer, MaterialSetter>(target);
+            asset.SetTo<Renderer, MaterialLink>(target);
         }
         public static void SetMaterial(this Renderer target, AssetAsync<Material> asset) {
-            asset.SetTo<Renderer, MaterialSetter>(target);
+            asset.SetTo<Renderer, MaterialLink>(target);
         }
 
         //============================================================
         // SetSharedMaterial
         //============================================================
         public static void SetSharedMaterial(this Renderer target, Asset asset) {
-            asset.SetTo<Renderer, Material, SharedMaterialSetter>(target);
+            asset.SetTo<Renderer, Material, SharedMaterialLink>(target);
         }
         public static void SetSharedMaterial(this Renderer target, AssetAsync asset) {
-            asset.SetTo<Renderer, Material, SharedMaterialSetter>(target);
+            asset.SetTo<Renderer, Material, SharedMaterialLink>(target);
         }
         public static void SetSharedMaterial(this Renderer target, Asset<Material> asset) {
-            asset.SetTo<Renderer, SharedMaterialSetter>(target);
+            asset.SetTo<Renderer, SharedMaterialLink>(target);
         }
         public static void SetSharedMaterial(this Renderer target, AssetAsync<Material> asset) {
-            asset.SetTo<Renderer, SharedMaterialSetter>(target);
+            asset.SetTo<Renderer, SharedMaterialLink>(target);
         }
     }
 }

@@ -35,19 +35,17 @@ namespace vFrame.Bundler
         }
 
         public static Object Instantiate(T loaderHandler, Transform parent = null, bool stayWorldPosition = false) {
-            var ret = Object.Instantiate(GetAssetLoader(loaderHandler).AssetObject, parent, stayWorldPosition);
             var proxySystem = GetFacade(loaderHandler).GetSystem<LinkSystem>();
-            proxySystem.LinkObject(ret, loaderHandler);
-            return ret;
+            return proxySystem.InstantiateAndLink(loaderHandler, parent, stayWorldPosition);
         }
 
-        public static void SetTo<TComponent, TObject, TProxy>(T loaderHandler, TComponent target)
+        public static void SetTo<TComponent, TObject, TLink>(T loaderHandler, TComponent target)
             where TComponent : Component
             where TObject : Object
-            where TProxy : PropertySetterProxy<TComponent, TObject>, new() {
+            where TLink : PropertyLink<TComponent, TObject>, new() {
 
             var proxySystem = GetFacade(loaderHandler).GetSystem<LinkSystem>();
-            proxySystem.RebindProxy<TComponent, TObject, TProxy>(loaderHandler, target);
+            proxySystem.RelinkProperty<TComponent, TObject, TLink>(loaderHandler, target);
         }
     }
 }

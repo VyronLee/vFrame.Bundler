@@ -246,72 +246,79 @@ namespace vFrame.Bundler
         }
 
         //============================================================
-        // Proxies
+        // Links
         //============================================================
 
-        private Dictionary<Component, Dictionary<Type, PropertyProxy>> Proxies { get; } =
-            new Dictionary<Component, Dictionary<Type, PropertyProxy>>();
-        private Dictionary<Loader, HashSet<Object>> LinkedObjects { get; } =
-            new Dictionary<Loader, HashSet<Object>>();
+        // Object => Link Type => Link Instances
+        private Dictionary<Object, Dictionary<Type, HashSet<LinkBase>>> Links { get; } =
+            new Dictionary<Object, Dictionary<Type, HashSet<LinkBase>>>();
 
-        public void AddProxy(Component component, PropertyProxy proxy) {
-            if (!Proxies.TryGetValue(component, out var dict)) {
-                dict = Proxies[component] = DictionaryPool<Type, PropertyProxy>.Get();
+        public void AddLink(LinkBase link) {
+            var linkedTarget = ((ILink)link).Target;
+            if (!Links.TryGetValue(linkedTarget, out var dict)) {
+                dict = Links[linkedTarget] = DictionaryPool<Type, HashSet<LinkBase>>.Get();
             }
-            if (dict.TryGetValue(proxy.GetType(), out var current)) {
-                throw new ArgumentException("An element already exist with same type: " + proxy.GetType().Name);
+            if (!dict.TryGetValue(link.GetType(), out var links)) {
+                links = dict[link.GetType()] = HashSetPool<LinkBase>.Get();
             }
-            dict.Add(proxy.GetType(), proxy);
+            if (link.Exclusive) {
+                if (links.Count > 0) {
+                    throw new BundleException(
+                        $"Cannot add multiple exclusive link({link.GetType().FullName}) to an object.");
+                }
+            }
+            links.Add(link);
         }
 
-        public PropertyProxy RemoveProxy(Component component, Type type) {
-            if (!Proxies.TryGetValue(component, out var dict)) {
-                return null;
+        public void RemoveLinksOfType<T>(Object linkedTarget) where T: LinkBase, new() {
+            if (!Links.TryGetValue(linkedTarget, out var dict)) {
+                return;
             }
-            var proxy = dict[type];
-            dict.Remove(type);
+            if (dict.TryGetValue(typeof(T), out var links)) {
+                foreach (var link in links) {
+                    ObjectPool<T>.Return(link as T);
+                }
+                HashSetPool<LinkBase>.Return(links);
+            }
 
+            dict.Remove(typeof(T));
             if (dict.Count > 0) {
-                return proxy;
+                return;
             }
-            Proxies.Remove(component);
+            Links.Remove(linkedTarget);
 
-            DictionaryPool<Type, PropertyProxy>.Return(dict);
-            return proxy;
+            DictionaryPool<Type, HashSet<LinkBase>>.Return(dict);
         }
 
-        public bool TryGetProxy(Component component, Type type, out PropertyProxy proxy) {
-            if (Proxies.TryGetValue(component, out var dict)) {
-                return dict.TryGetValue(type, out proxy);
+        public void RemoveLinks(Object linkedTarget) {
+            if (!Links.TryGetValue(linkedTarget, out var dict)) {
+                return;
             }
-            proxy = null;
+            Links.Remove(linkedTarget);
+
+            foreach (var kv in dict) {
+                HashSetPool<LinkBase>.Return(kv.Value);
+            }
+            DictionaryPool<Type, HashSet<LinkBase>>.Return(dict);
+        }
+
+        public bool TryGetLinks<T>(Object linkedTarget, out HashSet<LinkBase> links) where T: LinkBase {
+            if (Links.TryGetValue(linkedTarget, out var dict)) {
+                if (dict.TryGetValue(typeof(T), out links)) {
+                    return true;
+                }
+            }
+            links = default;
             return false;
         }
 
-        public void AddLinkedObject(Loader loader, Object target) {
-            if (!LinkedObjects.TryGetValue(loader, out var set)) {
-                set = LinkedObjects[loader] = HashSetPool<Object>.Get();
-            }
-            set.Add(target);
-        }
-
-        public void RemoveLinkedObject(Loader loader, Object target) {
-            if (!LinkedObjects.TryGetValue(loader, out var set)) {
-                return;
-            }
-            set.Remove(target);
-
-            if (set.Count > 0) {
-                return;
-            }
-            LinkedObjects.Remove(loader);
-
-            HashSetPool<Object>.Return(set);
-        }
-
-        public void ForEachLinkedObject(Action<Loader, HashSet<Object>> action) {
-            foreach (var kv in LinkedObjects) {
-                action(kv.Key, kv.Value);
+        public void ForEachLinks(Action<Object, LinkBase> action) {
+            foreach (var kv in Links) {
+                foreach (var dict in kv.Value) {
+                    foreach (var linkBase in dict.Value) {
+                        action(kv.Key, linkBase);
+                    }
+                }
             }
         }
     }
