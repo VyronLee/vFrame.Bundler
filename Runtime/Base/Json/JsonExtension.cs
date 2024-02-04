@@ -138,6 +138,8 @@ namespace vFrame.Bundler
                 try {
                     // Number deserialize from MiniJson will only convert to long or double.
                     switch (value) {
+                        case null:
+                            return defaultValue;
                         case long longValue:
                             return (T) Convert.ChangeType(longValue, typeof(T));
                         case double doubleValue:
@@ -147,7 +149,7 @@ namespace vFrame.Bundler
                 }
                 catch (InvalidCastException) {
                     Debug.LogErrorFormat("Cannot convert value: {0} from type: {1} to type: {2}",
-                        value, value.GetType(), typeof(T));
+                        value, value?.GetType(), typeof(T));
                     return defaultValue;
                 }
             }

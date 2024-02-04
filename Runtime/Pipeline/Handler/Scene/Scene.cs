@@ -84,6 +84,9 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public int CreateFrame => _createFrame;
 
+        [JsonSerializableProperty]
+        public string AssetPath => SceneLoader?.AssetPath;
+
         public override string ToString() {
             return $"[@TypeName: {GetType().Name}, AssetPath: {SceneLoader.AssetPath}]";
         }

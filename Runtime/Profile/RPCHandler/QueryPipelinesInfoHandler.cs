@@ -17,8 +17,9 @@ namespace vFrame.Bundler
         public override string MethodName => RPCMethods.QueryPipelinesInfo;
 
         public override int HandleRequest(JsonObject args, out JsonObject result) {
-            var pipelines = new List<Dictionary<string, object>>();
+            var pipelines = new List<JsonObject>();
             BundlerContexts.ForEachPipeline(v => pipelines.Add(v.ToJsonData()));
+            pipelines.Sort(ProfileUtils.SortByCreateFrame);
 
             result = new JsonObject {
                 ["pipelines"] = pipelines
