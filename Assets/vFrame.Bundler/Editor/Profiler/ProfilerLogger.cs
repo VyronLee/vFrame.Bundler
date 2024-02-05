@@ -14,7 +14,11 @@ namespace vFrame.Bundler
 {
     internal class ProfilerLogger : ILogger
     {
-        private int _level = LogLevel.Info;
+        private int _level;
+
+        public ProfilerLogger(int level = LogLevel.Info) {
+            _level = level;
+        }
 
         public void SetLogLevel(int level) {
             _level = level;

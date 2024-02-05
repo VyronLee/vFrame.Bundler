@@ -60,6 +60,9 @@ namespace vFrame.Bundler
                 if (null != panel) {
                     _pages.Add(panel.name, panel);
                 }
+                else {
+                    Debug.LogError("Panel not found: " + kv.Value);
+                }
             }
         }
 

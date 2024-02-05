@@ -17,6 +17,6 @@ namespace vFrame.Bundler
         public const string QueryPipelinesInfo = "QueryPipelinesInfo";
         public const string QueryPipelineInfoByGuid = "QueryPipelineInfoByGuid";
         public const string QueryHandlersInfo = "QueryHandlersInfo";
-        public const string QueryLinkedObjectsInfo = "QueryLinkedObjectsInfo";
+        public const string QueryLinksInfo = "QueryLinksInfo";
     }
 }

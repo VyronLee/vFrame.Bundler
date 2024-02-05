@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using vFrame.Bundler.Exception;
 using Object = UnityEngine.Object;
 
@@ -232,7 +231,7 @@ namespace vFrame.Bundler
         }
 
         public void RemovePipeline(LoaderPipeline pipeline) {
-            //Pipelines.Remove(pipeline.Guid);
+            Pipelines.Remove(pipeline.Guid);
         }
 
         public bool TryGetPipeline(string guid, out LoaderPipeline pipeline) {
