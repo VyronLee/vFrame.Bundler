@@ -26,11 +26,6 @@ namespace vFrame.Bundler
 
     public static class JsonExtension
     {
-        private const BindingFlags PropertyBindingFlags = BindingFlags.Instance
-                                                          | BindingFlags.Public
-                                                          | BindingFlags.NonPublic
-                                                          | BindingFlags.FlattenHierarchy;
-
         public static string ToJsonString(this JsonObject serializable) {
             return Json.Serialize(serializable);
         }
@@ -91,11 +86,12 @@ namespace vFrame.Bundler
 
         public static JsonObject ToJsonData(this IJsonSerializable serializable) {
             var serializableType = serializable.GetType();
-            var properties = serializableType.GetProperties(PropertyBindingFlags);
+            var properties = serializableType.GetInstanceProperties();
 
             var jsonData = new JsonObject {
                 ["@TypeName"] = serializableType.Name
             };
+
             foreach (var property in properties) {
                 var attribute = property.GetCustomAttribute<JsonSerializableProperty>(true);
                 if (null == attribute) {

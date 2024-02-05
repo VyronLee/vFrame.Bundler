@@ -132,10 +132,16 @@ namespace vFrame.Bundler
             var httpRequest = context.Request;
             var httpRespond = context.Response;
 
-            if (respondContext.ErrorCode <= 0) {
-                var args = requestData["args"] as JsonObject;
-                respondContext.ErrorCode = handler.HandleRequest(args, out var respondJsonData);
-                respondContext.RespondData = respondJsonData ?? _emptyRespondJsonData;
+            try {
+                if (respondContext.ErrorCode <= 0) {
+                    var args = requestData["args"] as JsonObject;
+                    respondContext.ErrorCode = handler.HandleRequest(args, out var respondJsonData);
+                    respondContext.RespondData = respondJsonData ?? _emptyRespondJsonData;
+                }
+            }
+            catch (System.Exception e) {
+                respondContext.ErrorCode = JsonRpcErrorCode.UnknownError;
+                _logger.LogException(e);
             }
 
             var respondJson = respondContext.ToJsonString();

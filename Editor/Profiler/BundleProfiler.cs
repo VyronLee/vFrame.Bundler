@@ -27,13 +27,13 @@ namespace vFrame.Bundler
         private ListView _loaders;
         private ListView _pipelines;
         private ListView _handlers;
-        private ListView _linkedObjects;
+        private ListView _links;
         private TabbedPanelGroup _tabbedPanelGroup;
 
         private JsonRpcClient _rpcClient;
         private bool _isStarted;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-        private readonly ProfilerLogger _logger = new ProfilerLogger();
+        private readonly ProfilerLogger _logger = new ProfilerLogger(LogLevel.Debug);
         private readonly ProfilerContexts _contexts = new ProfilerContexts();
 
         private const float RefreshFrequency = 1f;
@@ -41,18 +41,18 @@ namespace vFrame.Bundler
         private const string TabButtonLoadersName = "ButtonLoaders";
         private const string TabButtonPipelinesName = "ButtonPipelines";
         private const string TabButtonHandlersName = "ButtonHandlers";
-        private const string TabButtonLinkedObjectsName = "ButtonLinkedObjects";
+        private const string TabButtonLinksName = "ButtonLinks";
 
         private const string LoaderListPageName = "LoaderListPage";
         private const string PipelineListPageName = "PipelineListPage";
         private const string HandlerListPageName = "HandlerListPage";
-        private const string LinkedObjectListPageName = "LinkedObjectListPageName";
+        private const string LinkListPageName = "LinkListPage";
 
         private static readonly Dictionary<string, string> _tabNameMapping = new Dictionary<string, string> {
             {TabButtonLoadersName, LoaderListPageName},
             {TabButtonPipelinesName, PipelineListPageName},
             {TabButtonHandlersName, HandlerListPageName},
-            {TabButtonLinkedObjectsName, LinkedObjectListPageName}
+            {TabButtonLinksName, LinkListPageName}
         };
 
         private VisualElement _tree;
@@ -75,7 +75,7 @@ namespace vFrame.Bundler
             CreateLoaderListPage();
             CreatePipelineListPage();
             CreateHandlerListPage();
-            CreateLinkedObjectPage();
+            CreateLinkListPage();
             CreateTabbedPanelGroup();
         }
 
@@ -140,8 +140,16 @@ namespace vFrame.Bundler
             };
         }
 
-        private void CreateLinkedObjectPage() {
-
+        private void CreateLinkListPage() {
+            _links = _tree.Q<ListView>("ListViewLinks");
+            _links.makeItem = () => new LinkListItem(_contexts).Root;
+            _links.bindItem = (element, index) => {
+                var listItem = element.userData as LinkListItem;
+                if (null == listItem) {
+                    return;
+                }
+                listItem.ViewData = _links.itemsSource[index] as JsonObject;
+            };
         }
 
         private void OnSelectedPageChanged(string pageName) {
@@ -171,9 +179,9 @@ namespace vFrame.Bundler
                     _handlers.itemsSource = null;
                     _handlers.Rebuild();
                     break;
-                case LinkedObjectListPageName:
-                    _linkedObjects.itemsSource = null;
-                    _linkedObjects.Rebuild();
+                case LinkListPageName:
+                    _links.itemsSource = null;
+                    _links.Rebuild();
                     break;
                 default:
                     _logger.LogWarning("Unhandled page name: {0}", _selectedPage);
@@ -233,8 +241,8 @@ namespace vFrame.Bundler
                 case HandlerListPageName:
                     _rpcClient.SendRequest(RPCMethods.QueryHandlersInfo, OnQueryHandlersInfoCallback);
                     break;
-                case LinkedObjectListPageName:
-                    _rpcClient.SendRequest(RPCMethods.QueryLinkedObjectsInfo, OnQueryLinkedObjectsInfoCallback);
+                case LinkListPageName:
+                    _rpcClient.SendRequest(RPCMethods.QueryLinksInfo, OnQueryLinksInfoCallback);
                     break;
                 default:
                     _logger.LogWarning("Unhandled page name: {0}", _selectedPage);
@@ -285,11 +293,18 @@ namespace vFrame.Bundler
             _handlers.RefreshItems();
         }
 
-        private void OnQueryLinkedObjectsInfoCallback(RespondContext respond) {
+        private void OnQueryLinksInfoCallback(RespondContext respond) {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {
                 return;
             }
 
+            var jsonData = respond.RespondData;
+            if (!jsonData.TryGetValue("links", out var links)) {
+                return;
+            }
+
+            _links.itemsSource = links as JsonList;
+            _links.RefreshItems();
         }
     }
 }

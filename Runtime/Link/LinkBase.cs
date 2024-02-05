@@ -14,10 +14,8 @@ namespace vFrame.Bundler
 {
     public abstract class LinkBase : ILink, IJsonSerializable
     {
-        private readonly int _createFrame = Time.frameCount;
-
         [JsonSerializableProperty]
-        internal int CreateFrame => _createFrame;
+        internal int CreateFrame { get; } = Time.frameCount;
 
         [JsonSerializableProperty]
         Loader ILink.Loader { get; set; }
@@ -33,6 +31,10 @@ namespace vFrame.Bundler
 
         internal void Release() {
             ((ILink)this).Loader?.Release();
+        }
+
+        public override string ToString() {
+            return $"[@TypeName: {GetType().Name}, CreateFrame: {CreateFrame}, Exclusive: {Exclusive}, Target: {((ILink)this).Target}, Loader: {((ILink)this).Loader}]";
         }
     }
 }

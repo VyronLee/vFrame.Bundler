@@ -66,6 +66,7 @@ namespace vFrame.Bundler
                 return;
             }
             foreach (var link in links) {
+                Facade.GetSystem<LogSystem>().LogInfo("Release linked property: {0}", link);
                 link.Release();
             }
             BundlerContexts.RemoveLinksOfType<TLink>(component);
