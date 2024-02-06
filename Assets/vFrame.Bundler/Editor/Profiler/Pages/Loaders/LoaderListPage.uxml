@@ -1,0 +1,21 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uss?fileID=11400000&amp;guid=6cddb02146a34a943a8fa96ed17ec69a&amp;type=3#BundleProfiler" />
+    <vFrame.Bundler.TabbedPanel name="LoaderContainer" style="height: 692px; flex-direction: column; margin-top: 5px; margin-bottom: 5px; margin-right: 10px;">
+        <ui:VisualElement name="HeaderContainer" class="border-color" style="flex-direction: row; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; height: 25px; padding-right: 15px;">
+            <ui:Label text="Create" display-tooltip-when-elided="true" name="LabelCreateFrame" style="width: 5%; -unity-text-align: middle-center; overflow: hidden; justify-content: center;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Type Name" display-tooltip-when-elided="true" name="LabelName" style="width: 25%; -unity-text-align: middle-center; overflow: hidden; justify-content: center;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Path" display-tooltip-when-elided="true" name="LabelPath" style="width: 34%; -unity-text-align: middle-center; overflow: hidden;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Progress" display-tooltip-when-elided="true" name="LabelProgress" style="width: 8%; -unity-text-align: middle-center; overflow: hidden;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Elapsed(ms)" display-tooltip-when-elided="true" name="LabelElapsed" style="width: 8%; -unity-text-align: middle-center; overflow: hidden; padding-left: 1px; padding-right: 0;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Status" display-tooltip-when-elided="true" name="LabelStatus" style="width: 10%; -unity-text-align: middle-center; overflow: hidden;" />
+            <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+            <ui:Label text="Refs" display-tooltip-when-elided="true" name="LabelReferences" style="width: 8%; -unity-text-align: middle-center; overflow: hidden;" />
+        </ui:VisualElement>
+        <ui:ListView focusable="true" show-add-remove-footer="false" show-border="true" show-alternating-row-backgrounds="All" name="ListViewLoaders" reorder-mode="Simple" show-foldout-header="false" class="border-color" style="flex-grow: 1; margin-top: 5px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;" />
+    </vFrame.Bundler.TabbedPanel>
+</ui:UXML>

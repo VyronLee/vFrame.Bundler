@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="HandlerListItem" style="height: 25px; flex-direction: row;">
+        <ui:Label text="Create" display-tooltip-when-elided="true" name="LabelCreateFrame" style="width: 5%; -unity-text-align: middle-center; overflow: hidden; justify-content: center;" />
+        <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+        <ui:Label text="Type Name" display-tooltip-when-elided="true" name="LabelName" style="width: 35%; -unity-text-align: middle-center; overflow: hidden; justify-content: center;" />
+        <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" class="border-color" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+        <ui:Label text="Path" display-tooltip-when-elided="true" name="LabelPath" style="width: 50%; -unity-text-align: middle-center; overflow: hidden;" />
+        <ui:Label text="|" display-tooltip-when-elided="true" name="LabelDelimiter" style="width: 2px; max-width: 2px; -unity-text-align: middle-left;" />
+        <ui:Label text="IsUnloaded" display-tooltip-when-elided="true" name="LabelIsUnloaded" style="width: 10%; -unity-text-align: middle-center; overflow: hidden;" />
+    </ui:VisualElement>
+</ui:UXML>

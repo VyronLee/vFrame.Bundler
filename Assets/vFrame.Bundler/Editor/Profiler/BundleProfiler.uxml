@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:Template name="LoaderListPage" src="project://database/Assets/vFrame.Bundler/Editor/Profiler/Pages/Loaders/LoaderListPage.uxml?fileID=11400000&amp;guid=b0490c9c25eb7c8409ca1d033c21f11d&amp;type=3#LoaderListPage" />
+    <ui:Template name="PipelineListPage" src="project://database/Assets/vFrame.Bundler/Editor/Profiler/Pages/Pipelines/PipelineListPage.uxml?fileID=11400000&amp;guid=3088dce91c8b71448aae96fc4085ad39&amp;type=3#PipelineListPage" />
+    <ui:Template name="HandlerListPage" src="project://database/Assets/vFrame.Bundler/Editor/Profiler/Pages/Handlers/HandlerListPage.uxml?fileID=11400000&amp;guid=2fd9837324782ce4f90b2bef00205508&amp;type=3#HandlerListPage" />
+    <ui:Template name="LinkListPage" src="project://database/Assets/vFrame.Bundler/Editor/Profiler/Pages/Links/LinkListPage.uxml?fileID=11400000&amp;guid=1de4c623cc75be6419c4ea3cc4842fd1&amp;type=3#LinkListPage" />
+    <Style src="project://database/Assets/vFrame.Bundler/Editor/Profiler/BundleProfiler.uss?fileID=11400000&amp;guid=6cddb02146a34a943a8fa96ed17ec69a&amp;type=3#BundleProfiler" />
+    <ui:VisualElement name="ToolbarContainer" style="flex-direction: row; align-items: center; margin-right: 8px; margin-top: 5px; display: flex; height: auto; flex-shrink: 0;">
+        <ui:TextField picking-mode="Ignore" label="Client" text="http://127.0.0.1:16667" name="TextFieldClientAddress" style="flex-direction: row; align-items: center; justify-content: flex-start; height: 20px; width: auto; flex-grow: 1; -unity-text-align: upper-center;" />
+        <ui:Button text="Start" display-tooltip-when-elided="true" name="ButtonStart" style="-unity-text-align: middle-center; align-items: center; width: 100px; visibility: visible; display: flex; white-space: nowrap; flex-direction: row; justify-content: space-around; flex-grow: 0; flex-shrink: 0; height: 18px;" />
+        <ui:Button text="Clear" display-tooltip-when-elided="true" name="ButtonClear" style="-unity-text-align: middle-center; align-items: center; width: 100px; visibility: visible; display: flex; white-space: nowrap; flex-direction: row; justify-content: space-around; flex-grow: 0; flex-shrink: 0; height: 18px;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="PageButtonGroup" style="border-top-width: 0; border-right-width: 0; border-bottom-width: 1px; border-left-width: 0; flex-direction: row; align-items: flex-end; border-bottom-color: rgb(84, 81, 81); height: 35px; flex-shrink: 0; margin-top: 5px; margin-left: 0; padding-left: 10px;">
+        <ui:Button text="Loaders" display-tooltip-when-elided="true" name="ButtonLoaders" focusable="false" class="tab-button-boarder tab-button-normal" style="margin-right: 0; margin-left: 0; width: 100px;" />
+        <ui:Button text="Pipelines" display-tooltip-when-elided="true" name="ButtonPipelines" focusable="false" class="tab-button-boarder tab-button-normal" style="margin-right: 0; margin-left: 0; width: 100px;" />
+        <ui:Button text="Handlers" display-tooltip-when-elided="true" name="ButtonHandlers" focusable="false" class="tab-button-boarder tab-button-normal" style="margin-right: 0; margin-left: 0; padding-right: 6px; width: 100px;" />
+        <ui:Button text="Links" display-tooltip-when-elided="true" name="ButtonLinks" focusable="false" class="tab-button-boarder tab-button-normal" style="margin-right: 0; margin-left: 0; width: 100px;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="PageContainer" style="margin-top: 0;">
+        <ui:Instance template="LoaderListPage" name="LoaderListPage" />
+        <ui:Instance template="PipelineListPage" name="PipelineListPage" style="display: none; flex-grow: 1;" />
+        <ui:Instance template="HandlerListPage" name="HandlerListPage" style="display: none;" />
+        <ui:Instance template="LinkListPage" name="LinkListPage" style="display: none; flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>
