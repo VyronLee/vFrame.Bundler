@@ -5,7 +5,7 @@
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
 //    Modified:  2019-02-15 20:03
-//   Copyright:  Copyright (c) 2018, VyronLee
+//   Copyright:  Copyright (c) 2024, VyronLee
 //============================================================
 
 namespace vFrame.Bundler.Exception
@@ -13,6 +13,24 @@ namespace vFrame.Bundler.Exception
     public class BundleException : System.Exception
     {
         public BundleException(string message) : base(message) {
+        }
+    }
+
+    public class BundleArgumentException : BundleException
+    {
+        public BundleArgumentException(string message) : base(message) {
+        }
+    }
+
+    public class BundleArgumentNullException : BundleException
+    {
+        public BundleArgumentNullException(string message = "Argument cannot be null.") : base(message) {
+        }
+    }
+
+    public class BundleUnsupportedEnumException : BundleException
+    {
+        public BundleUnsupportedEnumException(string message) : base(message) {
         }
     }
 
@@ -30,7 +48,7 @@ namespace vFrame.Bundler.Exception
 
     public class BundleLoadFailedException : BundleException
     {
-        public BundleLoadFailedException(string message) : base(message) {
+        public BundleLoadFailedException(string path) : base($"Could not load bundle at path: {path}") {
         }
     }
 
@@ -42,7 +60,7 @@ namespace vFrame.Bundler.Exception
 
     public class BundleAssetLoadFailedException : BundleException
     {
-        public BundleAssetLoadFailedException(string message) : base(message) {
+        public BundleAssetLoadFailedException(string path) : base($"Could not load asset at path: {path}") {
         }
     }
 
@@ -70,12 +88,6 @@ namespace vFrame.Bundler.Exception
         }
     }
 
-    public class BundleMixLoaderException : BundleException
-    {
-        public BundleMixLoaderException(string message) : base(message) {
-        }
-    }
-
     public class BundleRuleConflictException : BundleException
     {
         public BundleRuleConflictException(string message) : base(message) {
@@ -88,15 +100,9 @@ namespace vFrame.Bundler.Exception
         }
     }
 
-    public class AsyncRequestAlreadySetupException : BundleException
+    public class BundleNotSupportedException : BundleException
     {
-        public AsyncRequestAlreadySetupException(string message) : base(message) {
-        }
-    }
-
-    public class CoroutinePoolInvalidStateException : BundleException
-    {
-        public CoroutinePoolInvalidStateException(string message) : base(message) {
+        public BundleNotSupportedException(string message) : base(message) {
         }
     }
 }

@@ -1,0 +1,17 @@
+{
+  "name": "com.vyronlee.vframe.bundler",
+  "version": "2.1.0",
+  "displayName": "vFrame Bundler",
+  "description": "An elegant AssetBundle generator and loader for unity.",
+  "unity": "2019.4",
+  "keywords": [
+    "vFrame",
+    "vFrame Bundler"
+  ],
+  "author": {
+    "name": "VyronLee",
+    "email": "lwz_jz@hotmail.com",
+    "url": "https://vyronlee.com"
+  },
+  "license": "Apache-2.0"
+}

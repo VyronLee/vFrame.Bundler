@@ -5,13 +5,12 @@
 //      Author:  VyronLee, lwz_jz@hotmail.com
 //
 //    Modified:  2020-06-12 20:48
-//   Copyright:  Copyright (c) 2020, VyronLee
+//   Copyright:  Copyright (c) 2024, VyronLee
 //============================================================
 
 using System.Collections.Generic;
-using vFrame.Bundler.Interface;
 
-namespace vFrame.Bundler.Base.Pools
+namespace vFrame.Bundler
 {
     internal class HashSetAllocator<T> : IPoolObjectAllocator<HashSet<T>>
     {
