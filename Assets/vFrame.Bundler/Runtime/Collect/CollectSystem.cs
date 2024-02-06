@@ -28,10 +28,48 @@ namespace vFrame.Bundler
         }
 
         protected override void OnDestroy() {
-            _nonReferenceLoaders.Clear();
-            _unloadedHandlers.Clear();
-            _finishedPipelines.Clear();
-            _destroyedLinks.Clear();
+            DestroyAllLoaders();
+            DestroyAllHandlers();
+            DestroyAllPipelines();
+            DestroyAllLinks();
+        }
+
+        private void DestroyAllLoaders() {
+            using (new ClearAtExist(_nonReferenceLoaders)) {
+                BundlerContexts.ForEachLoader(v => _nonReferenceLoaders.Add(v));
+                foreach(var loader in _nonReferenceLoaders) {
+                    BundlerContexts.RemoveLoader(loader);
+                    loader.Destroy();
+                }
+            }
+        }
+
+        private void DestroyAllHandlers() {
+            using (new ClearAtExist(_unloadedHandlers)) {
+                BundlerContexts.ForEachHandler(v => _unloadedHandlers.Add(v));
+                foreach (var handler in _unloadedHandlers) {
+                    BundlerContexts.RemoveHandler(handler);
+                }
+            }
+        }
+
+        private void DestroyAllPipelines() {
+            using (new ClearAtExist(_finishedPipelines)) {
+                BundlerContexts.ForEachPipeline(v => _finishedPipelines.Add(v));
+                foreach (var pipeline in _finishedPipelines) {
+                    BundlerContexts.RemovePipeline(pipeline);
+                }
+            }
+        }
+
+        private void DestroyAllLinks() {
+            using (new ClearAtExist(_destroyedLinks)) {
+                BundlerContexts.ForEachLinks((v, link) => _destroyedLinks.Add(link));
+                foreach (var link in _destroyedLinks) {
+                    var target = ((ILink)link).Target;
+                    BundlerContexts.RemoveLinks(target);
+                }
+            }
         }
 
         protected override void OnUpdate() {
