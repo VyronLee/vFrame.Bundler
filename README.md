@@ -7,17 +7,17 @@
 # 文件夹
 
 * [特点](#特点)
-* [Editor 接入说明](#Editor 接入说明)
+* [Editor接入说明](#Editor接入说明)
     * [配置打包规则](#配置打包规则)
       * [MainRules](#MainRules ) 
       * [GroupRules](#GroupRules)
-    * [构建 AssetBundle](#构建 AssetBundle)
-* [Runtime 接入说明](#Runtime 接入说明)
+    * [构建AssetBundle](#构建AssetBundle)
+* [Runtime接入说明](#Runtime接入说明)
     * [初始化](#初始化)
     * [资源加载及使用](#资源加载及使用)
     * [驱动更新以及资源的回收](#驱动更新以及资源的回收)
     * [销毁](#销毁)
-* [Profiler 的使用](#Profiler 的使用)
+* [Profiler的使用](#Profiler的使用)
 * [License](#license)
 
 
@@ -34,7 +34,7 @@
 8. **自动管理 AssetBundle 引用计数**，无需操心 AssetBundle 的回收时机
 9. 提供 Profiler 界面工具，可本地或远程调试相关加载器信息，资源引用计数信息，当前使用资源信息等
 
-# Editor 接入说明
+# Editor接入说明
 
 ## 配置打包规则
 
@@ -95,7 +95,7 @@
 
 如果`GroupRules`没有设置任何规则，会自行回落到默认规则，按照一个资源一个 AssetBundle 的方式进行分离打包
 
-## 构建 AssetBundle
+## 构建AssetBundle
 
 参照示例：
 ```c#
@@ -134,7 +134,7 @@ BundleGenerator.BuiltinPipeline.Build(buildRule, buildSettings);
 
 All things done!
 
-# Runtime 接入说明
+# Runtime接入说明
 
 工具提供一个唯一操作接口：```IBundler```，该接口位于命名空间 ``` vFrame.Bundler```下，所有资源操作逻辑必须使用该接口进行。接口使用主要有以下部分：
 
@@ -317,7 +317,7 @@ _bundler.Destroy();
 
 
 
-# Profiler 的使用
+# Profiler的使用
 
 Profiler 窗口可通过 Tools -> vFrame -> Profiler 菜单打开，窗口样例如下：
 
