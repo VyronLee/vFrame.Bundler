@@ -126,11 +126,16 @@ namespace vFrame.Bundler
 
         protected override void OnForceComplete() {
             var finished = true;
+            var error = false;
             foreach (var loader in _loaders) {
                 loader.ForceComplete();
                 finished &= loader.IsDone;
+                error |= loader.IsError;
             }
-            if (finished) {
+            if (error) {
+                Abort();
+            }
+            else if (finished) {
                 Finish();
             }
         }
