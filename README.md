@@ -2,6 +2,8 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](LICENSE)
 
+[English Version (Power by ChatGPT)](./README_en.md)
+
 一款简单易用的 Unity 资源加载工具以及 AssetBundle 生成工具。无论是 Resources，AssetDatabase 还是 AssetBundle 模式，均使用统一的加载接口。使用 Json 格式文件配置资源打包规则，可设置主资源规则以及依赖资源分组规则，并提供相关的Editor Profiler工具，方便查看加载器耗时，资源被引用的地方，常驻资源有哪些，等等。
 
 # 文件夹
