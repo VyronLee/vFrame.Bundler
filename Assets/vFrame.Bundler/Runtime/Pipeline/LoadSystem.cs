@@ -115,7 +115,12 @@ namespace vFrame.Bundler
                     pipeline.Add<ResourcesAssetLoaderSync>();
                     break;
                 case BundlerMode.AssetBundle:
-                    pipeline.Add<AssetBundleLoaderGroupSync>();
+                    if (BundlerContexts.TryGetLoader<string, AssetBundleLoaderGroup>(path, out var loaderGroup)) {
+                        pipeline.Add(loaderGroup);
+                    }
+                    else {
+                        pipeline.Add<AssetBundleLoaderGroupSync>();
+                    }
                     pipeline.Add<AssetBundleAssetLoaderSync>();
                     break;
             }
@@ -139,7 +144,12 @@ namespace vFrame.Bundler
                     pipeline.Add<ResourcesAssetLoaderAsync>();
                     break;
                 case BundlerMode.AssetBundle:
-                    pipeline.Add<AssetBundleLoaderGroupAsync>();
+                    if (BundlerContexts.TryGetLoader<string, AssetBundleLoaderGroup>(path, out var loaderGroup)) {
+                        pipeline.Add(loaderGroup);
+                    }
+                    else {
+                        pipeline.Add<AssetBundleLoaderGroupAsync>();
+                    }
                     pipeline.Add<AssetBundleAssetLoaderAsync>();
                     break;
             }
