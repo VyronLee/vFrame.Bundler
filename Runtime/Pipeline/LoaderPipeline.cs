@@ -46,6 +46,14 @@ namespace vFrame.Bundler
             _loaders.Add(loader);
         }
 
+        public void Add(Loader loader) {
+            if (null == loader || loader.IsError) {
+                _error = true;
+                return;
+            }
+            _loaders.Add(loader);
+        }
+
         public bool Startup<T>(out T result) where T: Loader {
             if (_loaders.Count <= 0) {
                 throw new BundleException("No loaders in pipeline, please add some loaders first.");

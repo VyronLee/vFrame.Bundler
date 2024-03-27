@@ -114,12 +114,16 @@ namespace vFrame.Bundler
 
         protected override void OnUpdate() {
             var finished = true;
+            var error = false;
             foreach (var loader in _loaders) {
                 loader.Update();
                 finished &= loader.IsDone;
+                error |= loader.IsError;
             }
-
-            if (finished) {
+            if (error) {
+                Abort();
+            }
+            else if (finished) {
                 Finish();
             }
         }
