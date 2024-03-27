@@ -8,7 +8,7 @@
 //   Copyright:  Copyright (c) 2024, VyronLee
 //============================================================
 
-namespace vFrame.Bundler.Exception
+namespace vFrame.Bundler
 {
     public class BundleException : System.Exception
     {

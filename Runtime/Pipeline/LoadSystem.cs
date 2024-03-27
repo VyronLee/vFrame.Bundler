@@ -10,7 +10,6 @@
 
 using System;
 using UnityEngine.SceneManagement;
-using vFrame.Bundler.Exception;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler
@@ -115,7 +114,7 @@ namespace vFrame.Bundler
                     pipeline.Add<ResourcesAssetLoaderSync>();
                     break;
                 case BundlerMode.AssetBundle:
-                    if (BundlerContexts.TryGetLoader<string, AssetBundleLoaderGroup>(path, out var loaderGroup)) {
+                    if (BundlerContexts.TryGetLoader(path, out AssetBundleLoaderGroup loaderGroup)) {
                         pipeline.Add(loaderGroup);
                     }
                     else {
@@ -144,7 +143,7 @@ namespace vFrame.Bundler
                     pipeline.Add<ResourcesAssetLoaderAsync>();
                     break;
                 case BundlerMode.AssetBundle:
-                    if (BundlerContexts.TryGetLoader<string, AssetBundleLoaderGroup>(path, out var loaderGroup)) {
+                    if (BundlerContexts.TryGetLoader(path, out AssetBundleLoaderGroup loaderGroup)) {
                         pipeline.Add(loaderGroup);
                     }
                     else {

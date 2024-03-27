@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using vFrame.Bundler.Exception;
 using Object = UnityEngine.Object;
 
 namespace vFrame.Bundler

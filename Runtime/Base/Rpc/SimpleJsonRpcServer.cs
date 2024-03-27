@@ -13,7 +13,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
 {
