@@ -8,8 +8,6 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
-using vFrame.Bundler.Exception;
-
 namespace vFrame.Bundler
 {
     internal abstract class AssetBundleAssetLoader : AssetLoader

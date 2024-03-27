@@ -11,7 +11,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using vFrame.Bundler.Exception;
 
 namespace vFrame.Bundler
 {
@@ -39,6 +38,14 @@ namespace vFrame.Bundler
             var loaderContexts = _loaderContexts;
             loaderContexts.ParentLoader = Last();
             var loader = Activator.CreateInstance(typeof(T), _bundlerContexts, loaderContexts) as T;
+            if (null == loader || loader.IsError) {
+                _error = true;
+                return;
+            }
+            _loaders.Add(loader);
+        }
+
+        public void Add(Loader loader) {
             if (null == loader || loader.IsError) {
                 _error = true;
                 return;

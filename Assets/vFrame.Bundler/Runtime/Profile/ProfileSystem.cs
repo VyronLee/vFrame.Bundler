@@ -18,21 +18,29 @@ namespace vFrame.Bundler
         private JsonRpcServer _rpcServer;
 
         public ProfileSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
-            _rpcServer = JsonRpcServer.CreateSimple(
-                bundlerContexts.Options.ListenAddress,
-                bundlerContexts.Bundler.GetSystem<LogSystem>());
-            _rpcServer.Start();
+            try {
+                _rpcServer = JsonRpcServer.CreateSimple(
+                    bundlerContexts.Options.ListenAddress,
+                    bundlerContexts.Bundler.GetSystem<LogSystem>());
+                _rpcServer.Start();
+            }
+            catch (Exception e) {
+                Facade.GetSystem<LogSystem>().LogWarning("Start RPC server failed: {0}", e.Message);
+                _rpcServer?.Stop();
+                _rpcServer = null;
+                return;
+            }
 
             CreateRPCHandlers();
         }
 
         protected override void OnDestroy() {
-            _rpcServer.Stop();
+            _rpcServer?.Stop();
             _rpcServer = null;
         }
 
         protected override void OnUpdate() {
-            _rpcServer.Update();
+            _rpcServer?.Update();
         }
 
         private void CreateRPCHandlers() {
