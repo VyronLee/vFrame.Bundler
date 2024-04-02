@@ -1,6 +1,6 @@
 {
   "name": "com.vyronlee.vframe.bundler",
-  "version": "2.1.0",
+  "version": "2.0.2",
   "displayName": "vFrame Bundler",
   "description": "An elegant AssetBundle generator and loader for unity.",
   "unity": "2019.4",
