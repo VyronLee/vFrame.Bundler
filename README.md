@@ -11,6 +11,7 @@
 # 目录
 
 * [特点](#特点)
+* [安装](#安装)
 * [Editor接入说明](#Editor接入说明)
     * [配置打包规则](#配置打包规则)
       * [MainRules](#MainRules ) 
@@ -37,6 +38,14 @@
 7. 支持自定义文件读取方式，方便自行接入资源加解密逻辑
 8. **自动管理 AssetBundle 引用计数**，无需操心 AssetBundle 的回收时机
 9. 提供 Profiler 界面工具，可本地或远程调试相关加载器信息，资源引用计数信息，当前使用资源信息等
+
+# 安装
+
+推荐使用 Unity Package Manager 方式安装本套件，使用下面的链接进行导入：
+
+https://github.com/VyronLee/vFrame.Bundler.git#upm
+
+如需指定版本，链接后面带上版本号即可
 
 # Editor接入说明
 
@@ -323,7 +332,7 @@ _bundler.Destroy();
 
 # Profiler的使用
 
-Profiler 窗口可通过 Tools -> vFrame -> Profiler 菜单打开，窗口样例如下：
+Profiler 窗口可通过 Tools -> vFrame -> Bundler -> Profiler 菜单打开，窗口样例如下：
 
 ![Loaders](https://i.imgur.com/UvCtw0u.png)
 

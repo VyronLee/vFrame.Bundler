@@ -9,6 +9,7 @@ A simple and easy-to-use Unity resource loading tool and AssetBundle generation 
 # TOC
 
 * [Features](#features)
+* [Installation](#installation)
 * [Editor Integration Instructions](#editor-integration-instructions)
     * [Configuring Packaging Rules](#configuring-packaging-rules)
         * [MainRules](#mainrules)
@@ -33,6 +34,14 @@ A simple and easy-to-use Unity resource loading tool and AssetBundle generation 
 7. Supports custom file reading methods, facilitating the integration of resource encryption and decryption logic.
 8. **Automatically manages AssetBundle reference counting**, no need to worry about the timing of AssetBundle recycling.
 9. Provides Profiler interface tools for local or remote debugging of loader information, resource reference count information, current resource usage, etc.
+
+# Installation
+
+It is recommended to install this package using Unity Package Manager with the following link:
+
+https://github.com/VyronLee/vFrame.Bundler.git#upm
+
+To specify a version, simply append the version number to the link.
 
 # Editor Integration Instructions
 
@@ -315,7 +324,7 @@ _bundler.Destroy();
 
 # Using the Profiler
 
-The Profiler window can be opened through the Tools -> vFrame -> Profiler menu, and the window looks like this:
+The Profiler window can be opened through the Tools -> vFrame -> Bundler -> Profiler menu, and the window looks like this:
 
 ![Loaders](https://i.imgur.com/UvCtw0u.png)
 
