@@ -332,7 +332,7 @@ _bundler.Destroy();
 
 # Profiler的使用
 
-Profiler 窗口可通过 Tools -> vFrame -> Profiler 菜单打开，窗口样例如下：
+Profiler 窗口可通过 Tools -> vFrame -> Bundler -> Profiler 菜单打开，窗口样例如下：
 
 ![Loaders](https://i.imgur.com/UvCtw0u.png)
 

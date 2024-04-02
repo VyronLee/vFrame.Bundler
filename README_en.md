@@ -324,7 +324,7 @@ _bundler.Destroy();
 
 # Using the Profiler
 
-The Profiler window can be opened through the Tools -> vFrame -> Profiler menu, and the window looks like this:
+The Profiler window can be opened through the Tools -> vFrame -> Bundler -> Profiler menu, and the window looks like this:
 
 ![Loaders](https://i.imgur.com/UvCtw0u.png)
 
