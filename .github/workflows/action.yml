@@ -22,4 +22,7 @@ jobs:
         uses: hecomi/create-upm-branch-action@main
         with:
           git-tag: ${{ steps.tag.outputs.name }}
+          main-branch: master
+          upm-branch: upm
+          root-files: "README.md README_en.md CHANGELOG.md LICENSE"
           pkg-root-dir-path: Assets/vFrame.Bundler
