@@ -159,3 +159,8 @@ sysinfo.txt
 
 # HeadlessTestRunner output (run-tests.ps1 writes this to repo root)
 /test-run.log
+
+# Local package-resolution lock + test results (regenerable; this library is
+# consumed by other projects via file: path, so its own lock is a local artifact)
+/Packages/packages-lock.json
+/TestResults/
