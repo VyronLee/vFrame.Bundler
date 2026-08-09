@@ -11,8 +11,10 @@ Unity AssetBundle build pipeline and runtime loader with one API across `AssetDa
 |----------|----------|----------|-------------|
 | `vFrame.Bundler` | `Runtime/` | All | None (standalone) |
 | `vFrame.Bundler.Editor` | `Editor/` | Editor only | `vFrame.Bundler` |
+| `vFrame.Bundler.TestRunner.Editor` | `Editor/TestRunner/` | Editor only | `UnityEngine.TestRunner`, `UnityEditor.TestRunner`, `nunit.framework` |
+| `vFrame.Bundler.Tests.EditMode` | `Tests/EditMode/` | Editor only | `vFrame.Bundler` |
 
-No test assembly in this repo.
+`vFrame.Bundler.TestRunner.Editor` is a self-contained in-process EditMode runner (the standalone Bundler cannot reference `vFrame.Core.Unity.TestRunner`); it is NOT auto-referenced.
 
 ## Build Pipeline (Editor)
 Three pipelines under `BundleGenerator`:
@@ -62,7 +64,18 @@ For FBX sub-assets or sprite sheets, use `LoadAssetWithSubAssets*`.
 ```powershell
 dotnet build "D:/Workspace/vFrame/vFrame.Bundler/vFrame.Bundler.sln" --no-restore
 ```
-No test assembly in this repo.
+
+### EditMode tests (in-process TestRunnerApi)
+`-batchmode -runTests` is blocked on some hosts (UTP ports 38000-38100). The
+self-contained runner avoids that — it runs tests via `TestRunnerApi` under
+`-executeMethod`, no port required:
+
+```powershell
+./run-tests.ps1
+# → UnityExitCode=0, TestResults/headless-editmode-results.xml (8 passed / 0 failed)
+```
+
+Entry: `vFrame.Bundler.Editor.TestRunner.HeadlessTestRunner.RunAllEditMode`. Requires `com.unity.test-framework` (in the manifest) for the TestRunnerApi.
 
 ## Relationship to VFS
 Standalone. To load AssetBundles from VFS packages, use `vFrame.Bundler.VFSAdapter` (implements `IAssetBundleCreateAdapter`).
