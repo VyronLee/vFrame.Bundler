@@ -19,6 +19,10 @@ namespace vFrame.Bundler
         }
 
         public virtual void Release() {
+            if (_references <= 0) {
+                throw new System.InvalidOperationException(
+                    "Release() called more times than Retain(); reference count is already at zero.");
+            }
             --_references;
         }
 
