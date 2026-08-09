@@ -1,6 +1,10 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
+// Exposes internal reference-counting types to the EditMode test assembly so the
+// Destroy-cascade underflow guard (R5) can be exercised directly.
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("vFrame.Bundler.Tests.EditMode")]
+
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
