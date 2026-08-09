@@ -156,3 +156,6 @@ sysinfo.txt
 
 # Custom
 .idea
+
+# HeadlessTestRunner output (run-tests.ps1 writes this to repo root)
+/test-run.log

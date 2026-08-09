@@ -15,7 +15,18 @@ namespace vFrame.Bundler
 {
     public struct AssetAsync : ILoaderHandler, IAsync
     {
-        Loader ILoaderHandler.Loader { get; set; }
+        private Loader _loader;
+        Loader ILoaderHandler.Loader {
+            get => _loader;
+            set {
+                // R6: load = +1 strong reference (matches Scene; Addressables/YooAsset
+                // default). Without it the loader sits at References==0 and
+                // CollectSystem reclaims it on the next Collect() — a dangling
+                // handle. Unload() balances this retain.
+                _loader = value;
+                _loader.Retain();
+            }
+        }
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
         void ILoaderHandler.Update() {
@@ -23,7 +34,14 @@ namespace vFrame.Bundler
         }
 
         public UnloadOperation Unload() {
+            if (IsUnloaded) {
+                return UnloadOperation.Completed;
+            }
             IsUnloaded = true;
+            // Release the load-time retain. A loader already collected (destroyed)
+            // no-ops via the R5 _destroyed guard, so this is safe across struct
+            // copies that alias the same loader.
+            _loader?.Release();
             return UnloadOperation.Completed;
         }
 
@@ -67,7 +85,18 @@ namespace vFrame.Bundler
 
     public struct AssetAsync<T> : ILoaderHandler, IAsync where T : Object
     {
-        Loader ILoaderHandler.Loader { get; set; }
+        private Loader _loader;
+        Loader ILoaderHandler.Loader {
+            get => _loader;
+            set {
+                // R6: load = +1 strong reference (matches Scene; Addressables/YooAsset
+                // default). Without it the loader sits at References==0 and
+                // CollectSystem reclaims it on the next Collect() — a dangling
+                // handle. Unload() balances this retain.
+                _loader = value;
+                _loader.Retain();
+            }
+        }
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
         void ILoaderHandler.Update() {
@@ -75,7 +104,14 @@ namespace vFrame.Bundler
         }
 
         public UnloadOperation Unload() {
+            if (IsUnloaded) {
+                return UnloadOperation.Completed;
+            }
             IsUnloaded = true;
+            // Release the load-time retain. A loader already collected (destroyed)
+            // no-ops via the R5 _destroyed guard, so this is safe across struct
+            // copies that alias the same loader.
+            _loader?.Release();
             return UnloadOperation.Completed;
         }
 
