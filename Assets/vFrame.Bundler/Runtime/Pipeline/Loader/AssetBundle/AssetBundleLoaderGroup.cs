@@ -33,7 +33,8 @@ namespace vFrame.Bundler
         protected abstract AssetBundleLoader CreateAssetBundleLoader(string bundlePath);
 
         protected override void OnDestroy() {
-            _loaders.Clear();
+            // Child loaders are borrowed from BundlerContexts and destroyed by CollectSystem.
+            _loaders?.Clear();
             base.OnDestroy();
         }
 
