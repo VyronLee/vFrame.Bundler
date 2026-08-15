@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
 //         File: ResourcesSceneLoaderSync.cs
-//        Brief: ResourcesSceneLoaderSync.cs
+//        Brief: Empty subclass of RuntimeSceneLoaderSync marking the Resources-mode synchronous scene loader.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,12 +8,14 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 namespace vFrame.Bundler
 {
     internal class ResourcesSceneLoaderSync : RuntimeSceneLoaderSync
     {
         protected ResourcesSceneLoaderSync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
         }
     }

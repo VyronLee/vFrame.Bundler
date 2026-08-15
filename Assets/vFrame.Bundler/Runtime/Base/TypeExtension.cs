@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: TypeExtension.cs
-//        Brief: TypeExtension.cs
+//        Brief: Type helper collecting instance properties across the type hierarchy, deduplicated
+//               by property signature.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-2-5 20:55
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.Collections.Generic;
@@ -17,7 +19,8 @@ namespace vFrame.Bundler
 {
     internal static class TypeExtension
     {
-        public static PropertyInfo[] GetInstanceProperties(this Type type) {
+        public static PropertyInfo[] GetInstanceProperties(this Type type)
+        {
             const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic |
                                               BindingFlags.DeclaredOnly;
             var uniqueProperties = new Dictionary<string, PropertyInfo>();

@@ -1,4 +1,15 @@
-﻿using System.Reflection;
+// ------------------------------------------------------------
+//         File: AssemblyInfo.cs
+//        Brief: Assembly metadata (title, version, COM visibility) for vFrame.Bundler.Editor.
+//
+//       Author: VyronLee, lwz_jz@hotmail.com
+//
+//     Modified: 2026-08-15 20:04:22
+//    Copyright: Copyright (c) 2026, VyronLee
+// ============================================================
+
+
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following

@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: RPCHandlerBase.cs
-//        Brief: RPCHandlerBase.cs
+//        Brief: Abstract JSON-RPC handler: method name plus request dispatch, with BundlerContexts injected.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-22 19:59
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 namespace vFrame.Bundler
 {

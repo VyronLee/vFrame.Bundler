@@ -1,4 +1,15 @@
-﻿using System;
+// ------------------------------------------------------------
+//         File: BundlerContexts.cs
+//        Brief: Shared context holding options, manifest, and registries of handlers, loaders, pipelines, and links.
+//
+//       Author: VyronLee, lwz_jz@hotmail.com
+//
+//     Modified: 2026-08-15 20:04:39
+//    Copyright: Copyright (c) 2026, VyronLee
+// ============================================================
+
+
+using System;
 using System.Collections.Generic;
 using Object = UnityEngine.Object;
 
@@ -16,7 +27,8 @@ namespace vFrame.Bundler
 
         private Dictionary<string, Scene> SceneHandlers { get; } = new Dictionary<string, Scene>();
 
-        public void AddHandler(ILoaderHandler loaderHandler) {
+        public void AddHandler(ILoaderHandler loaderHandler)
+        {
             switch (loaderHandler) {
                 case Scene scene:
                     SceneHandlers.Add(scene.SceneLoader.AssetPath, scene);
@@ -24,7 +36,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public void RemoveHandler(ILoaderHandler loaderHandler) {
+        public void RemoveHandler(ILoaderHandler loaderHandler)
+        {
             switch (loaderHandler) {
                 case Scene scene:
                     SceneHandlers.Remove(scene.SceneLoader.AssetPath);
@@ -32,7 +45,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public void ForEachHandler(Action<ILoaderHandler> action) {
+        public void ForEachHandler(Action<ILoaderHandler> action)
+        {
             foreach (var kv in SceneHandlers) {
                 action(kv.Value);
             }
@@ -53,7 +67,8 @@ namespace vFrame.Bundler
         private Dictionary<string, RandomDelayLoader> RandomDelayLoaders { get; } =
             new Dictionary<string, RandomDelayLoader>();
 
-        public void AddLoader(Loader loader) {
+        public void AddLoader(Loader loader)
+        {
             switch (loader) {
                 case AssetLoader assetLoader:
                     AssetLoaders.Add(assetLoader.AssetLoadKey, assetLoader);
@@ -73,7 +88,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public void RemoveLoader(Loader loader) {
+        public void RemoveLoader(Loader loader)
+        {
             switch (loader) {
                 case AssetLoader assetLoader:
                     AssetLoaders.Remove(assetLoader.AssetLoadKey);
@@ -93,7 +109,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public bool TryGetLoader<TKey, TType>(TKey key, out TType value) where TType: Loader {
+        public bool TryGetLoader<TKey, TType>(TKey key, out TType value) where TType : Loader
+        {
             if (TryGetAssetBundleLoaderGroup(key, out value)) {
                 return true;
             }
@@ -113,7 +130,8 @@ namespace vFrame.Bundler
             return false;
         }
 
-        public void ForEachLoader(Action<Loader> action) {
+        public void ForEachLoader(Action<Loader> action)
+        {
             foreach (var kv in AssetBundleLoaderGroups) {
                 action(kv.Value);
             }
@@ -131,7 +149,8 @@ namespace vFrame.Bundler
             }
         }
 
-        private bool TryGetAssetBundleLoader<TK, TT>(TK key, out TT value) where TT: Loader {
+        private bool TryGetAssetBundleLoader<TK, TT>(TK key, out TT value) where TT : Loader
+        {
             if (!typeof(AssetBundleLoader).IsAssignableFrom(typeof(TT))) {
                 value = null;
                 return false;
@@ -148,7 +167,8 @@ namespace vFrame.Bundler
             return ret;
         }
 
-        private bool TryGetAssetBundleLoaderGroup<TK, TT>(TK key, out TT value) where TT: Loader {
+        private bool TryGetAssetBundleLoaderGroup<TK, TT>(TK key, out TT value) where TT : Loader
+        {
             if (!typeof(AssetBundleLoaderGroup).IsAssignableFrom(typeof(TT))) {
                 value = null;
                 return false;
@@ -165,7 +185,8 @@ namespace vFrame.Bundler
             return ret;
         }
 
-        private bool TryGetAssetLoader<TK, TT>(TK key, out TT value) where TT: Loader {
+        private bool TryGetAssetLoader<TK, TT>(TK key, out TT value) where TT : Loader
+        {
             if (!typeof(AssetLoader).IsAssignableFrom(typeof(TT))) {
                 value = null;
                 return false;
@@ -182,7 +203,8 @@ namespace vFrame.Bundler
             return ret;
         }
 
-        private bool TryGetSceneLoader<TK, TT>(TK key, out TT value) where TT: Loader {
+        private bool TryGetSceneLoader<TK, TT>(TK key, out TT value) where TT : Loader
+        {
             if (!typeof(SceneLoader).IsAssignableFrom(typeof(TT))) {
                 value = null;
                 return false;
@@ -199,7 +221,8 @@ namespace vFrame.Bundler
             return ret;
         }
 
-        private bool TryGetRandomDelayLoader<TK, TT>(TK key, out TT value) where TT: Loader {
+        private bool TryGetRandomDelayLoader<TK, TT>(TK key, out TT value) where TT : Loader
+        {
             if (!typeof(RandomDelayLoader).IsAssignableFrom(typeof(TT))) {
                 value = null;
                 return false;
@@ -222,22 +245,26 @@ namespace vFrame.Bundler
 
         private Dictionary<string, LoaderPipeline> Pipelines { get; } = new Dictionary<string, LoaderPipeline>();
 
-        public void AddPipeline(LoaderPipeline pipeline) {
+        public void AddPipeline(LoaderPipeline pipeline)
+        {
             if (Pipelines.ContainsKey(pipeline.Guid)) {
                 return;
             }
             Pipelines.Add(pipeline.Guid, pipeline);
         }
 
-        public void RemovePipeline(LoaderPipeline pipeline) {
+        public void RemovePipeline(LoaderPipeline pipeline)
+        {
             Pipelines.Remove(pipeline.Guid);
         }
 
-        public bool TryGetPipeline(string guid, out LoaderPipeline pipeline) {
+        public bool TryGetPipeline(string guid, out LoaderPipeline pipeline)
+        {
             return Pipelines.TryGetValue(guid, out pipeline);
         }
 
-        public void ForEachPipeline(Action<LoaderPipeline> action) {
+        public void ForEachPipeline(Action<LoaderPipeline> action)
+        {
             foreach (var kv in Pipelines) {
                 action(kv.Value);
             }
@@ -251,7 +278,8 @@ namespace vFrame.Bundler
         private Dictionary<Object, Dictionary<Type, HashSet<LinkBase>>> Links { get; } =
             new Dictionary<Object, Dictionary<Type, HashSet<LinkBase>>>();
 
-        public void AddLink(LinkBase link) {
+        public void AddLink(LinkBase link)
+        {
             var linkedTarget = ((ILink)link).Target;
             if (!Links.TryGetValue(linkedTarget, out var dict)) {
                 dict = Links[linkedTarget] = DictionaryPool<Type, HashSet<LinkBase>>.Get();
@@ -268,7 +296,8 @@ namespace vFrame.Bundler
             links.Add(link);
         }
 
-        public void RemoveLinksOfType<T>(Object linkedTarget) where T: LinkBase, new() {
+        public void RemoveLinksOfType<T>(Object linkedTarget) where T : LinkBase, new()
+        {
             if (!Links.TryGetValue(linkedTarget, out var dict)) {
                 return;
             }
@@ -288,7 +317,8 @@ namespace vFrame.Bundler
             DictionaryPool<Type, HashSet<LinkBase>>.Return(dict);
         }
 
-        public void RemoveLinks(Object linkedTarget) {
+        public void RemoveLinks(Object linkedTarget)
+        {
             if (!Links.TryGetValue(linkedTarget, out var dict)) {
                 return;
             }
@@ -300,7 +330,8 @@ namespace vFrame.Bundler
             DictionaryPool<Type, HashSet<LinkBase>>.Return(dict);
         }
 
-        public bool TryGetLinks<T>(Object linkedTarget, out HashSet<LinkBase> links) where T: LinkBase {
+        public bool TryGetLinks<T>(Object linkedTarget, out HashSet<LinkBase> links) where T : LinkBase
+        {
             if (Links.TryGetValue(linkedTarget, out var dict)) {
                 if (dict.TryGetValue(typeof(T), out links)) {
                     return true;
@@ -310,7 +341,8 @@ namespace vFrame.Bundler
             return false;
         }
 
-        public void ForEachLinks(Action<Object, LinkBase> action) {
+        public void ForEachLinks(Action<Object, LinkBase> action)
+        {
             foreach (var kv in Links) {
                 foreach (var dict in kv.Value) {
                     foreach (var linkBase in dict.Value) {

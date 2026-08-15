@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AnalyzePackByAllDirectoriesRule.cs
-//        Brief: AnalyzePackByAllDirectoriesRule.cs
+//        Brief: PackByAllDirectories analyzer: packs each found asset into its own
+//               directory-named bundle.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 22:54
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +17,8 @@ namespace vFrame.Bundler.Task.Formal.MainAssetAnalyzers
 {
     internal class AnalyzePackByAllDirectoriesRule : FormalMainAssetAnalyzerBase
     {
-        protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule) {
+        protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule)
+        {
             var assets = FindAssets(rule);
             var index = 0f;
             var total = assets.Count;

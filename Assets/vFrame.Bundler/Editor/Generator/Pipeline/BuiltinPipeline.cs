@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: BuiltinPipeline.cs
-//        Brief: BuiltinPipeline.cs
+//        Brief: Formal AssetBundle build pipeline running the full 7-task sequence from
+//               main-asset analysis to manifest generation.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-26 22:13
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using vFrame.Bundler.Task;
 using vFrame.Bundler.Task.Formal;
@@ -15,7 +17,8 @@ namespace vFrame.Bundler.Pipeline
 {
     internal class BuiltinPipeline : PipelineBase
     {
-        protected override BuildTaskBase[] GetTasks() {
+        protected override BuildTaskBase[] GetTasks()
+        {
             return new BuildTaskBase[] {
                 new AnalyzeMainAssetsTask(),
                 new AnalyzeDependencyAssetsTask(),

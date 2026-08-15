@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: ProfileSystem.cs
-//        Brief: ProfileSystem.cs
+//        Brief: Bundler system that starts the JSON-RPC profiler server and auto-registers all RPCHandlerBase
+//               implementations found via reflection.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-22 16:44
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.Linq;
@@ -17,7 +19,8 @@ namespace vFrame.Bundler
     {
         private JsonRpcServer _rpcServer;
 
-        public ProfileSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
+        public ProfileSystem(BundlerContexts bundlerContexts) : base(bundlerContexts)
+        {
             try {
                 _rpcServer = JsonRpcServer.CreateSimple(
                     bundlerContexts.Options.ListenAddress,
@@ -34,16 +37,19 @@ namespace vFrame.Bundler
             CreateRPCHandlers();
         }
 
-        protected override void OnDestroy() {
+        protected override void OnDestroy()
+        {
             _rpcServer?.Stop();
             _rpcServer = null;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             _rpcServer?.Update();
         }
 
-        private void CreateRPCHandlers() {
+        private void CreateRPCHandlers()
+        {
             var handlerTypes = typeof(RPCHandlerBase).Assembly.GetTypes()
                 .Where(v => typeof(RPCHandlerBase) != v)
                 .Where(v => typeof(RPCHandlerBase).IsAssignableFrom(v))

@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
-//         File: BundlerRefObject.cs
-//        Brief: BundlerRefObject.cs
+//         File: BundlerReferenceObject.cs
+//        Brief: BundlerObject with reference counting: Retain/Release pair, throws on underflow,
+//               becomes a no-op after Destroy to keep cascades order-safe.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 17:48
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 namespace vFrame.Bundler
 {
@@ -15,11 +17,13 @@ namespace vFrame.Bundler
         private int _references;
         private bool _destroyed;
 
-        protected BundlerReferenceObject(BundlerContexts bundlerContexts) : base(bundlerContexts) {
+        protected BundlerReferenceObject(BundlerContexts bundlerContexts) : base(bundlerContexts)
+        {
             _references = 0;
         }
 
-        public override void Destroy() {
+        public override void Destroy()
+        {
             // Convergence flag: once destroyed, the ref-count machinery becomes a
             // graceful no-op. This makes the Destroy() cascade order-safe — a child
             // loader whose OnDestroy() runs after its parent's Destroy() and calls
@@ -31,14 +35,16 @@ namespace vFrame.Bundler
             base.Destroy();
         }
 
-        public virtual void Retain() {
+        public virtual void Retain()
+        {
             if (_destroyed) {
                 return;
             }
             ++_references;
         }
 
-        public virtual void Release() {
+        public virtual void Release()
+        {
             if (_destroyed) {
                 return;
             }

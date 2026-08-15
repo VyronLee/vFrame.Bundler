@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AssetBundleAssetLoader.cs
-//        Brief: AssetBundleAssetLoader.cs
+//        Brief: Base for AssetBundle-mode asset loaders; validates that the parent
+//               pipeline loader is an AssetBundleLoaderGroup.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 23:10
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 namespace vFrame.Bundler
 {
@@ -15,7 +17,8 @@ namespace vFrame.Bundler
         protected AssetBundleLoaderGroup BundleLoader { get; }
 
         protected AssetBundleAssetLoader(BundlerContexts bundlerContexts,
-            LoaderContexts loaderContexts) : base(bundlerContexts, loaderContexts) {
+            LoaderContexts loaderContexts) : base(bundlerContexts, loaderContexts)
+        {
 
             BundleLoader = loaderContexts.ParentLoader as AssetBundleLoaderGroup;
             if (null == BundleLoader) {
@@ -24,7 +27,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"[@TypeName: {GetType().Name}, BundlePath: {BundleLoader?.MainBundleLoader?.BundlePath}, AssetPath: {AssetPath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }

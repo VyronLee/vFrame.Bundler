@@ -1,12 +1,13 @@
-﻿//------------------------------------------------------------
-//        File:  ILogger.cs
-//       Brief:  Bundler logger.
+// ------------------------------------------------------------
+//         File: ILogger.cs
+//        Brief: Bundler logging contract: LogLevel constants and leveled log methods with format arguments.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-02-15 20:12
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:06:55
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 namespace vFrame.Bundler
 {

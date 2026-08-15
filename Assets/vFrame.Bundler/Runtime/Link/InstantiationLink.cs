@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: InstantiationLink.cs
-//        Brief: InstantiationLink.cs
+//        Brief: Non-exclusive link type: tracks asset instances created via Instantiate, allowing
+//               many instances per loader.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-2-4 21:39
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 namespace vFrame.Bundler
 {

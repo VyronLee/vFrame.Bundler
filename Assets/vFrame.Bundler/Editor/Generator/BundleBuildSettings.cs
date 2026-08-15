@@ -1,12 +1,15 @@
-//------------------------------------------------------------
-//        File:  BundlerDefaultBuildSetting.cs
-//       Brief:  BundlerDefaultBuildSetting
+// ------------------------------------------------------------
+//         File: BundleBuildSettings.cs
+//        Brief: Editor AssetBundle build settings: output path, manifest file name, bundle name
+//               formatters, shader separation, and BuildAssetBundleOptions defaults.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-07-09 10:39
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:04:27
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
+
 
 using UnityEditor;
 

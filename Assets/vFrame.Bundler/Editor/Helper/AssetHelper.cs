@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: AssetHelper.cs
-//        Brief: AssetHelper.cs
+//        Brief: Editor AssetDatabase helpers: path/type/extension predicates and asset/dependency enumeration for builds.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 23:55
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.Collections.Generic;
@@ -19,19 +20,23 @@ namespace vFrame.Bundler.Helper
 {
     internal static class AssetHelper
     {
-        public static string GuidToPath(string guid) {
+        public static string GuidToPath(string guid)
+        {
             return AssetDatabase.GUIDToAssetPath(guid);
         }
 
-        public static bool IsFolder(string path) {
+        public static bool IsFolder(string path)
+        {
             return AssetDatabase.IsValidFolder(path);
         }
 
-        public static bool IsFile(string path) {
+        public static bool IsFile(string path)
+        {
             return !IsFolder(path);
         }
 
-        public static bool IsEditorAsset(string path) {
+        public static bool IsEditorAsset(string path)
+        {
             var type = AssetDatabase.GetMainAssetTypeAtPath(path);
             if (null == type) {
                 return false;
@@ -39,49 +44,60 @@ namespace vFrame.Bundler.Helper
             return type.Namespace == nameof(UnityEditor);
         }
 
-        public static bool IsNotEditorAsset(string path) {
+        public static bool IsNotEditorAsset(string path)
+        {
             return !IsEditorAsset(path);
         }
 
-        public static bool IsShader(string name) {
+        public static bool IsShader(string name)
+        {
             return Path.GetExtension(name) == ".shader";
         }
 
-        public static bool IsScene(string name) {
+        public static bool IsScene(string name)
+        {
             return Path.GetExtension(name) == ".unity";
         }
 
-        public static bool IsScriptableObject(string name) {
+        public static bool IsScriptableObject(string name)
+        {
             return Path.GetExtension(name) == ".asset";
         }
 
-        public static bool IsScript(string name) {
+        public static bool IsScript(string name)
+        {
             return Path.GetExtension(name) == ".cs";
         }
 
-        public static bool IsAssembly(string name) {
+        public static bool IsAssembly(string name)
+        {
             return Path.GetExtension(name) == ".dll";
         }
 
-        public static bool IsMeta(string name) {
+        public static bool IsMeta(string name)
+        {
             return Path.GetExtension(name) == ".meta";
         }
 
-        public static bool IsBuiltinResource(string name) {
+        public static bool IsBuiltinResource(string name)
+        {
             return name.EndsWith("unity_builtin_extra")
                 || name.EndsWith("unity default resources");
         }
 
-        public static bool IsProjectAssets(string name) {
+        public static bool IsProjectAssets(string name)
+        {
             return name.StartsWith("Assets/")
                 || name.StartsWith("Packages/");
         }
 
-        public static bool IsBuildableAssets(string name) {
+        public static bool IsBuildableAssets(string name)
+        {
             return IsScene(name) || IsNotEditorAsset(name); // 'UnityEditor.SceneAsset' can also be built into AssetBundle
         }
 
-        public static IEnumerable<string> FindAllAssets(string path) {
+        public static IEnumerable<string> FindAllAssets(string path)
+        {
             if (!IsProjectAssets(path)) {
                 Debug.LogWarning($"Argument is not project resource path: {path}, "
                                  + "only path start with 'Assets/' or 'Packages/' is allowed!");
@@ -95,7 +111,8 @@ namespace vFrame.Bundler.Helper
                 .Distinct();
         }
 
-        public static IEnumerable<string> GetAllDependencies(string[] paths) {
+        public static IEnumerable<string> GetAllDependencies(string[] paths)
+        {
             return AssetDatabase.GetDependencies(paths, true)
                 .Where(IsProjectAssets)
                 .Where(IsBuildableAssets)

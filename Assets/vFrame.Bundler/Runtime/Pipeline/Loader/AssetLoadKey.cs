@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
 //         File: AssetLoadKey.cs
-//        Brief: AssetLoadKey.cs
+//        Brief: Composite (assetPath, assetType) tuple key used to index asset loaders; value equality + hash.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,28 +8,33 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 using System;
 
 namespace vFrame.Bundler
 {
     internal class AssetLoadKey : Tuple<string, Type>, IEquatable<AssetLoadKey>
     {
-        private AssetLoadKey(string item1, Type item2) : base(item1, item2) {
+        private AssetLoadKey(string item1, Type item2) : base(item1, item2)
+        {
 
         }
 
-        public static AssetLoadKey Create(string item1, Type item2) {
+        public static AssetLoadKey Create(string item1, Type item2)
+        {
             return new AssetLoadKey(item1, item2);
         }
 
-        public bool Equals(AssetLoadKey other) {
+        public bool Equals(AssetLoadKey other)
+        {
             if (ReferenceEquals(null, other)) {
                 return false;
             }
             return Item1 == other.Item1 && Item2 == other.Item2;
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             if (ReferenceEquals(null, obj)) {
                 return false;
             }
@@ -42,11 +47,13 @@ namespace vFrame.Bundler
             return Equals((AssetLoadKey)obj);
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return Item1.GetHashCode() & Item2.GetHashCode();
         }
 
-        public static implicit operator AssetLoadKey((string, Type) other) {
+        public static implicit operator AssetLoadKey((string, Type) other)
+        {
             return Create(other.Item1, other.Item2);
         }
     }

@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AssetBundleLoaderGroup.cs
-//        Brief: AssetBundleLoaderGroup.cs
+//        Brief: Aggregates the main bundle loader plus dependency bundle loaders for an
+//               asset; starts/updates/aggregates progress and propagates retain/release.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 22:56
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +23,8 @@ namespace vFrame.Bundler
         private readonly List<AssetBundleLoader> _loaders;
 
         protected AssetBundleLoaderGroup(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
             _loaders = CreateBundleLoaders();
             if (null != _loaders) {
@@ -32,7 +35,8 @@ namespace vFrame.Bundler
 
         protected abstract AssetBundleLoader CreateAssetBundleLoader(string bundlePath);
 
-        protected override void OnDestroy() {
+        protected override void OnDestroy()
+        {
             // Child loaders are borrowed from BundlerContexts and destroyed by CollectSystem.
             _loaders?.Clear();
             base.OnDestroy();
@@ -61,7 +65,8 @@ namespace vFrame.Bundler
             }
         }
 
-        private List<AssetBundleLoader> CreateBundleLoaders() {
+        private List<AssetBundleLoader> CreateBundleLoaders()
+        {
             if (!BundlerContexts.Manifest.Assets.TryGetValue(LoaderContexts.AssetPath, out var mainBundle)) {
                 Facade.GetSystem<LogSystem>().LogError("Bundle data not found for asset: {0}", LoaderContexts.AssetPath);
                 return null;
@@ -78,7 +83,8 @@ namespace vFrame.Bundler
             return ret;
         }
 
-        private AssetBundleLoader GetOrCreateAssetBundleLoader(string bundlePath) {
+        private AssetBundleLoader GetOrCreateAssetBundleLoader(string bundlePath)
+        {
             if (BundlerContexts.TryGetLoader(bundlePath, out AssetBundleLoader bundleLoader)) {
                 return bundleLoader;
             }
@@ -101,19 +107,22 @@ namespace vFrame.Bundler
             }
         }
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
             foreach (var loader in _loaders) {
                 loader.Start();
             }
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
             foreach (var loader in _loaders) {
                 loader.Stop();
             }
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             var finished = true;
             var error = false;
             foreach (var loader in _loaders) {
@@ -129,7 +138,8 @@ namespace vFrame.Bundler
             }
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             var finished = true;
             var error = false;
             foreach (var loader in _loaders) {
@@ -145,21 +155,24 @@ namespace vFrame.Bundler
             }
         }
 
-        public override void Retain() {
+        public override void Retain()
+        {
             foreach (var loader in _loaders) {
                 loader.Retain();
             }
             base.Retain();
         }
 
-        public override void Release() {
+        public override void Release()
+        {
             foreach (var loader in _loaders) {
                 loader.Release();
             }
             base.Release();
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"[@TypeName: {GetType().Name}, MainBundlePath: {MainBundlePath}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }

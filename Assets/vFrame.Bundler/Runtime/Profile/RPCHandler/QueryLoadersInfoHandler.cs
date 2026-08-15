@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: QueryLoadersInfoHandler.cs
-//        Brief: QueryLoadersInfoHandler.cs
+//        Brief: RPC handler returning all active loaders serialized to JSON, sorted by create frame.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-22 19:57
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Collections.Generic;
 
@@ -16,7 +17,8 @@ namespace vFrame.Bundler
     {
         public override string MethodName => RPCMethods.QueryLoadersInfo;
 
-        public override int HandleRequest(JsonObject args, out JsonObject result) {
+        public override int HandleRequest(JsonObject args, out JsonObject result)
+        {
             var loaders = new List<JsonObject>();
             BundlerContexts.ForEachLoader(v => loaders.Add(v.ToJsonData()));
             loaders.Sort(ProfileUtils.SortByCreateFrame);

@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: RuntimeSceneLoaderSync.cs
-//        Brief: RuntimeSceneLoaderSync.cs
+//        Brief: Loads a scene synchronously via SceneManager.LoadScene and exposes the resulting Scene handle.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 23:32
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine.SceneManagement;
 
@@ -17,14 +18,16 @@ namespace vFrame.Bundler
         private UnityEngine.SceneManagement.Scene _sceneObject;
 
         protected RuntimeSceneLoaderSync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
         }
 
         [JsonSerializableProperty]
         public override float Progress => IsDone ? 1f : 0f;
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
             SceneManager.LoadScene(AssetPath, LoadSceneMode);
             _sceneObject = SceneManager.GetSceneByPath(AssetPath);
             if (null != _sceneObject && _sceneObject.IsValid()) {
@@ -35,15 +38,18 @@ namespace vFrame.Bundler
             Abort();
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
 
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             Finish();
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             Finish();
         }
 

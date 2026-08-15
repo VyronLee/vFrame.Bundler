@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: BuildContextExtension.cs
-//        Brief: BuildContextExtension.cs
+//        Brief: Extension methods computing final bundle paths (normal/shared/scene/shader)
+//               with optional MD5 hashing and formatter application.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-26 19:51
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.IO;
@@ -18,7 +20,8 @@ namespace vFrame.Bundler
 {
     internal static class BuildContextExtension
     {
-        public static string BuildBundlePath(this BuildContext context, string path) {
+        public static string BuildBundlePath(this BuildContext context, string path)
+        {
             var bundlePath = path.TrimEnd('/');
             bundlePath = HashBundlePathIfNeed(context, bundlePath);
             bundlePath = string.Format(context.BuildSettings.BundleFormatter, bundlePath);
@@ -26,7 +29,8 @@ namespace vFrame.Bundler
             return bundlePath;
         }
 
-        public static string BuildSharedBundlePath(this BuildContext context, string path) {
+        public static string BuildSharedBundlePath(this BuildContext context, string path)
+        {
             var bundlePath = path.TrimEnd('/');
             bundlePath = HashBundlePathIfNeed(context, bundlePath);
             bundlePath = string.Format(context.BuildSettings.SharedBundleFormatter, bundlePath);
@@ -34,7 +38,8 @@ namespace vFrame.Bundler
             return bundlePath;
         }
 
-        public static string BuildSceneBundlePath(this BuildContext context, string path) {
+        public static string BuildSceneBundlePath(this BuildContext context, string path)
+        {
             if (!AssetHelper.IsScene(path)) {
                 ThrowHelper.ThrowArgumentException($"Scene file path required, got: {path}");
             }
@@ -46,14 +51,16 @@ namespace vFrame.Bundler
             return bundlePath;
         }
 
-        public static string BuildSharedShaderBundlePath(this BuildContext context) {
+        public static string BuildSharedShaderBundlePath(this BuildContext context)
+        {
             var bundlePath = context.BuildSettings.SeparatedShaderBundlePath.TrimEnd('/');
             bundlePath = HashBundlePathIfNeed(context, bundlePath);
             bundlePath = PathUtils.NormalizeAssetBundlePath(bundlePath);
             return bundlePath;
         }
 
-        private static string HashBundlePathIfNeed(BuildContext context, string path) {
+        private static string HashBundlePathIfNeed(BuildContext context, string path)
+        {
             if (!context.BuildSettings.HashAssetBundlePath) {
                 return path;
             }

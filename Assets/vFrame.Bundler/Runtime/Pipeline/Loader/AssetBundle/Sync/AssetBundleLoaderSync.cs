@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
-//         File: AssetBundleLoader.cs
-//        Brief: AssetBundleLoader.cs
+//         File: AssetBundleLoaderSync.cs
+//        Brief: Sync single-bundle loader: loads the AssetBundle via the adapter in
+//               OnStart; unloads it on stop.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 22:37
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 
@@ -17,14 +19,16 @@ namespace vFrame.Bundler
         private AssetBundle _assetBundle;
 
         public AssetBundleLoaderSync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts, string bundlePath)
-            : base(bundlerContexts, loaderContexts, bundlePath) {
+            : base(bundlerContexts, loaderContexts, bundlePath)
+        {
 
         }
 
         [JsonSerializableProperty]
         public override float Progress => IsDone ? 1f : 0f;
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
             try {
                 _assetBundle = Adapter.CreateAssetBundle(BundlePath);
                 if (_assetBundle) {
@@ -42,18 +46,21 @@ namespace vFrame.Bundler
             Abort();
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
             if (_assetBundle) {
                 _assetBundle.Unload(true);
             }
             _assetBundle = null;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             Finish();
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             Finish();
         }
 

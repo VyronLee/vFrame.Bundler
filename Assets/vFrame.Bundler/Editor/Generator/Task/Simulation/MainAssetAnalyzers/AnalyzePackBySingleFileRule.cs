@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
 //         File: AnalyzePackBySingleFileRule.cs
-//        Brief: AnalyzePackBySingleFileRule.cs
+//        Brief: Simulation rule: each matched asset becomes a main asset mapped to the <AssetDatabase> pseudo bundle.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,13 +8,15 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 using System.Collections.Generic;
 
 namespace vFrame.Bundler.Task.Simulation.MainAssetAnalyzers
 {
     internal class AnalyzePackBySingleFileRule : SimulationMainAssetAnalyzerBase
     {
-        protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule) {
+        protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule)
+        {
             var assets = FindAssets(rule);
             var index = 0f;
             var total = assets.Count;

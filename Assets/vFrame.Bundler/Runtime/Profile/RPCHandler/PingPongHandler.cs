@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
 //         File: PingPongHandler.cs
-//        Brief: PingPongHandler.cs
+//        Brief: Profiler liveness RPC handler; answers PingPong with an empty success response.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,13 +8,15 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 namespace vFrame.Bundler
 {
     internal class PingPongHandler : RPCHandlerBase
     {
         public override string MethodName => RPCMethods.PingPong;
 
-        public override int HandleRequest(JsonObject args, out JsonObject result) {
+        public override int HandleRequest(JsonObject args, out JsonObject result)
+        {
             result = new JsonObject();
             return JsonRpcErrorCode.Success;
         }

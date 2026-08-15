@@ -1,6 +1,7 @@
 // ------------------------------------------------------------
 //         File: AssetBundleLoaderGroupAsync.cs
-//        Brief: AssetBundleLoaderGroupAsync.cs
+//        Brief: AssetBundleLoaderGroup variant whose child bundle loaders are
+//               AssetBundleLoaderAsync instances.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,16 +9,19 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 namespace vFrame.Bundler
 {
     internal class AssetBundleLoaderGroupAsync : AssetBundleLoaderGroup
     {
         public AssetBundleLoaderGroupAsync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
         }
 
-        protected override AssetBundleLoader CreateAssetBundleLoader(string bundlePath) {
+        protected override AssetBundleLoader CreateAssetBundleLoader(string bundlePath)
+        {
             return new AssetBundleLoaderAsync(BundlerContexts, LoaderContexts, bundlePath);
         }
     }

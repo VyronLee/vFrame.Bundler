@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AssetAsync.cs
-//        Brief: AssetAsync.cs
+//        Brief: Async asset handle structs (AssetAsync/AssetAsync<T>) implementing IAsync;
+//               poll IsDone/Progress while the loader finishes, then access assets.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 19:39
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -29,11 +31,13 @@ namespace vFrame.Bundler
         }
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
-        void ILoaderHandler.Update() {
+        void ILoaderHandler.Update()
+        {
 
         }
 
-        public UnloadOperation Unload() {
+        public UnloadOperation Unload()
+        {
             if (IsUnloaded) {
                 return UnloadOperation.Completed;
             }
@@ -48,31 +52,37 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public bool IsUnloaded { get; private set; }
 
-        public Object GetRawAsset() {
+        public Object GetRawAsset()
+        {
             return AssetHelper<AssetAsync>.GetRawAsset(this);
         }
 
-        public Object[] GetAllRawAssets() {
+        public Object[] GetAllRawAssets()
+        {
             return AssetHelper<AssetAsync>.GetAllRawAssets(this);
         }
 
-        public Object Instantiate(Transform parent = null, bool stayWorldPosition = false) {
+        public Object Instantiate(Transform parent = null, bool stayWorldPosition = false)
+        {
             return AssetHelper<AssetAsync>.Instantiate(this, parent, stayWorldPosition);
         }
 
         public void SetTo<TComponent, TLink, TProxy>(TComponent target)
             where TComponent : Component
             where TLink : Object
-            where TProxy : PropertyLink<TComponent, TLink>, new() {
+            where TProxy : PropertyLink<TComponent, TLink>, new()
+        {
 
             AssetHelper<AssetAsync>.SetTo<TComponent, TLink, TProxy>(this, target);
         }
 
-        public bool MoveNext() {
+        public bool MoveNext()
+        {
             return !IsDone;
         }
 
-        public void Reset() {
+        public void Reset()
+        {
 
         }
 
@@ -99,11 +109,13 @@ namespace vFrame.Bundler
         }
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
-        void ILoaderHandler.Update() {
+        void ILoaderHandler.Update()
+        {
 
         }
 
-        public UnloadOperation Unload() {
+        public UnloadOperation Unload()
+        {
             if (IsUnloaded) {
                 return UnloadOperation.Completed;
             }
@@ -118,30 +130,36 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public bool IsUnloaded { get; private set; }
 
-        public T GetRawAsset() {
+        public T GetRawAsset()
+        {
             return AssetHelper<AssetAsync<T>>.GetRawAsset(this) as T;
         }
 
-        public T[] GetAllRawAssets() {
+        public T[] GetAllRawAssets()
+        {
             return AssetHelper<AssetAsync<T>>.GetAllRawAssets(this) as T[];
         }
 
-        public T Instantiate(Transform parent = null, bool stayWorldPosition = false) {
+        public T Instantiate(Transform parent = null, bool stayWorldPosition = false)
+        {
             return AssetHelper<AssetAsync<T>>.Instantiate(this, parent, stayWorldPosition) as T;
         }
 
         public void SetTo<TComponent, TProxy>(TComponent target)
             where TComponent : Component
-            where TProxy : PropertyLink<TComponent, T>, new() {
+            where TProxy : PropertyLink<TComponent, T>, new()
+        {
 
             AssetHelper<AssetAsync<T>>.SetTo<TComponent, T, TProxy>(this, target);
         }
 
-        public bool MoveNext() {
+        public bool MoveNext()
+        {
             return !IsDone;
         }
 
-        public void Reset() {
+        public void Reset()
+        {
 
         }
 

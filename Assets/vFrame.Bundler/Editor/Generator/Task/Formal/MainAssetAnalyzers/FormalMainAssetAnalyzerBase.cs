@@ -1,6 +1,7 @@
 // ------------------------------------------------------------
-//         File: MainAssetAnalyzerBase.cs
-//        Brief: MainAssetAnalyzerBase.cs
+//         File: FormalMainAssetAnalyzerBase.cs
+//        Brief: Base for formal main-asset analyzers: builtin handling of non-buildable,
+//               separated-shader and scene assets before rule-specific packing.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,13 +9,15 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 using vFrame.Bundler.Helper;
 
 namespace vFrame.Bundler.Task.Formal.MainAssetAnalyzers
 {
     internal abstract class FormalMainAssetAnalyzerBase : MainAssetAnalyzerBase
     {
-        protected bool TryBuiltinAnalyzer(BuildContext context, string path) {
+        protected bool TryBuiltinAnalyzer(BuildContext context, string path)
+        {
             var ret = false;
             ret |= !AssetHelper.IsBuildableAssets(path);
             ret |= TryAddIfIsShader(context, path);
@@ -22,7 +25,8 @@ namespace vFrame.Bundler.Task.Formal.MainAssetAnalyzers
             return ret;
         }
 
-        private bool TryAddIfIsShader(BuildContext context, string path) {
+        private bool TryAddIfIsShader(BuildContext context, string path)
+        {
             if (!AssetHelper.IsShader(path)) {
                 return false;
             }
@@ -39,7 +43,8 @@ namespace vFrame.Bundler.Task.Formal.MainAssetAnalyzers
             return true;
         }
 
-        private bool TryAddIfIsScene(BuildContext context, string path) {
+        private bool TryAddIfIsScene(BuildContext context, string path)
+        {
             if (!AssetHelper.IsScene(path)) {
                 return false;
             }

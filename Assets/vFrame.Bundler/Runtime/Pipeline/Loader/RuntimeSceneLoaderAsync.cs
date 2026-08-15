@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
-//         File: RuntimeSceneLoader.cs
-//        Brief: RuntimeSceneLoader.cs
+//         File: RuntimeSceneLoaderAsync.cs
+//        Brief: Loads a scene asynchronously via SceneManager.LoadSceneAsync; validates the loaded Scene handle.
+//               Force-complete is not supported.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 21:59
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.IO;
 using UnityEngine;
@@ -20,7 +22,8 @@ namespace vFrame.Bundler
         private UnityEngine.SceneManagement.Scene _sceneObject;
 
         protected RuntimeSceneLoaderAsync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
         }
 
         [JsonSerializableProperty]
@@ -36,7 +39,8 @@ namespace vFrame.Bundler
             }
         }
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
 #if UNITY_EDITOR
             var sceneName = Path.GetFileNameWithoutExtension(AssetPath);
             _request = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode);
@@ -51,11 +55,13 @@ namespace vFrame.Bundler
             Abort();
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
             _request = null;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             if (null == _request) {
                 return;
             }
@@ -65,11 +71,13 @@ namespace vFrame.Bundler
             ObtainSceneObject();
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             throw new BundleNotSupportedException("Force complete async scene loader is not supported.");
         }
 
-        private void ObtainSceneObject() {
+        private void ObtainSceneObject()
+        {
             _sceneObject = SceneManager.GetSceneByPath(AssetPath);
             if (_sceneObject != null && _sceneObject.IsValid()) {
                 Finish();

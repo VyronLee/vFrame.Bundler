@@ -1,6 +1,7 @@
 // ------------------------------------------------------------
 //         File: ScriptablePipeline.cs
-//        Brief: ScriptablePipeline.cs
+//        Brief: Custom-workflow pipeline placeholder with an empty task list, for user-defined
+//               build steps.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,14 +9,16 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 using vFrame.Bundler.Task;
 
 namespace vFrame.Bundler.Pipeline
 {
     internal class ScriptablePipeline : PipelineBase
     {
-        protected override BuildTaskBase[] GetTasks() {
-            return new BuildTaskBase[] {};
+        protected override BuildTaskBase[] GetTasks()
+        {
+            return new BuildTaskBase[] { };
         }
     }
 }

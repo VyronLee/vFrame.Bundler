@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: LinkListItem.cs
-//        Brief: LinkListItem.cs
+//        Brief: Profiler list row showing a link's type, create frame, target and owning loader's asset path.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-2-5 17:57
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -28,11 +29,13 @@ namespace vFrame.Bundler
         [ViewElement("LabelLoader")]
         private readonly Label _labelLoader;
 
-        public LinkListItem(ProfilerContexts contexts) : base(contexts, "Pages/Links/LinkListItem.uxml") {
+        public LinkListItem(ProfilerContexts contexts) : base(contexts, "Pages/Links/LinkListItem.uxml")
+        {
 
         }
 
-        protected override void OnViewDataChanged() {
+        protected override void OnViewDataChanged()
+        {
             var typeName = ViewData.SafeGetValue<string>("@TypeName");
             var createFrame = ViewData.SafeGetValue<int>("CreateFrame");
             var target = ViewData.SafeGetValue<string>("vFrame.Bundler.ILink.Target");

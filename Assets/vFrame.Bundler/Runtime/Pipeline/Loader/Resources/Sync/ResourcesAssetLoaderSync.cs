@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: ResourcesAssetLoaderSync.cs
-//        Brief: ResourcesAssetLoaderSync.cs
+//        Brief: Loads an asset synchronously from Resources via Resources.Load; maps project path to Resources path.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-4 19:54
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.IO;
 using UnityEngine;
@@ -20,14 +21,16 @@ namespace vFrame.Bundler
         private Object[] _assetObjects;
 
         public ResourcesAssetLoaderSync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
         }
 
         [JsonSerializableProperty]
         public override float Progress => IsDone ? 1f : 0f;
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
             var resPath = PathUtils.RelativeProjectPathToRelativeResourcesPath(AssetPath);
 
             var sb = StringBuilderPool.Get();
@@ -48,15 +51,18 @@ namespace vFrame.Bundler
             Abort();
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
             _assetObject = null;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             Finish();
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             Finish();
         }
 

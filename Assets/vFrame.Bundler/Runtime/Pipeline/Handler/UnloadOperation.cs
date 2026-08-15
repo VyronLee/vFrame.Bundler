@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: UnloadOperation.cs
-//        Brief: UnloadOperation.cs
+//        Brief: CustomYieldInstruction awaitable for unload completion, with a
+//               pre-completed singleton.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-5 16:13
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 
@@ -16,7 +18,8 @@ namespace vFrame.Bundler
     {
         private bool _isDone;
 
-        internal void SetDone(bool value) {
+        internal void SetDone(bool value)
+        {
             _isDone = value;
         }
 

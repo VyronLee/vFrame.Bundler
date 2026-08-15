@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AnalyzeMainAssetsTask.cs
-//        Brief: AnalyzeMainAssetsTask.cs
+//        Brief: Simulation-mode step 1: applies MainRules via the Simulation PackType-matched
+//               analyzers to collect main assets.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 22:40
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using vFrame.Bundler.Helper;
@@ -16,7 +18,8 @@ namespace vFrame.Bundler.Task.Simulation
 {
     internal class AnalyzeMainAssetsTask : BuildTaskBase
     {
-        public override void Run(BuildContext context) {
+        public override void Run(BuildContext context)
+        {
             ThrowHelper.ThrowIfNull(context.BuildRules,
                 ThrowHelper.Variables(nameof(context), nameof(context.BuildRules)));
             ThrowHelper.ThrowIfNull(context.BuildRules.MainRules,

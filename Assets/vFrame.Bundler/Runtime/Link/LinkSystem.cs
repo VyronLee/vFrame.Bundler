@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: LinkSystem.cs
-//        Brief: LinkSystem.cs
+//        Brief: Manages asset links: Instantiate + InstantiationLink registration, and
+//               release/recreate of exclusive PropertyLinks on component targets.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-4 22:36
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -15,19 +17,23 @@ namespace vFrame.Bundler
 {
     internal class LinkSystem : BundlerSystem
     {
-        public LinkSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
+        public LinkSystem(BundlerContexts bundlerContexts) : base(bundlerContexts)
+        {
 
         }
 
-        protected override void OnDestroy() {
+        protected override void OnDestroy()
+        {
 
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
 
         }
 
-        public Object InstantiateAndLink(ILoaderHandler handler, Transform parent, bool stayWorldPosition) {
+        public Object InstantiateAndLink(ILoaderHandler handler, Transform parent, bool stayWorldPosition)
+        {
             var assetLoader = handler.Loader as AssetLoader;
             if (null == assetLoader) {
                 Facade.GetSystem<LogSystem>().LogError("AssetLoader required, got: {0}",
@@ -38,7 +44,7 @@ namespace vFrame.Bundler
             var obj = Object.Instantiate(assetLoader.AssetObject, parent, stayWorldPosition);
             var instantiation = ObjectPool<InstantiationLink>.Get();
 
-            var link = (ILink) instantiation;
+            var link = (ILink)instantiation;
             link.Loader = handler.Loader;
             link.Target = obj;
 
@@ -51,7 +57,8 @@ namespace vFrame.Bundler
         public void RelinkProperty<TComponent, TObject, TLink>(ILoaderHandler handler, TComponent target)
             where TComponent : Component
             where TObject : Object
-            where TLink : PropertyLink<TComponent, TObject>, new() {
+            where TLink : PropertyLink<TComponent, TObject>, new()
+        {
 
             ReleaseLinkedProperty<TComponent, TObject, TLink>(target);
             RecreateLink<TComponent, TObject, TLink>(handler, target);
@@ -60,7 +67,8 @@ namespace vFrame.Bundler
         private void ReleaseLinkedProperty<TComponent, TObject, TLink>(TComponent component)
             where TComponent : Component
             where TObject : Object
-            where TLink : PropertyLink<TComponent, TObject>, new() {
+            where TLink : PropertyLink<TComponent, TObject>, new()
+        {
 
             if (!BundlerContexts.TryGetLinks<TLink>(component, out var links)) {
                 return;
@@ -75,7 +83,8 @@ namespace vFrame.Bundler
         private void RecreateLink<TComponent, TObject, TLink>(ILoaderHandler handler, TComponent component)
             where TComponent : Component
             where TObject : Object
-            where TLink : PropertyLink<TComponent, TObject>, new() {
+            where TLink : PropertyLink<TComponent, TObject>, new()
+        {
 
             var assetLoader = handler.Loader as AssetLoader;
             if (null == assetLoader) {
@@ -92,7 +101,7 @@ namespace vFrame.Bundler
             }
 
             var setter = ObjectPool<TLink>.Get();
-            var proxy = (ILink) setter;
+            var proxy = (ILink)setter;
             proxy.Loader = handler.Loader;
             proxy.Target = component;
 

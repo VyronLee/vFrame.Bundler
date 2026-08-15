@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: PipelineListItem.cs
-//        Brief: PipelineListItem.cs
+//        Brief: Profiler list row showing pipeline status plus a foldout listing its loaders' progress and ref counts.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-29 23:19
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -47,25 +48,30 @@ namespace vFrame.Bundler
 
         private Action<bool> _callback;
 
-        public PipelineListItem(ProfilerContexts contexts) : base(contexts, "Pages/Pipelines/PipelineListItem.uxml"){
+        public PipelineListItem(ProfilerContexts contexts) : base(contexts, "Pages/Pipelines/PipelineListItem.uxml")
+        {
             // ReSharper disable once ExpressionIsAlwaysNull
             _foldoutLoaders.RegisterValueChangedCallback(OnFoldoutLoadersValueChanged);
         }
 
-        public void RegisterFoldoutCallback(Action<bool> callback) {
+        public void RegisterFoldoutCallback(Action<bool> callback)
+        {
             _callback = callback;
         }
 
-        private void OnFoldoutLoadersValueChanged(ChangeEvent<bool> evt) {
+        private void OnFoldoutLoadersValueChanged(ChangeEvent<bool> evt)
+        {
             _callback?.Invoke(evt.newValue);
         }
 
-        protected override void OnViewDataChanged() {
+        protected override void OnViewDataChanged()
+        {
             SetPipelineInfo();
             SetLoaderInfo();
         }
 
-        private void SetPipelineInfo() {
+        private void SetPipelineInfo()
+        {
             var createFrame = ViewData.SafeGetValue<int>("CreateFrame");
             var isDone = ViewData.SafeGetValue<bool>("IsDone");
             var isError = ViewData.SafeGetValue<bool>("IsError");
@@ -81,7 +87,8 @@ namespace vFrame.Bundler
             _labelLoaderCount.text = loaderCount.ToString();
         }
 
-        private void SetLoaderInfo() {
+        private void SetLoaderInfo()
+        {
             _loaders.ForEach(v => v.RemoveFromHierarchy());
 
             var loaders = ViewData.SafeGetValue<JsonList>("Loaders");
@@ -101,7 +108,7 @@ namespace vFrame.Bundler
                 var mainBundlePath = data.SafeGetValue<string>("MainBundlePath");
 
                 var sb = new StringBuilder();
-                sb.Append($"{i+1}) ");
+                sb.Append($"{i + 1}) ");
                 sb.Append("@TypeName: ");
                 sb.Append(typeName);
                 sb.Append(", AssetPath: ");

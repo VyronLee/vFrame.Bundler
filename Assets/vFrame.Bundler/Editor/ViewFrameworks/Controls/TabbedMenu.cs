@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: TabbedMenu.cs
-//        Brief: TabbedMenu.cs
+//        Brief: UI Toolkit tab strip: tracks clicked tab buttons, applies the selected style and notifies listeners.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-28 20:46
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -23,23 +24,27 @@ namespace vFrame.Bundler
         private Action<string> _callback;
         private Button _selected;
 
-        public TabbedMenu(VisualElement root, string selectedStyle = "selected-tab-style") {
+        public TabbedMenu(VisualElement root, string selectedStyle = "selected-tab-style")
+        {
             _root = root;
             _selectedStyle = selectedStyle;
 
             FindTabButtons();
         }
 
-        public void RegisterCallback(Action<string> callback) {
+        public void RegisterCallback(Action<string> callback)
+        {
             _callback = callback;
         }
 
-        private void FindTabButtons() {
+        private void FindTabButtons()
+        {
             _buttons = _root.Query<Button>();
             _buttons.ForEach(button => button.RegisterCallback<ClickEvent>(TabOnClick));
         }
 
-        private void TabOnClick(ClickEvent evt) {
+        private void TabOnClick(ClickEvent evt)
+        {
             var button = evt.target as Button;
             if (null == button) {
                 return;
@@ -47,7 +52,8 @@ namespace vFrame.Bundler
             SelectTab(button);
         }
 
-        public void SelectTab(Button button, bool dispatch = true) {
+        public void SelectTab(Button button, bool dispatch = true)
+        {
             var changed = _selected != button;
             _selected = button;
             UpdateTabStyle();
@@ -56,7 +62,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public void SelectTab(string tabName) {
+        public void SelectTab(string tabName)
+        {
             var button = _buttons.Where(btn => btn.name == tabName).First();
             if (null == button) {
                 return;
@@ -64,7 +71,8 @@ namespace vFrame.Bundler
             SelectTab(button);
         }
 
-        private void UpdateTabStyle() {
+        private void UpdateTabStyle()
+        {
             _buttons.ForEach(btn => {
                 if (_selected == btn) {
                     btn.AddToClassList(_selectedStyle);

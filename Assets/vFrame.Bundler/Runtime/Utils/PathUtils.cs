@@ -1,12 +1,13 @@
-﻿//------------------------------------------------------------
-//        File:  PathUtils.cs
-//       Brief:  PathUtils
+// ------------------------------------------------------------
+//         File: PathUtils.cs
+//        Brief: Path helpers: normalization, combination, project-relative conversions, bundle names, MD5 path hashing.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-02-15 20:15
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:07:00
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 using System.IO;
 using System.Security.Cryptography;
@@ -17,17 +18,20 @@ namespace vFrame.Bundler
 {
     public static class PathUtils
     {
-        public static string NormalizePath(string value) {
+        public static string NormalizePath(string value)
+        {
             value = value.Replace("\\", "/");
             return value;
         }
 
-        public static string Combine(string path1, string path2) {
+        public static string Combine(string path1, string path2)
+        {
             var value = Path.Combine(path1, path2);
             return NormalizePath(value);
         }
 
-        public static string Combine(params string[] paths) {
+        public static string Combine(params string[] paths)
+        {
             if (null == paths) return null;
             if (paths.Length <= 1) return NormalizePath(paths[0]);
             var ret = paths[0];
@@ -35,7 +39,8 @@ namespace vFrame.Bundler
             return NormalizePath(ret);
         }
 
-        public static string NormalizeAssetBundlePath(string value) {
+        public static string NormalizeAssetBundlePath(string value)
+        {
             if (Path.IsPathRooted(value))
                 value = AbsolutePathToRelativeProjectPath(value);
 
@@ -43,20 +48,23 @@ namespace vFrame.Bundler
             return NormalizePath(value);
         }
 
-        public static string AbsolutePathToRelativeProjectPath(string fullPath) {
+        public static string AbsolutePathToRelativeProjectPath(string fullPath)
+        {
             var path = AbsolutePathToRelativeDataPath(fullPath);
             path = Path.Combine("Assets", path);
             return NormalizePath(path);
         }
 
-        public static string AbsolutePathToRelativeDataPath(string fullPath) {
+        public static string AbsolutePathToRelativeDataPath(string fullPath)
+        {
             fullPath = NormalizePath(fullPath);
             var projDataFullPath = NormalizePath(Path.GetFullPath(Application.dataPath) + "/");
             var relativePath = fullPath.Replace(projDataFullPath, "");
             return NormalizePath(relativePath);
         }
 
-        public static string AbsolutePathToRelativeResourcesPath(string fullPath) {
+        public static string AbsolutePathToRelativeResourcesPath(string fullPath)
+        {
             fullPath = NormalizePath(fullPath);
             var resourcesPath = Path.Combine(Application.dataPath, "Resources");
             var projDataFullPath = NormalizePath(resourcesPath + "/");
@@ -64,60 +72,72 @@ namespace vFrame.Bundler
             return NormalizePath(relativePath);
         }
 
-        public static string AbsolutePathToRelativeStreamingAssetsPath(string fullPath) {
+        public static string AbsolutePathToRelativeStreamingAssetsPath(string fullPath)
+        {
             fullPath = NormalizePath(fullPath);
             var projDataFullPath = NormalizePath(Application.streamingAssetsPath + "/");
             var relativePath = fullPath.Replace(projDataFullPath, "");
             return NormalizePath(relativePath);
         }
 
-        public static string RelativeDataPathToAbsolutePath(string relativePath) {
+        public static string RelativeDataPathToAbsolutePath(string relativePath)
+        {
             var fullPath = Path.Combine(Application.dataPath, relativePath);
             return NormalizePath(fullPath);
         }
 
-        public static string RelativeProjectPathToAbsolutePath(string relativePath) {
+        public static string RelativeProjectPathToAbsolutePath(string relativePath)
+        {
             var dataPath = Application.dataPath;
             var projectPath = dataPath.Remove(dataPath.Length - 6, 6);
             var fullPath = Path.Combine(projectPath, relativePath);
             return NormalizePath(fullPath);
         }
 
-        public static string RelativeResourcesPathToAbsolutePath(string relativePath) {
+        public static string RelativeResourcesPathToAbsolutePath(string relativePath)
+        {
             var resourcesPath = Path.Combine(Application.dataPath, "Resources");
             var fullPath = Path.Combine(resourcesPath, relativePath);
             return NormalizePath(fullPath);
         }
 
-        public static string RelativeProjectPathToRelativeDataPath(string relativePath) {
+        public static string RelativeProjectPathToRelativeDataPath(string relativePath)
+        {
             return relativePath.Remove(0, 7);
         }
 
-        public static string RelativeProjectPathToRelativeResourcesPath(string relativePath) {
+        public static string RelativeProjectPathToRelativeResourcesPath(string relativePath)
+        {
             return relativePath.Remove(0, 17);
         }
 
-        public static string RelativeDataPathToRelativeProjectPath(string relativePath) {
+        public static string RelativeDataPathToRelativeProjectPath(string relativePath)
+        {
             return string.Format("Assets/{0}", relativePath);
         }
 
-        public static string RelativeDataPathToRelativeResourcesPath(string relativePath) {
+        public static string RelativeDataPathToRelativeResourcesPath(string relativePath)
+        {
             return relativePath.Remove(0, 10);
         }
 
-        public static string RelativeResourcesPathToRelativeDataPath(string relativePath) {
+        public static string RelativeResourcesPathToRelativeDataPath(string relativePath)
+        {
             return string.Format("Resources/{0}", relativePath);
         }
 
-        public static string RelativeResourcesPathToRelativeProjectPath(string relativePath) {
+        public static string RelativeResourcesPathToRelativeProjectPath(string relativePath)
+        {
             return string.Format("Assets/Resources/{0}", relativePath);
         }
 
-        public static string ProjectPath() {
+        public static string ProjectPath()
+        {
             return Application.dataPath.Remove(Application.dataPath.Length - 7, 7);
         }
 
-        public static string GetBundleName(string value) {
+        public static string GetBundleName(string value)
+        {
             value = Path.Combine(
                 Path.GetDirectoryName(value),
                 Path.GetFileNameWithoutExtension(value));
@@ -125,16 +145,19 @@ namespace vFrame.Bundler
             return value;
         }
 
-        public static string GetAssetName(string value) {
+        public static string GetAssetName(string value)
+        {
             value = Path.GetFileNameWithoutExtension(value);
             return value;
         }
 
-        public static bool IsFileInPersistentDataPath(string path) {
+        public static bool IsFileInPersistentDataPath(string path)
+        {
             return path.StartsWith(Application.persistentDataPath);
         }
 
-        public static string HashPath(string path) {
+        public static string HashPath(string path)
+        {
             var md5 = new MD5CryptoServiceProvider();
             var ret = md5.ComputeHash(Encoding.UTF8.GetBytes(path));
 

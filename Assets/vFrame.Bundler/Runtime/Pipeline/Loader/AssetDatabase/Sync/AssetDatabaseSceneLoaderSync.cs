@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AssetDatabaseSceneLoaderSync.cs
-//        Brief: AssetDatabaseSceneLoaderSync.cs
+//        Brief: Editor-only sync scene loader: LoadSceneInPlayMode in play mode,
+//               OpenScene in EditMode; aborts in runtime builds.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 21:34
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine.SceneManagement;
 
@@ -17,13 +19,15 @@ namespace vFrame.Bundler
         private UnityEngine.SceneManagement.Scene _sceneObject;
 
         public AssetDatabaseSceneLoaderSync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
         }
 
         [JsonSerializableProperty]
         public override float Progress => IsDone ? 1f : 0f;
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
 #if UNITY_EDITOR
             if (!UnityEditor.EditorApplication.isPlaying) {
                 var mode = LoadSceneMode == LoadSceneMode.Single
@@ -42,15 +46,18 @@ namespace vFrame.Bundler
 #endif
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
 
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             Finish();
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             Finish();
         }
 
@@ -61,7 +68,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"[@TypeName: {GetType().Name}, AssetPath: {AssetPath}, LoadSceneMode: {LoadSceneMode}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }

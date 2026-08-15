@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: BuildContext.cs
-//        Brief: BuildContext.cs
+//        Brief: Shared build context carrying build rules/settings input and per-step
+//               outputs (main assets, dependencies, bundles, manifests) between pipeline tasks.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-24 21:28
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Collections.Generic;
 using UnityEngine;

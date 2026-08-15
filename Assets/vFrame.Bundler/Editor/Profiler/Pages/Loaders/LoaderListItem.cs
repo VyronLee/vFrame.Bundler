@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: LoaderListItem.cs
-//        Brief: LoaderListItem.cs
+//        Brief: Profiler list row showing a loader's type, path, ref count, progress, elapsed time and task state.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-18 18:43
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -37,11 +38,13 @@ namespace vFrame.Bundler
         [ViewElement("LabelStatus")]
         private readonly Label _labelStatus;
 
-        public LoaderListItem(ProfilerContexts contexts) :base (contexts, "Pages/Loaders/LoaderListItem.uxml") {
+        public LoaderListItem(ProfilerContexts contexts) : base(contexts, "Pages/Loaders/LoaderListItem.uxml")
+        {
 
         }
 
-        protected override void OnViewDataChanged() {
+        protected override void OnViewDataChanged()
+        {
             var typeName = ViewData.SafeGetValue<string>("@TypeName");
             var createFrame = ViewData.SafeGetValue<int>("CreateFrame");
             var references = ViewData.SafeGetValue<long>("References");

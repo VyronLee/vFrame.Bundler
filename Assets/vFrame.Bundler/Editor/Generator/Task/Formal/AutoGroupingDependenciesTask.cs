@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AutoGroupingDependenciesTask.cs
-//        Brief: AutoGroupingDependenciesTask.cs
+//        Brief: Build step 3: assigns each shared dependency to a bundle — builtin shader/scene
+//               rules, single-reference inlining, GroupRules regex matching, or fallback rule.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 22:41
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +21,8 @@ namespace vFrame.Bundler.Task.Formal
 {
     internal class AutoGroupingDependenciesTask : BuildTaskBase
     {
-        public override void Run(BuildContext context) {
+        public override void Run(BuildContext context)
+        {
             var sceneBundles = FilterMainSceneBundle(context);
 
             try {
@@ -59,12 +62,14 @@ namespace vFrame.Bundler.Task.Formal
             }
             return;
 
-            bool IsSceneBundles(string path) {
+            bool IsSceneBundles(string path)
+            {
                 return sceneBundles.Contains(path);
             }
         }
 
-        private HashSet<string> FilterMainSceneBundle(BuildContext context) {
+        private HashSet<string> FilterMainSceneBundle(BuildContext context)
+        {
             var ret = new HashSet<string>();
             foreach (var kv in context.MainAssetInfos) {
                 var assetInfo = kv.Value;
@@ -75,7 +80,8 @@ namespace vFrame.Bundler.Task.Formal
             return ret;
         }
 
-        private bool TryBuiltinRule(BuildContext context, string dependencyAssetPath, out string bundlePath) {
+        private bool TryBuiltinRule(BuildContext context, string dependencyAssetPath, out string bundlePath)
+        {
             if (AssetHelper.IsShader(dependencyAssetPath)) {
                 if (context.BuildSettings.SeparateShaderBundle) {
                     bundlePath = context.BuildSharedShaderBundlePath();
@@ -92,7 +98,8 @@ namespace vFrame.Bundler.Task.Formal
             return false;
         }
 
-        private bool AutoGroupingFromRules(BuildContext context, string dependencyAssetPath, out string bundlePath) {
+        private bool AutoGroupingFromRules(BuildContext context, string dependencyAssetPath, out string bundlePath)
+        {
             bundlePath = "";
 
             var rules = context.BuildRules.GroupRules;
@@ -124,7 +131,8 @@ namespace vFrame.Bundler.Task.Formal
             return true;
         }
 
-        private void AutoGroupingFromFallbackRule(string dependencyAssetPath, out string bundlePath) {
+        private void AutoGroupingFromFallbackRule(string dependencyAssetPath, out string bundlePath)
+        {
             var fallbackRule = AutoGroupRule.Fallback;
             var regex = new Regex(fallbackRule.Include);
             var match = regex.Match(dependencyAssetPath);

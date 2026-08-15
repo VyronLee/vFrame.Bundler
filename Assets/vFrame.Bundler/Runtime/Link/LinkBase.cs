@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: LinkBase.cs
-//        Brief: LinkBase.cs
+//        Brief: Base asset link: records creation frame and target, forwards Retain/Release to the
+//               owning Loader; Exclusive is set by subclasses.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-5 12:1
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 
@@ -25,15 +27,18 @@ namespace vFrame.Bundler
 
         internal abstract bool Exclusive { get; }
 
-        internal void Retain() {
+        internal void Retain()
+        {
             ((ILink)this).Loader?.Retain();
         }
 
-        internal void Release() {
+        internal void Release()
+        {
             ((ILink)this).Loader?.Release();
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"[@TypeName: {GetType().Name}, CreateFrame: {CreateFrame}, Exclusive: {Exclusive}, Target: {((ILink)this).Target}, Loader: {((ILink)this).Loader}]";
         }
     }

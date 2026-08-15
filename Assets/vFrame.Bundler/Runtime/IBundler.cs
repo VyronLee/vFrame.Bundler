@@ -1,12 +1,13 @@
-﻿//------------------------------------------------------------
-//        File:  IBundler.cs
-//       Brief:  Bundler interface.
+// ------------------------------------------------------------
+//         File: IBundler.cs
+//        Brief: Public interface of the Bundler asset loading system: asset/scene loads, update, collect, log level.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-02-15 20:05
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:04:55
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 using System;
 using UnityEngine.SceneManagement;

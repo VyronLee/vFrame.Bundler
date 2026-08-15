@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: JsonRpcErrorCode.cs
-//        Brief: JsonRpcErrorCode.cs
+//        Brief: Constants for JSON-RPC response error codes (Success, UnknownError, InvalidArgs, UnhandledMethod).
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-29 20:15
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 namespace vFrame.Bundler
 {

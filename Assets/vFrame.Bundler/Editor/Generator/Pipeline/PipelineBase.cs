@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: PipelineBase.cs
-//        Brief: PipelineBase.cs
+//        Brief: Common pipeline driver: validates rules/settings, creates the BuildContext and
+//               runs each task in sequence with timing.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-26 22:12
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.Diagnostics;
@@ -17,7 +19,8 @@ namespace vFrame.Bundler.Pipeline
 {
     internal abstract class PipelineBase : IPipeline
     {
-        public void Build(BundleBuildRules buildRules, BundleBuildSettings buildSettings) {
+        public void Build(BundleBuildRules buildRules, BundleBuildSettings buildSettings)
+        {
             ValidateBuildRules(buildRules);
             ValidateBuildSettings(buildSettings);
 
@@ -34,7 +37,8 @@ namespace vFrame.Bundler.Pipeline
             UnityEngine.Debug.Log($"Bundle build finished, cost: {stopWatch.Elapsed.TotalSeconds:F1}s.");
         }
 
-        private static void ValidateBuildRules(BundleBuildRules buildRules) {
+        private static void ValidateBuildRules(BundleBuildRules buildRules)
+        {
             ThrowHelper.ThrowIfNull(buildRules, nameof(buildRules));
 
             ThrowHelper.ThrowIfNull(buildRules.MainRules,
@@ -52,7 +56,8 @@ namespace vFrame.Bundler.Pipeline
             }
         }
 
-        private static void ValidateBuildSettings(BundleBuildSettings buildSettings) {
+        private static void ValidateBuildSettings(BundleBuildSettings buildSettings)
+        {
             ThrowHelper.ThrowIfNull(buildSettings, nameof(buildSettings));
             ThrowHelper.ThrowIfNullOrEmpty(buildSettings.BundlePath,
                 ThrowHelper.Variables(nameof(buildSettings), nameof(buildSettings.BundlePath)));

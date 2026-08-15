@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
-//         File: AssetDatabaseSceneLoader.cs
-//        Brief: AssetDatabaseSceneLoader.cs
+//         File: AssetDatabaseSceneLoaderAsync.cs
+//        Brief: Editor-only async scene loader: LoadSceneAsyncInPlayMode in play mode,
+//               OpenScene in EditMode; aborts in runtime builds.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 21:34
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -21,7 +23,8 @@ namespace vFrame.Bundler
         private AsyncOperation _request;
 
         public AssetDatabaseSceneLoaderAsync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
         }
 
@@ -38,12 +41,13 @@ namespace vFrame.Bundler
             }
         }
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
 #if UNITY_EDITOR
             if (!UnityEditor.EditorApplication.isPlaying) {
                 return;
             }
-            var param = new LoadSceneParameters {loadSceneMode = LoadSceneMode};
+            var param = new LoadSceneParameters { loadSceneMode = LoadSceneMode };
             _request = UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(AssetPath, param);
 #else
             Facade.GetSystem<LogSystem>().LogError(
@@ -52,11 +56,13 @@ namespace vFrame.Bundler
 #endif
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
 
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
 #if UNITY_EDITOR
             if (!UnityEditor.EditorApplication.isPlaying) {
                 ObtainSceneObject();
@@ -69,11 +75,13 @@ namespace vFrame.Bundler
 #endif
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             throw new BundleNotSupportedException("Force complete async scene loader is not supported.");
         }
 
-        private void ObtainSceneObject() {
+        private void ObtainSceneObject()
+        {
 #if UNITY_EDITOR
             if (!UnityEditor.EditorApplication.isPlaying) {
                 var mode = LoadSceneMode == LoadSceneMode.Single
@@ -100,7 +108,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"[@TypeName: {GetType().Name}, AssetPath: {AssetPath}, LoadSceneMode: {LoadSceneMode}, TaskState: {TaskState}, Progress: {100 * Progress:F2}%]";
         }
     }

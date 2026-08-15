@@ -8,6 +8,8 @@
 //    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
+
+
 using NUnit.Framework;
 
 namespace vFrame.Bundler.Tests.EditMode
@@ -40,14 +42,16 @@ namespace vFrame.Bundler.Tests.EditMode
         }
 
         [Test]
-        public void CollectionShutdown_MissingAssetMetadata_DoesNotThrow() {
+        public void CollectionShutdown_MissingAssetMetadata_DoesNotThrow()
+        {
             var manifest = new BundlerManifest();
 
             AssertAbortPathCanBeDestroyedByCollection(manifest);
         }
 
         [Test]
-        public void CollectionShutdown_MissingDependencyMetadata_DoesNotThrow() {
+        public void CollectionShutdown_MissingDependencyMetadata_DoesNotThrow()
+        {
             var manifest = new BundlerManifest();
             manifest.Assets.Add(AssetPath, BundlePath);
 
@@ -55,7 +59,8 @@ namespace vFrame.Bundler.Tests.EditMode
         }
 
         [Test]
-        public void Destroy_MissingAssetMetadata_ReleasesRetainedParent() {
+        public void Destroy_MissingAssetMetadata_ReleasesRetainedParent()
+        {
             var manifest = new BundlerManifest();
             var options = new BundlerOptions {
                 LogHandler = new SilentLogHandler()
@@ -102,7 +107,8 @@ namespace vFrame.Bundler.Tests.EditMode
             }
         }
 
-        private static void AssertAbortPathCanBeDestroyedByCollection(BundlerManifest manifest) {
+        private static void AssertAbortPathCanBeDestroyedByCollection(BundlerManifest manifest)
+        {
             var options = new BundlerOptions {
                 LogHandler = new SilentLogHandler()
             };

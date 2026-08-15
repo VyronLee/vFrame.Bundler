@@ -1,12 +1,13 @@
-﻿//------------------------------------------------------------
-//        File:  BundlerManifest.cs
-//       Brief:  BundlerManifest
+// ------------------------------------------------------------
+//         File: BundlerManifest.cs
+//        Brief: Serializable build manifest mapping asset paths to bundles and bundle dependencies; JSON round-trip.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-02-15 20:19
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:04:45
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,8 @@ namespace vFrame.Bundler
         [NonSerialized] public AssetsTable Assets = new AssetsTable();
         [NonSerialized] public BundlesTable Bundles = new BundlesTable();
 
-        public static BundlerManifest FromJson(string jsonData) {
+        public static BundlerManifest FromJson(string jsonData)
+        {
             if (string.IsNullOrEmpty(jsonData))
                 throw new BundleArgumentException($"Argument '{nameof(jsonData)}' cannot be null or empty.");
             return JsonUtility.FromJson<BundlerManifest>(jsonData);
@@ -37,7 +39,8 @@ namespace vFrame.Bundler
         [SerializeField] private List<string> _bundles = new List<string>();
         [SerializeField] private List<BundleDependencySetInt> _bundleDependencies = new List<BundleDependencySetInt>();
 
-        public void OnBeforeSerialize() {
+        public void OnBeforeSerialize()
+        {
             _assets = Assets.Keys.ToList();
             _assets.Sort();
 
@@ -48,16 +51,19 @@ namespace vFrame.Bundler
             _bundleDependencies = _bundles.Select(GetDependencySetInt).ToList();
             return;
 
-            int GetBundleIndex(string path) {
+            int GetBundleIndex(string path)
+            {
                 return _bundles.IndexOf(Assets[path]);
             }
 
-            BundleDependencySetInt GetDependencySetInt(string path) {
+            BundleDependencySetInt GetDependencySetInt(string path)
+            {
                 return new BundleDependencySetInt(Bundles[path].Values.Select(v => _bundles.IndexOf(v)));
             }
         }
 
-        public void OnAfterDeserialize() {
+        public void OnAfterDeserialize()
+        {
             for (var i = 0; i < _assets.Count && i < _assetContainsInBundle.Count; i++) {
                 var assetPath = _assets[i];
                 var bundlePath = string.Empty;
@@ -98,11 +104,13 @@ namespace vFrame.Bundler
 
         public IEnumerable<string> Values => _values;
 
-        public BundleDependencySet(IEnumerable<string> value) {
+        public BundleDependencySet(IEnumerable<string> value)
+        {
             _values.AddRange(value);
         }
 
-        public void ForEach(Action<string> action) {
+        public void ForEach(Action<string> action)
+        {
             foreach (var value in _values) action(value);
         }
     }
@@ -114,7 +122,8 @@ namespace vFrame.Bundler
 
         public IEnumerable<int> Values => _values;
 
-        public BundleDependencySetInt(IEnumerable<int> value) {
+        public BundleDependencySetInt(IEnumerable<int> value)
+        {
             _values.AddRange(value);
         }
     }

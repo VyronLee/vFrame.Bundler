@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: SimpleJsonRpcServer.cs
-//        Brief: SimpleJsonRpcServer.cs
+//        Brief: HttpListener-based JSON-RPC server: accepts requests async, routes to registered
+//               handlers on Update from the main thread, writes JSON response.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-22 16:46
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.Collections.Concurrent;
@@ -26,7 +28,8 @@ namespace vFrame.Bundler
 
         private static readonly JsonObject _emptyRespondJsonData = new JsonObject();
 
-        public SimpleJsonRpcServer(string listenAddress, ILogger logger) {
+        public SimpleJsonRpcServer(string listenAddress, ILogger logger)
+        {
             if (string.IsNullOrEmpty(listenAddress)) {
                 throw new BundleArgumentException("Listen address cannot be null or empty.");
             }
@@ -38,7 +41,8 @@ namespace vFrame.Bundler
             _listener.Prefixes.Add(listenAddress);
         }
 
-        public override void Start() {
+        public override void Start()
+        {
             try {
                 _listener.Start();
                 _started = true;
@@ -50,7 +54,8 @@ namespace vFrame.Bundler
             }
         }
 
-        public override void Stop() {
+        public override void Stop()
+        {
             if (!_started) {
                 return;
             }
@@ -59,7 +64,8 @@ namespace vFrame.Bundler
             _handlers.Clear();
         }
 
-        public override void AddHandler(IRpcHandler handler) {
+        public override void AddHandler(IRpcHandler handler)
+        {
             if (_handlers.ContainsKey(handler.MethodName)) {
                 _logger?.LogWarning("Handler with same method name has already been added: {0}", handler.MethodName);
                 return;
@@ -67,23 +73,26 @@ namespace vFrame.Bundler
             _handlers.Add(handler.MethodName, handler);
         }
 
-        public override void Update() {
+        public override void Update()
+        {
             while (_works.TryDequeue(out var state)) {
                 HandleRequest(state.Item1, state.Item2);
             }
         }
 
-        private void WaitNextRequest() {
+        private void WaitNextRequest()
+        {
             _listener.BeginGetContext(ListenerCallback, null);
         }
 
-        private void ListenerCallback(IAsyncResult result) {
+        private void ListenerCallback(IAsyncResult result)
+        {
             var context = _listener.EndGetContext(result);
             var request = context.Request;
 
             var errorCode = JsonRpcErrorCode.Success;
             var requestData = (JsonObject)null;
-            var handler = (IRpcHandler) null;
+            var handler = (IRpcHandler)null;
             while (true) {
                 using (var streamReader = new StreamReader(request.InputStream, request.ContentEncoding)) {
                     var body = streamReader.ReadToEnd();
@@ -124,7 +133,8 @@ namespace vFrame.Bundler
             WaitNextRequest();
         }
 
-        private void HandleRequest(RequestContext requestContext, RespondContext respondContext) {
+        private void HandleRequest(RequestContext requestContext, RespondContext respondContext)
+        {
             var context = requestContext.HttpContext;
             var requestData = requestContext.RequestData;
             var handler = requestContext.Handler;

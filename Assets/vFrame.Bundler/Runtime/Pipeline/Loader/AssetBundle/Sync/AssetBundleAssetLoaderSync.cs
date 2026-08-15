@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AssetBundleAssetLoaderSync.cs
-//        Brief: AssetBundleAssetLoaderSync.cs
+//        Brief: Sync asset loader: loads asset (or sub-assets) directly from the group's
+//               AssetBundle in OnStart and finishes immediately.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 23:13
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using Object = UnityEngine.Object;
 
@@ -18,14 +20,16 @@ namespace vFrame.Bundler
         private Object[] _assetObjects;
 
         public AssetBundleAssetLoaderSync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
         }
 
         [JsonSerializableProperty]
         public override float Progress => IsDone ? 1f : 0f;
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
             var assetBundle = BundleLoader.AssetBundle;
             if (!assetBundle) {
                 Abort();
@@ -59,16 +63,19 @@ namespace vFrame.Bundler
             Abort();
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
             _assetObject = null;
             _assetObjects = null;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             Finish();
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             Finish();
         }
 

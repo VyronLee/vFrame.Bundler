@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: TabbedPanel.cs
-//        Brief: TabbedPanel.cs
+//        Brief: Minimal BindableElement subclass with UxmlFactory so TabbedPanel can be placed directly in uxml.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-29 17:48
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -16,7 +17,7 @@ namespace vFrame.Bundler
 {
     internal class TabbedPanel : BindableElement
     {
-        public new class UxmlFactory : UxmlFactory<TabbedPanel, UxmlTraits> {}
+        public new class UxmlFactory : UxmlFactory<TabbedPanel, UxmlTraits> { }
     }
 }
 

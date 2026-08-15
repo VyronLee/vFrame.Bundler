@@ -1,12 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: ValidateBuildOutComesTask.cs
-//        Brief: ValidateBuildOutComesTask.cs
+//        Brief: Build step 6: verifies built AssetBundles exactly match the desired bundle set,
+//               listing missing/undesired bundles and throwing on mismatch.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-2 10:46
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Linq;
 using System.Text;
@@ -17,11 +19,13 @@ namespace vFrame.Bundler.Task.Formal
 {
     internal class ValidateBuildOutcomesTask : BuildTaskBase
     {
-        public override void Run(BuildContext context) {
+        public override void Run(BuildContext context)
+        {
             VerifyBundleQuantities(context);
         }
 
-        private void VerifyBundleQuantities(BuildContext context) {
+        private void VerifyBundleQuantities(BuildContext context)
+        {
             var desired = context.BundleInfos.Keys;
             var actual = context.AssetBundleManifest.GetAllAssetBundles();
 

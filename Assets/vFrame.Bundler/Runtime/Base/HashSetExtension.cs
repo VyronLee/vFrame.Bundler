@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
 //         File: HashSetExtension.cs
-//        Brief: HashSetExtension.cs
+//        Brief: HashSet extension adding an AddRange helper that inserts each item of an enumerable.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,13 +8,15 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 using System.Collections.Generic;
 
 namespace vFrame.Bundler
 {
     internal static class HashSetExtension
     {
-        public static void AddRange<T>(this HashSet<T> set, IEnumerable<T> items) {
+        public static void AddRange<T>(this HashSet<T> set, IEnumerable<T> items)
+        {
             foreach (var item in items) {
                 set.Add(item);
             }

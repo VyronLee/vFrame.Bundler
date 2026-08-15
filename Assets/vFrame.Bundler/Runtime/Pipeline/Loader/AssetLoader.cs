@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: AssetLoader.cs
-//        Brief: AssetLoader.cs
+//        Brief: Abstract base for asset loaders; holds AssetPath/AssetType/AssetLoadKey and exposes loaded Object(s).
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 18:0
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using Object = UnityEngine.Object;
@@ -16,7 +17,8 @@ namespace vFrame.Bundler
     internal abstract class AssetLoader : Loader
     {
         protected AssetLoader(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
             AssetLoadType = loaderContexts.AssetLoadType;
             AssetPath = loaderContexts.AssetPath;

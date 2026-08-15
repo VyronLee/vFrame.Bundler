@@ -1,12 +1,13 @@
-//------------------------------------------------------------
-//        File:  IPoolObjectAllocator.cs
-//       Brief:  IPoolObjectAllocator
+// ------------------------------------------------------------
+//         File: IPoolObjectAllocator.cs
+//        Brief: Contract for pool allocators: Alloc creates a new instance, Reset clears it for reuse.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-07-09 19:19
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:05:26
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 namespace vFrame.Bundler
 {

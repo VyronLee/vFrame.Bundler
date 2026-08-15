@@ -1,6 +1,7 @@
 // ------------------------------------------------------------
 //         File: BundlerObject.cs
-//        Brief: BundlerObject.cs
+//        Brief: Base class for bundler internals: holds BundlerContexts, exposes the Bundler facade,
+//               Destroy() drives OnDestroy teardown.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,17 +9,20 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 namespace vFrame.Bundler
 {
     internal abstract class BundlerObject
     {
         private readonly BundlerContexts _bundlerContexts;
 
-        protected BundlerObject(BundlerContexts bundlerContexts) {
+        protected BundlerObject(BundlerContexts bundlerContexts)
+        {
             _bundlerContexts = bundlerContexts;
         }
 
-        public virtual void Destroy() {
+        public virtual void Destroy()
+        {
             OnDestroy();
         }
 

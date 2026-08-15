@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: BundleProfiler.cs
-//        Brief: BundleProfiler.cs
+//        Brief: EditorWindow profiler: polls a running Bundler over JSON-RPC and shows loaders/pipelines/handlers/links tabs.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-25 21:32
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -59,13 +60,15 @@ namespace vFrame.Bundler
         private string _selectedPage;
 
         [MenuItem("Tools/vFrame/Bundler/Profiler")]
-        public static void ShowWindow() {
+        public static void ShowWindow()
+        {
             var wnd = GetWindow<BundleProfiler>();
             wnd.titleContent = new GUIContent("Bundle Profiler");
             wnd.minSize = new Vector2(1280, 720);
         }
 
-        public void CreateGUI() {
+        public void CreateGUI()
+        {
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                     ProfilerAssetLocator.LocatorDir + "BundleProfiler.uxml");
             _tree = visualTree.Instantiate();
@@ -79,7 +82,8 @@ namespace vFrame.Bundler
             CreateTabbedPanelGroup();
         }
 
-        private void CreateToolbar() {
+        private void CreateToolbar()
+        {
             _clientAddress = _tree.Q<TextField>("TextFieldClientAddress");
             _buttonStart = _tree.Q<Button>("ButtonStart");
             _buttonStart.RegisterCallback<ClickEvent>(OnButtonStartClicked);
@@ -87,7 +91,8 @@ namespace vFrame.Bundler
             _buttonClear.RegisterCallback<ClickEvent>(OnButtonClearClicked);
         }
 
-        private void CreateTabbedPanelGroup() {
+        private void CreateTabbedPanelGroup()
+        {
             var pageButtons = _tree.Q<VisualElement>("PageButtonGroup");
             var pageContainer = _tree.Q<VisualElement>("PageContainer");
             _tabbedPanelGroup = new TabbedPanelGroup(pageButtons,
@@ -98,7 +103,8 @@ namespace vFrame.Bundler
             _tabbedPanelGroup.SelectTab(TabButtonLoadersName);
         }
 
-        private void CreateLoaderListPage() {
+        private void CreateLoaderListPage()
+        {
             _loaders = _tree.Q<ListView>("ListViewLoaders");
             _loaders.makeItem = () => new LoaderListItem(_contexts).Root;
             _loaders.bindItem = (element, index) => {
@@ -110,7 +116,8 @@ namespace vFrame.Bundler
             };
         }
 
-        private void CreatePipelineListPage() {
+        private void CreatePipelineListPage()
+        {
             _pipelines = _tree.Q<ListView>("ListViewPipelines");
             _pipelines.makeItem = () => {
                 var item = new PipelineListItem(_contexts);
@@ -128,7 +135,8 @@ namespace vFrame.Bundler
             };
         }
 
-        private void CreateHandlerListPage() {
+        private void CreateHandlerListPage()
+        {
             _handlers = _tree.Q<ListView>("ListViewHandlers");
             _handlers.makeItem = () => new HandlerListItem(_contexts).Root;
             _handlers.bindItem = (element, index) => {
@@ -140,7 +148,8 @@ namespace vFrame.Bundler
             };
         }
 
-        private void CreateLinkListPage() {
+        private void CreateLinkListPage()
+        {
             _links = _tree.Q<ListView>("ListViewLinks");
             _links.makeItem = () => new LinkListItem(_contexts).Root;
             _links.bindItem = (element, index) => {
@@ -152,11 +161,13 @@ namespace vFrame.Bundler
             };
         }
 
-        private void OnSelectedPageChanged(string pageName) {
+        private void OnSelectedPageChanged(string pageName)
+        {
             _selectedPage = pageName;
         }
 
-        private void OnButtonStartClicked(ClickEvent evt) {
+        private void OnButtonStartClicked(ClickEvent evt)
+        {
             if (_isStarted) {
                 StopProfiler();
             }
@@ -165,7 +176,8 @@ namespace vFrame.Bundler
             }
         }
 
-        private void OnButtonClearClicked(ClickEvent evt) {
+        private void OnButtonClearClicked(ClickEvent evt)
+        {
             switch (_selectedPage) {
                 case LoaderListPageName:
                     _loaders.itemsSource = null;
@@ -189,14 +201,16 @@ namespace vFrame.Bundler
             }
         }
 
-        private void StopProfiler() {
+        private void StopProfiler()
+        {
             _isStarted = false;
             _buttonStart.text = "Start";
             _clientAddress.SetEnabled(true);
             _stopwatch.Stop();
         }
 
-        private void StartProfiler() {
+        private void StartProfiler()
+        {
             var address = _clientAddress.text;
             if (string.IsNullOrEmpty(address)) {
                 Debug.LogWarning("Address is empty.");
@@ -209,23 +223,27 @@ namespace vFrame.Bundler
             _stopwatch.Restart();
         }
 
-        public void OnDestroy() {
+        public void OnDestroy()
+        {
             StopProfiler();
         }
 
-        private void Update() {
+        private void Update()
+        {
             UpdateRPCClient();
             RequestProfileData();
         }
 
-        private void UpdateRPCClient() {
+        private void UpdateRPCClient()
+        {
             if (!_isStarted) {
                 return;
             }
             _rpcClient?.Update();
         }
 
-        private void RequestProfileData() {
+        private void RequestProfileData()
+        {
             if (!_isStarted || IsRefreshmentCooling()) {
                 return;
             }
@@ -250,11 +268,13 @@ namespace vFrame.Bundler
             }
         }
 
-        private bool IsRefreshmentCooling() {
+        private bool IsRefreshmentCooling()
+        {
             return !_stopwatch.IsRunning || _stopwatch.Elapsed.TotalSeconds < RefreshFrequency;
         }
 
-        private void OnQueryLoadersInfoCallback(RespondContext respond) {
+        private void OnQueryLoadersInfoCallback(RespondContext respond)
+        {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {
                 return;
             }
@@ -266,7 +286,8 @@ namespace vFrame.Bundler
             _loaders.RefreshItems();
         }
 
-        private void OnQueryPipelinesInfoCallback(RespondContext respond) {
+        private void OnQueryPipelinesInfoCallback(RespondContext respond)
+        {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {
                 return;
             }
@@ -279,7 +300,8 @@ namespace vFrame.Bundler
             _pipelines.RefreshItems();
         }
 
-        private void OnQueryHandlersInfoCallback(RespondContext respond) {
+        private void OnQueryHandlersInfoCallback(RespondContext respond)
+        {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {
                 return;
             }
@@ -293,7 +315,8 @@ namespace vFrame.Bundler
             _handlers.RefreshItems();
         }
 
-        private void OnQueryLinksInfoCallback(RespondContext respond) {
+        private void OnQueryLinksInfoCallback(RespondContext respond)
+        {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {
                 return;
             }

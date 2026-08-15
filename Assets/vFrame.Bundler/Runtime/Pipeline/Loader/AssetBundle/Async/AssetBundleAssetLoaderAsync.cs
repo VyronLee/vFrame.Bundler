@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
-//         File: AssetBundleAssetLoader.cs
-//        Brief: AssetBundleAssetLoader.cs
+//         File: AssetBundleAssetLoaderAsync.cs
+//        Brief: Async asset loader: drives AssetBundleRequest (LoadAssetAsync /
+//               LoadAssetWithSubAssetsAsync) from the group's bundle until done.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 18:6
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -20,7 +22,8 @@ namespace vFrame.Bundler
         private Object[] _assetObjects;
 
         public AssetBundleAssetLoaderAsync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
         }
 
@@ -37,7 +40,8 @@ namespace vFrame.Bundler
             }
         }
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
             var assetBundle = BundleLoader.AssetBundle;
             if (!assetBundle) {
                 Abort();
@@ -68,13 +72,15 @@ namespace vFrame.Bundler
             Abort();
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
             _assetObject = null;
             _assetObjects = null;
             _bundleRequest = null;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             if (null == _bundleRequest) {
                 return;
             }
@@ -84,14 +90,16 @@ namespace vFrame.Bundler
             ObtainAssetObjectFromBundleRequest();
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             if (null == _bundleRequest) {
                 return;
             }
             ObtainAssetObjectFromBundleRequest();
         }
 
-        private void ObtainAssetObjectFromBundleRequest() {
+        private void ObtainAssetObjectFromBundleRequest()
+        {
             _assetObject = _bundleRequest.asset;
             _assetObjects = _bundleRequest.allAssets;
 

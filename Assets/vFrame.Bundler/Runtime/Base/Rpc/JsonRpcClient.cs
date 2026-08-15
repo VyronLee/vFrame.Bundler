@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: JsonRpcClient.cs
-//        Brief: JsonRpcClient.cs
+//        Brief: Abstract JSON-RPC client: SendRequest with callback, pumped via Update; factory CreateSimple.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-25 20:14
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 
@@ -16,13 +17,15 @@ namespace vFrame.Bundler
     {
         public abstract void Update();
 
-        public void SendRequest(string method, Action<RespondContext> callback) {
+        public void SendRequest(string method, Action<RespondContext> callback)
+        {
             SendRequest(method, null, callback);
         }
 
         public abstract void SendRequest(string method, JsonObject args, Action<RespondContext> callback);
 
-        public static JsonRpcClient CreateSimple(string url, ILogger logger = null) {
+        public static JsonRpcClient CreateSimple(string url, ILogger logger = null)
+        {
             return new SimpleJsonRpcClient(url, logger);
         }
     }

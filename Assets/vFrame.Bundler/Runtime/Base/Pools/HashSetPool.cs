@@ -1,12 +1,13 @@
-﻿//------------------------------------------------------------
-//        File:  HashSetPool.cs
-//       Brief:  HashSetPool
+// ------------------------------------------------------------
+//         File: HashSetPool.cs
+//        Brief: Object pool for HashSet<T> instances, backed by HashSetAllocator.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2020-06-12 20:48
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:05:21
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 using System.Collections.Generic;
 

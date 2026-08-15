@@ -1,6 +1,6 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: BundlerSystem.cs
-//        Brief: BundlerSystem.cs
+//        Brief: Base class for bundler subsystems: adds per-frame Update() over BundlerObject teardown.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,15 +8,18 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 namespace vFrame.Bundler
 {
     internal abstract class BundlerSystem : BundlerObject
     {
-        protected BundlerSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
+        protected BundlerSystem(BundlerContexts bundlerContexts) : base(bundlerContexts)
+        {
 
         }
 
-        public void Update() {
+        public void Update()
+        {
             OnUpdate();
         }
 

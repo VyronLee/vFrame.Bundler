@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: HandlerListItem.cs
-//        Brief: HandlerListItem.cs
+//        Brief: Profiler list row showing an asset handler's type, create frame, asset path and unload state.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-2-4 19:47
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -28,11 +29,13 @@ namespace vFrame.Bundler
         [ViewElement("LabelIsUnloaded")]
         private readonly Label _labelIsUnloaded;
 
-        public HandlerListItem(ProfilerContexts contexts) : base(contexts, "Pages/Handlers/HandlerListItem.uxml") {
+        public HandlerListItem(ProfilerContexts contexts) : base(contexts, "Pages/Handlers/HandlerListItem.uxml")
+        {
 
         }
 
-        protected override void OnViewDataChanged() {
+        protected override void OnViewDataChanged()
+        {
             var typeName = ViewData.SafeGetValue<string>("@TypeName");
             var createFrame = ViewData.SafeGetValue<int>("CreateFrame");
             var isUnloaded = ViewData.SafeGetValue<bool>("IsUnloaded");

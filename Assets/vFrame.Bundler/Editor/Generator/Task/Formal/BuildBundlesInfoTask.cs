@@ -1,6 +1,7 @@
 // ------------------------------------------------------------
 //         File: BuildBundlesInfoTask.cs
-//        Brief: BuildBundlesInfoTask.cs
+//        Brief: Build step 4: merges main and dependency asset infos into the final
+//               bundle-to-asset-paths BundleInfos mapping.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,18 +9,21 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 using System.Collections.Generic;
 
 namespace vFrame.Bundler.Task.Formal
 {
     internal class BuildBundlesInfoTask : BuildTaskBase
     {
-        public override void Run(BuildContext context) {
+        public override void Run(BuildContext context)
+        {
             GenerateMainBundlesInfo(context, context.BundleInfos);
             GenerateDependencyBundlesInfo(context, context.BundleInfos);
         }
 
-        private void GenerateMainBundlesInfo(BuildContext context, IDictionary<string, BundleInfo> bundlesInfo) {
+        private void GenerateMainBundlesInfo(BuildContext context, IDictionary<string, BundleInfo> bundlesInfo)
+        {
             foreach (var kv in context.MainAssetInfos) {
                 var assetInfo = kv.Value;
                 if (!bundlesInfo.TryGetValue(assetInfo.BundlePath, out var bundleInfo)) {
@@ -29,7 +33,8 @@ namespace vFrame.Bundler.Task.Formal
             }
         }
 
-        private void GenerateDependencyBundlesInfo(BuildContext context, IDictionary<string, BundleInfo> bundlesInfo) {
+        private void GenerateDependencyBundlesInfo(BuildContext context, IDictionary<string, BundleInfo> bundlesInfo)
+        {
             foreach (var kv in context.DependencyAssetInfos) {
                 var assetInfo = kv.Value;
                 if (!bundlesInfo.TryGetValue(assetInfo.BundlePath, out var bundleInfo)) {

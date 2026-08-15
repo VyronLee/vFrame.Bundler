@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AnalyzeDependencyAssetsTask.cs
-//        Brief: AnalyzeDependencyAssetsTask.cs
+//        Brief: Build step 2: gathers each main-asset bundle's dependencies via AssetDatabase,
+//               recording which bundles reference each shared dependency asset.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 22:41
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +19,14 @@ namespace vFrame.Bundler.Task.Formal
 {
     internal class AnalyzeDependencyAssetsTask : BuildTaskBase
     {
-        public override void Run(BuildContext context) {
+        public override void Run(BuildContext context)
+        {
             var bundleInfos = CreateMainAssetBundleInfosFromMainAssetInfos(context);
             AnalyzeDependencyAssets(context, bundleInfos);
         }
 
-        private static List<BundleInfo> CreateMainAssetBundleInfosFromMainAssetInfos(BuildContext context) {
+        private static List<BundleInfo> CreateMainAssetBundleInfosFromMainAssetInfos(BuildContext context)
+        {
             var assetInfos = context.MainAssetInfos.Values;
             var bundleInfos = new Dictionary<string, BundleInfo>();
             foreach (var assetInfo in assetInfos) {
@@ -35,7 +39,8 @@ namespace vFrame.Bundler.Task.Formal
             return bundleInfos.Values.ToList();
         }
 
-        private void AnalyzeDependencyAssets(BuildContext context, List<BundleInfo> mainAssetBundleInfos) {
+        private void AnalyzeDependencyAssets(BuildContext context, List<BundleInfo> mainAssetBundleInfos)
+        {
             try {
                 var index = 0f;
                 var total = mainAssetBundleInfos.Count;

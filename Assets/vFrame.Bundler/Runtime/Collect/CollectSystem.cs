@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: CollectSystem.cs
-//        Brief: CollectSystem.cs
+//        Brief: Garbage collection pass: removes finished zero-ref loaders, unloaded handlers,
+//               finished pipelines, and links whose target Object died; full teardown on destroy.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-4 21:18
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,31 +22,35 @@ namespace vFrame.Bundler
         private readonly List<LoaderPipeline> _finishedPipelines;
         private readonly List<LinkBase> _destroyedLinks;
 
-        public CollectSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
+        public CollectSystem(BundlerContexts bundlerContexts) : base(bundlerContexts)
+        {
             _nonReferenceLoaders = new List<Loader>();
             _unloadedHandlers = new List<ILoaderHandler>();
             _finishedPipelines = new List<LoaderPipeline>();
             _destroyedLinks = new List<LinkBase>();
         }
 
-        protected override void OnDestroy() {
+        protected override void OnDestroy()
+        {
             DestroyAllLoaders();
             DestroyAllHandlers();
             DestroyAllPipelines();
             DestroyAllLinks();
         }
 
-        private void DestroyAllLoaders() {
+        private void DestroyAllLoaders()
+        {
             using (new ClearAtExist(_nonReferenceLoaders)) {
                 BundlerContexts.ForEachLoader(v => _nonReferenceLoaders.Add(v));
-                foreach(var loader in _nonReferenceLoaders) {
+                foreach (var loader in _nonReferenceLoaders) {
                     BundlerContexts.RemoveLoader(loader);
                     loader.Destroy();
                 }
             }
         }
 
-        private void DestroyAllHandlers() {
+        private void DestroyAllHandlers()
+        {
             using (new ClearAtExist(_unloadedHandlers)) {
                 BundlerContexts.ForEachHandler(v => _unloadedHandlers.Add(v));
                 foreach (var handler in _unloadedHandlers) {
@@ -53,7 +59,8 @@ namespace vFrame.Bundler
             }
         }
 
-        private void DestroyAllPipelines() {
+        private void DestroyAllPipelines()
+        {
             using (new ClearAtExist(_finishedPipelines)) {
                 BundlerContexts.ForEachPipeline(v => _finishedPipelines.Add(v));
                 foreach (var pipeline in _finishedPipelines) {
@@ -62,7 +69,8 @@ namespace vFrame.Bundler
             }
         }
 
-        private void DestroyAllLinks() {
+        private void DestroyAllLinks()
+        {
             using (new ClearAtExist(_destroyedLinks)) {
                 BundlerContexts.ForEachLinks((v, link) => _destroyedLinks.Add(link));
                 foreach (var link in _destroyedLinks) {
@@ -72,11 +80,13 @@ namespace vFrame.Bundler
             }
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
 
         }
 
-        public void Collect() {
+        public void Collect()
+        {
             using (new ClearAtExist(_nonReferenceLoaders)) {
                 BundlerContexts.ForEachLoader(FilterNonReferenceLoader);
                 CollectNonReferenceLoaders();
@@ -95,7 +105,8 @@ namespace vFrame.Bundler
             }
         }
 
-        private void FilterNonReferenceLoader(Loader loader) {
+        private void FilterNonReferenceLoader(Loader loader)
+        {
             if (!loader.IsDone) {
                 return;
             }
@@ -105,25 +116,29 @@ namespace vFrame.Bundler
             _nonReferenceLoaders.Add(loader);
         }
 
-        private void FilterUnloadedHandler(ILoaderHandler handler) {
+        private void FilterUnloadedHandler(ILoaderHandler handler)
+        {
             if (handler.IsUnloaded) {
                 _unloadedHandlers.Add(handler);
             }
         }
 
-        private void FilterFinishedPipeline(LoaderPipeline pipeline) {
+        private void FilterFinishedPipeline(LoaderPipeline pipeline)
+        {
             if (pipeline.IsDone) {
                 _finishedPipelines.Add(pipeline);
             }
         }
 
-        private void FilterDestroyedLinks(Object target, LinkBase link) {
+        private void FilterDestroyedLinks(Object target, LinkBase link)
+        {
             if (!target) {
                 _destroyedLinks.Add(link);
             }
         }
 
-        private void CollectNonReferenceLoaders() {
+        private void CollectNonReferenceLoaders()
+        {
             foreach (var loader in _nonReferenceLoaders) {
                 Facade.GetSystem<LogSystem>().LogInfo("Removing non-referenced loader: {0}", loader);
                 BundlerContexts.RemoveLoader(loader);
@@ -131,21 +146,24 @@ namespace vFrame.Bundler
             }
         }
 
-        private void CollectUnloadedHandlers() {
+        private void CollectUnloadedHandlers()
+        {
             foreach (var handler in _unloadedHandlers) {
                 Facade.GetSystem<LogSystem>().LogInfo("Removing unloaded handler: {0}", handler);
                 BundlerContexts.RemoveHandler(handler);
             }
         }
 
-        private void CollectFinishedPipelines() {
+        private void CollectFinishedPipelines()
+        {
             foreach (var pipeline in _finishedPipelines) {
                 Facade.GetSystem<LogSystem>().LogInfo("Removing finished pipeline: {0}", pipeline);
                 BundlerContexts.RemovePipeline(pipeline);
             }
         }
 
-        private void CollectDestroyedLinks() {
+        private void CollectDestroyedLinks()
+        {
             foreach (var link in _destroyedLinks) {
                 Facade.GetSystem<LogSystem>().LogInfo("Removing destroyed link: {0}", link);
                 var target = ((ILink)link).Target;

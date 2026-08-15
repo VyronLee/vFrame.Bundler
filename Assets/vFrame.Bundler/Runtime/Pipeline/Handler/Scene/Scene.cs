@@ -1,12 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: Scene.cs
-//        Brief: Scene.cs
+//        Brief: Sync scene handle: async UnloadSceneAsync with EditMode fallback, Activate
+//               sets active scene; releases the loader retain once unload completes.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-2 23:18
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using UnityEngine;
@@ -36,7 +38,8 @@ namespace vFrame.Bundler
 
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
-        public UnloadOperation Unload() {
+        public UnloadOperation Unload()
+        {
 #if UNITY_EDITOR
             if (!UnityEditor.EditorApplication.isPlaying) {
                 UnityEditor.SceneManagement.EditorSceneManager.CloseScene(SceneLoader.SceneObject, true);
@@ -47,18 +50,21 @@ namespace vFrame.Bundler
             return _unloadOperation ?? (_unloadOperation = new UnloadOperation());
         }
 
-        public void Activate() {
+        public void Activate()
+        {
             if (!SceneLoader.SceneObject.IsValid()) {
                 throw new InvalidOperationException("Scene invalid: " + SceneLoader.AssetPath);
             }
             SceneManager.SetActiveScene(SceneLoader.SceneObject);
         }
 
-        void ILoaderHandler.Update() {
+        void ILoaderHandler.Update()
+        {
             UpdateUnloadProcess();
         }
 
-        private void UpdateUnloadProcess() {
+        private void UpdateUnloadProcess()
+        {
             if (_unloaded) {
                 return;
             }
@@ -70,11 +76,13 @@ namespace vFrame.Bundler
             _unloaded = true;
         }
 
-        public void Retain() {
+        public void Retain()
+        {
             _loader?.Retain();
         }
 
-        public void Release() {
+        public void Release()
+        {
             _loader?.Release();
         }
 
@@ -87,7 +95,8 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public string AssetPath => SceneLoader?.AssetPath;
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"[@TypeName: {GetType().Name}, AssetPath: {SceneLoader.AssetPath}]";
         }
     }

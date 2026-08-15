@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: ProfilerAssetLocator.cs
-//        Brief: ProfilerAssetLocator.cs
+//        Brief: ScriptableObject marker used to locate the profiler UI's folder (for loading uxml/uss assets) at runtime.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-2-1 17:47
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.IO;
 using UnityEditor;

@@ -1,12 +1,13 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: ITask.cs
-//        Brief: ITask.cs
+//        Brief: TaskState enum and ITask interface for step-driven tasks with Start/Stop/Update.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-2 22:51
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 namespace vFrame.Bundler
 {

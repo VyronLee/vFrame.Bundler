@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: SimpleJsonRpcClient.cs
-//        Brief: SimpleJsonRpcClient.cs
+//        Brief: HttpWebRequest-based JSON-RPC client: async POST, responses queued and dispatched to
+//               callbacks on Update from the main thread.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-22 21:35
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.Collections.Concurrent;
@@ -22,13 +24,15 @@ namespace vFrame.Bundler
         private readonly ILogger _logger;
         private readonly ConcurrentQueue<RequestContext> _works;
 
-        public SimpleJsonRpcClient(string address, ILogger logger) {
+        public SimpleJsonRpcClient(string address, ILogger logger)
+        {
             _address = address;
             _logger = logger;
             _works = new ConcurrentQueue<RequestContext>();
         }
 
-        public override void Update() {
+        public override void Update()
+        {
             while (_works.TryDequeue(out var state)) {
                 if (state.RespondData.ErrorCode != JsonRpcErrorCode.Success) {
                     _logger.LogWarning("Send request failed, error code: {0}", state.RespondData.ErrorCode);
@@ -37,13 +41,14 @@ namespace vFrame.Bundler
             }
         }
 
-        public override void SendRequest(string method, JsonObject args, Action<RespondContext> callback) {
+        public override void SendRequest(string method, JsonObject args, Action<RespondContext> callback)
+        {
             var requestData = new JsonObject {
                 { "method", method },
                 { "args", args }
             };
 
-            var request = (HttpWebRequest) WebRequest.Create(_address);
+            var request = (HttpWebRequest)WebRequest.Create(_address);
             request.Method = "POST";
             request.ContentType = "application/json";
 
@@ -55,9 +60,10 @@ namespace vFrame.Bundler
             request.BeginGetRequestStream(OnGetRequestStream, state);
         }
 
-        private void OnGetRequestStream(IAsyncResult state) {
+        private void OnGetRequestStream(IAsyncResult state)
+        {
             try {
-                var context =  (RequestContext) state.AsyncState;
+                var context = (RequestContext)state.AsyncState;
                 using (var streamWriter = new StreamWriter(context.Request.EndGetRequestStream(state))) {
                     streamWriter.Write(Json.Serialize(context.RequestData));
                     streamWriter.Flush();
@@ -70,9 +76,10 @@ namespace vFrame.Bundler
             }
         }
 
-        private void OnGetResponseStream(IAsyncResult state) {
+        private void OnGetResponseStream(IAsyncResult state)
+        {
             try {
-                var context =  (RequestContext) state.AsyncState;
+                var context = (RequestContext)state.AsyncState;
                 using (var respond = context.Request.EndGetResponse(state)) {
                     var respondStream = respond.GetResponseStream();
                     if (null == respondStream) {

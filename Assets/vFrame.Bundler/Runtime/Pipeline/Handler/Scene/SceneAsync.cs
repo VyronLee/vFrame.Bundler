@@ -1,6 +1,7 @@
 // ------------------------------------------------------------
 //         File: SceneAsync.cs
-//        Brief: SceneAsync.cs
+//        Brief: Async scene handle extending Scene with IAsync: exposes IsDone/Progress
+//               polled from the underlying SceneLoader.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,15 +9,18 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 namespace vFrame.Bundler
 {
     public class SceneAsync : Scene, IAsync
     {
-        public bool MoveNext() {
+        public bool MoveNext()
+        {
             return !IsDone;
         }
 
-        public void Reset() {
+        public void Reset()
+        {
         }
 
         public object Current => null;

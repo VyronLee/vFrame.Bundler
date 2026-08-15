@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
-//         File: InternalAssetBundleCreateRequestAdapter.cs
-//        Brief: InternalAssetBundleCreateRequestAdapter.cs
+//         File: InternalAssetBundleCreateAdapter.cs
+//        Brief: Default IAssetBundleCreateAdapter: resolves bundle files across ordered
+//               SearchPaths and loads them via AssetBundle.LoadFromFile(Async).
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 16:2
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.IO;
 using UnityEngine;
@@ -16,15 +18,18 @@ namespace vFrame.Bundler
 {
     internal class InternalAssetBundleCreateAdapter : BundlerObject, IAssetBundleCreateAdapter
     {
-        public InternalAssetBundleCreateAdapter(BundlerContexts bundlerContexts) : base(bundlerContexts) {
+        public InternalAssetBundleCreateAdapter(BundlerContexts bundlerContexts) : base(bundlerContexts)
+        {
 
         }
 
-        protected override void OnDestroy() {
+        protected override void OnDestroy()
+        {
 
         }
 
-        public AssetBundleCreateRequest CreateRequest(string bundlePath) {
+        public AssetBundleCreateRequest CreateRequest(string bundlePath)
+        {
             Facade.GetSystem<LogSystem>().LogDebug("Create AssetBundleCreateRequest: {0}", bundlePath);
 
             var searchPaths = BundlerContexts.Options.SearchPaths;
@@ -47,7 +52,8 @@ namespace vFrame.Bundler
             return null;
         }
 
-        public AssetBundle CreateAssetBundle(string bundlePath) {
+        public AssetBundle CreateAssetBundle(string bundlePath)
+        {
             Facade.GetSystem<LogSystem>().LogDebug("Load AssetBundle: {0}", bundlePath);
 
             var searchPaths = BundlerContexts.Options.SearchPaths;

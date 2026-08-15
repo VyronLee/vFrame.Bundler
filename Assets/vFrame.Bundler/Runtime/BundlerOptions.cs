@@ -1,12 +1,13 @@
-﻿//------------------------------------------------------------
-//        File:  BundlerOptions.cs
-//       Brief:  BundlerOptions
+// ------------------------------------------------------------
+//         File: BundlerOptions.cs
+//        Brief: Construction options for a Bundler: mode, search paths, adapters, log handler, profiler address.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-02-15 20:18
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:04:50
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 using System;
 

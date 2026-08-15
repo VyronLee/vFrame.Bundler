@@ -1,6 +1,6 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: InternalLogHandler.cs
-//        Brief: InternalLogHandler.cs
+//        Brief: Default ILogHandler forwarding all bundler log calls to Unity Debug.Log*.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,29 +8,35 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 using UnityEngine;
 
 namespace vFrame.Bundler
 {
     internal class InternalLogHandler : ILogHandler
     {
-        public void LogDebug(string text) {
+        public void LogDebug(string text)
+        {
             Debug.Log(text);
         }
 
-        public void LogInfo(string text) {
+        public void LogInfo(string text)
+        {
             Debug.Log(text);
         }
 
-        public void LogWarning(string text) {
+        public void LogWarning(string text)
+        {
             Debug.LogWarning(text);
         }
 
-        public void LogError(string text) {
+        public void LogError(string text)
+        {
             Debug.LogError(text);
         }
 
-        public void LogException(System.Exception exception) {
+        public void LogException(System.Exception exception)
+        {
             Debug.LogException(exception);
         }
     }

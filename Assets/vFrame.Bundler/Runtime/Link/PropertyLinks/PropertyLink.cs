@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: PropertyLink.cs
-//        Brief: PropertyLink.cs
+//        Brief: Exclusive link base binding a loaded asset to a Component property via Set();
+//               one link per component.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-2-4 21:21
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 

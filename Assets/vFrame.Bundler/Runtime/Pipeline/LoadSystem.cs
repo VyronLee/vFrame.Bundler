@@ -1,12 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: LoadSystem.cs
-//        Brief: LoadSystem.cs
+//        Brief: Core load facade: builds mode-specific loader pipelines per asset/scene
+//               request, reuses cached loaders, and drives pipelines/loaders/handlers.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-2 22:8
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using UnityEngine.SceneManagement;
@@ -20,26 +22,30 @@ namespace vFrame.Bundler
         private readonly Action<ILoaderHandler> _updateHandlerAction;
         private readonly Action<LoaderPipeline> _updatePipelineAction;
 
-        public LoadSystem(BundlerContexts bundlerContexts) : base(bundlerContexts) {
+        public LoadSystem(BundlerContexts bundlerContexts) : base(bundlerContexts)
+        {
             _updateLoaderAction = UpdateLoader;
             _updateHandlerAction = UpdateHandler;
             _updatePipelineAction = UpdatePipeline;
         }
 
-        protected override void OnDestroy() {
+        protected override void OnDestroy()
+        {
 
         }
 
         private BundlerMode BundlerMode => BundlerContexts.Options.Mode;
 
-        private void ThrowIfAssetNotManaged(string path) {
+        private void ThrowIfAssetNotManaged(string path)
+        {
             if (BundlerContexts.Manifest.Assets.TryGetValue(path, out var mainBundle)) {
                 return;
             }
             throw new BundleNoneConfigurationException($"Asset path is not managed by MainRules: {path}");
         }
 
-        public Asset LoadAsset(string path, Type type, AssetLoadType loadType) {
+        public Asset LoadAsset(string path, Type type, AssetLoadType loadType)
+        {
             ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, type), out AssetLoader loader)) {
                 if (!CreateAssetLoadSyncPipeline(path, type, loadType).Startup(out loader)) {
@@ -49,7 +55,8 @@ namespace vFrame.Bundler
             return CreateHandler<Asset>(loader);
         }
 
-        public AssetAsync LoadAssetAsync(string path, Type type, AssetLoadType loadType) {
+        public AssetAsync LoadAssetAsync(string path, Type type, AssetLoadType loadType)
+        {
             ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, type), out AssetLoader loader)) {
                 if (!CreateAssetLoadAsyncPipeline(path, type, loadType).Startup(out loader)) {
@@ -59,7 +66,8 @@ namespace vFrame.Bundler
             return CreateHandler<AssetAsync>(loader);
         }
 
-        public Asset<T> LoadAsset<T>(string path, AssetLoadType loadType) where T : Object {
+        public Asset<T> LoadAsset<T>(string path, AssetLoadType loadType) where T : Object
+        {
             ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, typeof(T)), out AssetLoader loader)) {
                 if (!CreateAssetLoadSyncPipeline(path, typeof(T), loadType).Startup(out loader)) {
@@ -69,7 +77,8 @@ namespace vFrame.Bundler
             return CreateHandler<Asset<T>>(loader);
         }
 
-        public AssetAsync<T> LoadAssetAsync<T>(string path, AssetLoadType loadType) where T : Object {
+        public AssetAsync<T> LoadAssetAsync<T>(string path, AssetLoadType loadType) where T : Object
+        {
             ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader((AssetLoadKey)(path, typeof(T)), out AssetLoader loader)) {
                 if (!CreateAssetLoadAsyncPipeline(path, typeof(T), loadType).Startup(out loader)) {
@@ -79,7 +88,8 @@ namespace vFrame.Bundler
             return CreateHandler<AssetAsync<T>>(loader);
         }
 
-        public Scene LoadScene(string path, LoadSceneMode loadSceneMode) {
+        public Scene LoadScene(string path, LoadSceneMode loadSceneMode)
+        {
             ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader(path, out SceneLoader loader)) {
                 if (!CreateSceneLoadSyncPipeline(path, loadSceneMode).Startup(out loader)) {
@@ -89,7 +99,8 @@ namespace vFrame.Bundler
             return CreateHandler<Scene>(loader);
         }
 
-        public SceneAsync LoadSceneAsync(string path, LoadSceneMode loadSceneMode) {
+        public SceneAsync LoadSceneAsync(string path, LoadSceneMode loadSceneMode)
+        {
             ThrowIfAssetNotManaged(path);
             if (!BundlerContexts.TryGetLoader(path, out SceneLoader loader)) {
                 if (!CreateSceneLoadAsyncPipeline(path, loadSceneMode).Startup(out loader)) {
@@ -99,7 +110,8 @@ namespace vFrame.Bundler
             return CreateHandler<SceneAsync>(loader);
         }
 
-        private LoaderPipeline CreateAssetLoadSyncPipeline(string path, Type type, AssetLoadType loadType) {
+        private LoaderPipeline CreateAssetLoadSyncPipeline(string path, Type type, AssetLoadType loadType)
+        {
             var loaderContexts = new LoaderContexts {
                 AssetLoadType = loadType,
                 AssetPath = path,
@@ -127,7 +139,8 @@ namespace vFrame.Bundler
             return pipeline;
         }
 
-        private LoaderPipeline CreateAssetLoadAsyncPipeline(string path, Type type, AssetLoadType loadType) {
+        private LoaderPipeline CreateAssetLoadAsyncPipeline(string path, Type type, AssetLoadType loadType)
+        {
             var loaderContexts = new LoaderContexts {
                 AssetLoadType = loadType,
                 AssetPath = path,
@@ -156,7 +169,8 @@ namespace vFrame.Bundler
             return pipeline;
         }
 
-        private LoaderPipeline CreateSceneLoadSyncPipeline(string path, LoadSceneMode sceneMode) {
+        private LoaderPipeline CreateSceneLoadSyncPipeline(string path, LoadSceneMode sceneMode)
+        {
             var loaderContexts = new LoaderContexts {
                 AssetPath = path,
                 SceneMode = sceneMode,
@@ -179,7 +193,8 @@ namespace vFrame.Bundler
             return pipeline;
         }
 
-        private LoaderPipeline CreateSceneLoadAsyncPipeline(string path, LoadSceneMode sceneMode) {
+        private LoaderPipeline CreateSceneLoadAsyncPipeline(string path, LoadSceneMode sceneMode)
+        {
             var loaderContexts = new LoaderContexts {
                 AssetPath = path,
                 SceneMode = sceneMode,
@@ -203,7 +218,8 @@ namespace vFrame.Bundler
             return pipeline;
         }
 
-        private T CreateHandler<T>(Loader loader) where T: ILoaderHandler, new() {
+        private T CreateHandler<T>(Loader loader) where T : ILoaderHandler, new()
+        {
             var ret = new T {
                 Loader = loader,
                 BundlerContexts = BundlerContexts
@@ -212,21 +228,25 @@ namespace vFrame.Bundler
             return ret;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             BundlerContexts.ForEachPipeline(_updatePipelineAction);
             BundlerContexts.ForEachLoader(_updateLoaderAction);
             BundlerContexts.ForEachHandler(_updateHandlerAction);
         }
 
-        private static void UpdateLoader(Loader loader) {
+        private static void UpdateLoader(Loader loader)
+        {
             loader.Update();
         }
 
-        private static void UpdateHandler(ILoaderHandler handler) {
+        private static void UpdateHandler(ILoaderHandler handler)
+        {
             handler.Update();
         }
 
-        private static void UpdatePipeline(LoaderPipeline pipeline) {
+        private static void UpdatePipeline(LoaderPipeline pipeline)
+        {
             pipeline.Update();
         }
     }

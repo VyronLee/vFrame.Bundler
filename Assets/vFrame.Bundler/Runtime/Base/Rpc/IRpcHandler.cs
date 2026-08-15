@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: IRpcHandler.cs
-//        Brief: IRpcHandler.cs
+//        Brief: Interface for JSON-RPC method handlers: dispatch by MethodName, return error code + result.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-22 17:12
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 namespace vFrame.Bundler
 {

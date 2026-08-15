@@ -1,12 +1,13 @@
-//------------------------------------------------------------
-//        File:  ObjectPool.cs
-//       Brief:  ObjectPool
+// ------------------------------------------------------------
+//         File: ObjectPool.cs
+//        Brief: Static object pool base: pre-allocates, hands out, resets and recycles instances via an allocator.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-07-09 19:09
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:05:44
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 using System.Collections.Generic;
 
@@ -20,7 +21,8 @@ namespace vFrame.Bundler
         private static readonly Stack<TClass> Objects;
         private static readonly TAllocator Allocator;
 
-        static ObjectPool() {
+        static ObjectPool()
+        {
             Objects = new Stack<TClass>(Capacity);
             Allocator = new TAllocator();
 
@@ -28,11 +30,13 @@ namespace vFrame.Bundler
                 Objects.Push(Allocator.Alloc());
         }
 
-        public static TClass Get() {
+        public static TClass Get()
+        {
             return Objects.Count > 0 ? Objects.Pop() : Allocator.Alloc();
         }
 
-        public static void Return(TClass obj) {
+        public static void Return(TClass obj)
+        {
             Allocator.Reset(obj);
 
             if (Objects.Contains(obj))
@@ -45,11 +49,13 @@ namespace vFrame.Bundler
     {
         private static readonly Stack<TClass> Objects = new Stack<TClass>();
 
-        public static TClass Get() {
+        public static TClass Get()
+        {
             return Objects.Count > 0 ? Objects.Pop() : new TClass();
         }
 
-        public static void Return(TClass obj) {
+        public static void Return(TClass obj)
+        {
             if (Objects.Contains(obj))
                 return;
             Objects.Push(obj);

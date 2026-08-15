@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
-//         File: BuildBundleManifestTask.cs
-//        Brief: BuildBundleManifestTask.cs
+//         File: BuildBundlerManifestTask.cs
+//        Brief: Build step 7: assembles the BundlerManifest (asset-to-bundle map + bundle
+//               dependencies) from build results and writes it to disk as JSON.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 22:42
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.IO;
@@ -17,7 +19,8 @@ namespace vFrame.Bundler.Task.Formal
 {
     internal class BuildBundlerManifestTask : BuildTaskBase
     {
-        public override void Run(BuildContext context) {
+        public override void Run(BuildContext context)
+        {
             var manifest = new BundlerManifest();
             GrantAssetInfos(context, manifest);
             GrantAssetBundleInfos(context, manifest);
@@ -25,14 +28,15 @@ namespace vFrame.Bundler.Task.Formal
             context.BundlerManifest = manifest;
         }
 
-        private void GrantAssetInfos(BuildContext context, BundlerManifest manifest) {
+        private void GrantAssetInfos(BuildContext context, BundlerManifest manifest)
+        {
             var index = 0f;
             var total = context.MainAssetInfos.Count;
             try {
                 foreach (var kv in context.MainAssetInfos) {
                     var assetInfo = kv.Value;
                     EditorUtility.DisplayProgressBar("Building Bundler Manifest",
-                        $"Granting asset info: {assetInfo.AssetPath}", ++index / total );
+                        $"Granting asset info: {assetInfo.AssetPath}", ++index / total);
                     manifest.Assets[assetInfo.AssetPath] = assetInfo.BundlePath;
                 }
             }
@@ -41,7 +45,8 @@ namespace vFrame.Bundler.Task.Formal
             }
         }
 
-        private void GrantAssetBundleInfos(BuildContext context, BundlerManifest manifest) {
+        private void GrantAssetBundleInfos(BuildContext context, BundlerManifest manifest)
+        {
             var index = 0f;
             var total = context.MainAssetInfos.Count;
             var abs = context.BundleInfos.Keys;
@@ -49,7 +54,7 @@ namespace vFrame.Bundler.Task.Formal
             try {
                 foreach (var ab in abs) {
                     EditorUtility.DisplayProgressBar("Building Bundler Manifest",
-                        $"Granting assetBundle: {ab}", ++index / total );
+                        $"Granting assetBundle: {ab}", ++index / total);
 
                     var dependencies = context.AssetBundleManifest.GetAllDependencies(ab) ?? Array.Empty<string>();
                     manifest.Bundles[ab] = new BundleDependencySet(dependencies);
@@ -60,7 +65,8 @@ namespace vFrame.Bundler.Task.Formal
             }
         }
 
-        private void WriteToDisk(BuildContext context, BundlerManifest manifest) {
+        private void WriteToDisk(BuildContext context, BundlerManifest manifest)
+        {
             var jsonData = JsonUtility.ToJson(manifest);
             var savePath = PathUtils.Combine(
                 context.BuildSettings.BundlePath,

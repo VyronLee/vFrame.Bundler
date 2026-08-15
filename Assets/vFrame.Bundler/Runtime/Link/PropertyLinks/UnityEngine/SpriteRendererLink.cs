@@ -1,12 +1,13 @@
-﻿//------------------------------------------------------------
-//        File:  SpriteRendererLink.cs
-//       Brief:  SpriteRendererLink
+// ------------------------------------------------------------
+//         File: SpriteRendererLink.cs
+//        Brief: Routes loaded Sprite assets into SpriteRenderer.sprite with automatic reference tracking.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2020-05-21 16:20
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:06:44
+//    Copyright: Copyright (c) 2024, VyronLee
+// ============================================================
+
 
 using UnityEngine;
 
@@ -16,7 +17,8 @@ namespace vFrame.Bundler
     {
         private class SpriteLink : PropertyLink<SpriteRenderer, Sprite>
         {
-            public override void Set(SpriteRenderer target, Sprite asset) {
+            public override void Set(SpriteRenderer target, Sprite asset)
+            {
                 target.sprite = asset;
             }
         }
@@ -24,16 +26,20 @@ namespace vFrame.Bundler
         //============================================================
         // SetSprite
         //============================================================
-        public static void SetSprite(this SpriteRenderer target, Asset asset) {
+        public static void SetSprite(this SpriteRenderer target, Asset asset)
+        {
             asset.SetTo<SpriteRenderer, Sprite, SpriteLink>(target);
         }
-        public static void SetSprite(this SpriteRenderer target, AssetAsync asset) {
+        public static void SetSprite(this SpriteRenderer target, AssetAsync asset)
+        {
             asset.SetTo<SpriteRenderer, Sprite, SpriteLink>(target);
         }
-        public static void SetSprite(this SpriteRenderer target, Asset<Sprite> asset) {
+        public static void SetSprite(this SpriteRenderer target, Asset<Sprite> asset)
+        {
             asset.SetTo<SpriteRenderer, SpriteLink>(target);
         }
-        public static void SetSprite(this SpriteRenderer target, AssetAsync<Sprite> asset) {
+        public static void SetSprite(this SpriteRenderer target, AssetAsync<Sprite> asset)
+        {
             asset.SetTo<SpriteRenderer, SpriteLink>(target);
         }
     }

@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: ResourcesAssetLoaderAsync.cs
-//        Brief: ResourcesAssetLoaderAsync.cs
+//        Brief: Loads an asset asynchronously from Resources via ResourceRequest; maps project path to Resources path.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-4 20:4
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.IO;
 using UnityEngine;
@@ -21,7 +22,8 @@ namespace vFrame.Bundler
         private Object[] _assetObjects;
 
         public ResourcesAssetLoaderAsync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
-            : base(bundlerContexts, loaderContexts) {
+            : base(bundlerContexts, loaderContexts)
+        {
 
         }
 
@@ -38,7 +40,8 @@ namespace vFrame.Bundler
             }
         }
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
             var resPath = PathUtils.RelativeProjectPathToRelativeResourcesPath(AssetPath);
 
             var sb = StringBuilderPool.Get();
@@ -66,12 +69,14 @@ namespace vFrame.Bundler
             Abort();
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
             _assetObject = null;
             _resourcesRequest = null;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             if (null == _resourcesRequest) {
                 return;
             }
@@ -81,7 +86,8 @@ namespace vFrame.Bundler
             ObtainAssetObjectFromResourcesRequest();
         }
 
-        private void ObtainAssetObjectFromResourcesRequest() {
+        private void ObtainAssetObjectFromResourcesRequest()
+        {
             _assetObject = _resourcesRequest.asset;
             _assetObjects = new[] { _resourcesRequest.asset };
             if (_assetObject) {
@@ -98,7 +104,8 @@ namespace vFrame.Bundler
                 AssetPath);
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             if (null == _resourcesRequest) {
                 return;
             }

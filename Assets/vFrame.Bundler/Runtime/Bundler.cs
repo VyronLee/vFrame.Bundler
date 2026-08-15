@@ -1,12 +1,13 @@
-﻿//------------------------------------------------------------
-//        File:  Bundler.cs
-//       Brief:  Bundler
+// ------------------------------------------------------------
+//         File: Bundler.cs
+//        Brief: Core facade of the Bundler asset loading system; hosts subsystems and exposes asset/scene load APIs.
 //
-//      Author:  VyronLee, lwz_jz@hotmail.com
+//       Author: VyronLee, lwz_jz@hotmail.com
 //
-//    Modified:  2019-02-15 20:18
-//   Copyright:  Copyright (c) 2024, VyronLee
-//============================================================
+//     Modified: 2026-08-15 20:04:33
+//    Copyright: Copyright (c) 2026, VyronLee
+// ============================================================
+
 
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,8 @@ namespace vFrame.Bundler
         private readonly BundlerContexts _contexts;
         private readonly Dictionary<Type, BundlerSystem> _systems = new Dictionary<Type, BundlerSystem>();
 
-        public Bundler(BundlerManifest manifest, BundlerOptions options = null) {
+        public Bundler(BundlerManifest manifest, BundlerOptions options = null)
+        {
             options = options ?? new BundlerOptions();
             _contexts = new BundlerContexts {
                 Options = options,
@@ -39,7 +41,8 @@ namespace vFrame.Bundler
             InitializeSystems();
         }
 
-        private void InitializeSystems() {
+        private void InitializeSystems()
+        {
             var baseType = typeof(BundlerSystem);
             foreach (var type in _embedSystems) {
                 if (!baseType.IsAssignableFrom(type)) {
@@ -53,69 +56,84 @@ namespace vFrame.Bundler
             }
         }
 
-        public void Destroy() {
+        public void Destroy()
+        {
             foreach (var system in _systems.Select(kv => kv.Value)) {
                 system.Destroy();
             }
             _systems.Clear();
         }
 
-        internal T GetSystem<T>() where T: BundlerSystem {
+        internal T GetSystem<T>() where T : BundlerSystem
+        {
             return _systems[typeof(T)] as T;
         }
 
-        public Asset LoadAsset(string path, Type type) {
+        public Asset LoadAsset(string path, Type type)
+        {
             return GetSystem<LoadSystem>().LoadAsset(path, type, AssetLoadType.LoadAsset);
         }
 
-        public AssetAsync LoadAssetAsync(string path, Type type) {
+        public AssetAsync LoadAssetAsync(string path, Type type)
+        {
             return GetSystem<LoadSystem>().LoadAssetAsync(path, type, AssetLoadType.LoadAsset);
         }
 
-        public Asset LoadAssetWithSubAssets(string path, Type type) {
+        public Asset LoadAssetWithSubAssets(string path, Type type)
+        {
             return GetSystem<LoadSystem>().LoadAsset(path, type, AssetLoadType.LoadAssetWithSubAsset);
         }
 
-        public AssetAsync LoadAssetWithSubAssetsAsync(string path, Type type) {
+        public AssetAsync LoadAssetWithSubAssetsAsync(string path, Type type)
+        {
             return GetSystem<LoadSystem>().LoadAssetAsync(path, type, AssetLoadType.LoadAssetWithSubAsset);
         }
 
-        public Asset<T> LoadAsset<T>(string path) where T : Object {
+        public Asset<T> LoadAsset<T>(string path) where T : Object
+        {
             return GetSystem<LoadSystem>().LoadAsset<T>(path, AssetLoadType.LoadAsset);
         }
 
-        public AssetAsync<T> LoadAssetAsync<T>(string path) where T : Object {
+        public AssetAsync<T> LoadAssetAsync<T>(string path) where T : Object
+        {
             return GetSystem<LoadSystem>().LoadAssetAsync<T>(path, AssetLoadType.LoadAsset);
         }
 
-        public Asset<T> LoadAssetWithSubAssets<T>(string path) where T : Object {
+        public Asset<T> LoadAssetWithSubAssets<T>(string path) where T : Object
+        {
             return GetSystem<LoadSystem>().LoadAsset<T>(path, AssetLoadType.LoadAssetWithSubAsset);
         }
 
-        public AssetAsync<T> LoadAssetWithSubAssetsAsync<T>(string path) where T : Object {
+        public AssetAsync<T> LoadAssetWithSubAssetsAsync<T>(string path) where T : Object
+        {
             return GetSystem<LoadSystem>().LoadAssetAsync<T>(path, AssetLoadType.LoadAssetWithSubAsset);
         }
 
-        public Scene LoadScene(string path, LoadSceneMode mode) {
+        public Scene LoadScene(string path, LoadSceneMode mode)
+        {
             return GetSystem<LoadSystem>().LoadScene(path, mode);
         }
 
-        public SceneAsync LoadSceneAsync(string path, LoadSceneMode mode) {
+        public SceneAsync LoadSceneAsync(string path, LoadSceneMode mode)
+        {
             return GetSystem<LoadSystem>().LoadSceneAsync(path, mode);
         }
 
-        public void Update() {
+        public void Update()
+        {
             foreach (var kv in _systems) {
                 var system = kv.Value;
                 system.Update();
             }
         }
 
-        public void Collect() {
+        public void Collect()
+        {
             GetSystem<CollectSystem>().Collect();
         }
 
-        public void SetLogLevel(int level) {
+        public void SetLogLevel(int level)
+        {
             GetSystem<LogSystem>().SetLogLevel(level);
         }
     }

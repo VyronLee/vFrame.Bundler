@@ -1,6 +1,7 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: AnalyzePackByAllFilesRule.cs
-//        Brief: AnalyzePackByAllFilesRule.cs
+//        Brief: PackByAllFiles analyzer: packs every asset matched by the rule into a single
+//               bundle named after the SearchPath.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,13 +9,15 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 using System.Collections.Generic;
 
 namespace vFrame.Bundler.Task.Formal.MainAssetAnalyzers
 {
     internal class AnalyzePackByAllFilesRule : FormalMainAssetAnalyzerBase
     {
-        protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule) {
+        protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule)
+        {
             var bundlePath = context.BuildBundlePath(rule.SearchPath);
             var assets = FindAssets(rule);
             var index = 0f;

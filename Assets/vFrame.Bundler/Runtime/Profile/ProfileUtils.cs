@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
 //         File: ProfileUtils.cs
-//        Brief: ProfileUtils.cs
+//        Brief: Profiler helpers: JsonObject comparison delegate sorting entries by their CreateFrame field.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
@@ -8,11 +8,13 @@
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
 
+
 namespace vFrame.Bundler
 {
     internal static class ProfileUtils
     {
-        public static int SortByCreateFrame(JsonObject a, JsonObject b) {
+        public static int SortByCreateFrame(JsonObject a, JsonObject b)
+        {
             var createFrameA = a.SafeGetValue<int>("CreateFrame");
             var createFrameB = b.SafeGetValue<int>("CreateFrame");
             return createFrameA.CompareTo(createFrameB);

@@ -1,5 +1,5 @@
-﻿// ------------------------------------------------------------
-//         File: BundlerBuildRule.cs
+// ------------------------------------------------------------
+//         File: BundleBuildRules.cs
 //        Brief: AssetBundle build rule structure definition
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
@@ -7,6 +7,8 @@
 //      Created: 2023-12-19 16:28
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
+
 
 using System;
 using System.Collections.Generic;
@@ -28,7 +30,8 @@ namespace vFrame.Bundler
         public List<MainBundleRule> MainRules { get; } = new List<MainBundleRule>();
         public List<AutoGroupRule> GroupRules { get; } = new List<AutoGroupRule>();
 
-        public static BundleBuildRules FromJson(string jsonText) {
+        public static BundleBuildRules FromJson(string jsonText)
+        {
             var jsonData = Json.Deserialize(jsonText) as JsonObject;
             if (null == jsonData) {
                 throw new BundleException("Deserialize bundle build rules failed!");
@@ -82,7 +85,8 @@ namespace vFrame.Bundler
         /// </summary>
         public string Exclude { get; set; } = "";
 
-        internal static MainBundleRule FromJsonObject(JsonObject jsonObject) {
+        internal static MainBundleRule FromJsonObject(JsonObject jsonObject)
+        {
             var ret = new MainBundleRule();
             ret.PackType = jsonObject.SafeGetValue(nameof(PackType), ret.PackType);
             ret.SearchPath = jsonObject.SafeGetValue(nameof(SearchPath), ret.SearchPath);
@@ -100,7 +104,8 @@ namespace vFrame.Bundler
 
         public static AutoGroupRule Fallback { get; } = new AutoGroupRule { Include = "(.+)" };
 
-        internal static AutoGroupRule FromJsonObject(JsonObject jsonObject) {
+        internal static AutoGroupRule FromJsonObject(JsonObject jsonObject)
+        {
             var ret = new AutoGroupRule();
             ret.Include = jsonObject.SafeGetValue(nameof(Include), ret.Include);
             ret.Exclude = jsonObject.SafeGetValue(nameof(Exclude), ret.Exclude);

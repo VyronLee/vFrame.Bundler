@@ -1,12 +1,14 @@
-﻿// ------------------------------------------------------------
-//         File: AssetBundleLoader.cs
-//        Brief: AssetBundleLoader.cs
+// ------------------------------------------------------------
+//         File: AssetBundleLoaderAsync.cs
+//        Brief: Async single-bundle loader: drives the adapter's AssetBundleCreateRequest
+//               until the bundle loads; unloads it on stop.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-2 23:0
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 
@@ -18,7 +20,8 @@ namespace vFrame.Bundler
         private AssetBundle _assetBundle;
 
         public AssetBundleLoaderAsync(BundlerContexts bundlerContexts, LoaderContexts loaderContexts, string bundlePath)
-            : base(bundlerContexts, loaderContexts, bundlePath) {
+            : base(bundlerContexts, loaderContexts, bundlePath)
+        {
 
         }
 
@@ -43,7 +46,8 @@ namespace vFrame.Bundler
             }
         }
 
-        protected override void OnStart() {
+        protected override void OnStart()
+        {
             try {
                 _createRequest = Adapter.CreateRequest(BundlePath);
                 if (null != _createRequest) {
@@ -61,7 +65,8 @@ namespace vFrame.Bundler
             Abort();
         }
 
-        protected override void OnStop() {
+        protected override void OnStop()
+        {
             if (_assetBundle) {
                 _assetBundle.Unload(true);
             }
@@ -69,7 +74,8 @@ namespace vFrame.Bundler
             _createRequest = null;
         }
 
-        protected override void OnUpdate() {
+        protected override void OnUpdate()
+        {
             if (null == _createRequest) {
                 return;
             }
@@ -79,14 +85,16 @@ namespace vFrame.Bundler
             ObtainAssetBundleFromCreateRequest();
         }
 
-        protected override void OnForceComplete() {
+        protected override void OnForceComplete()
+        {
             if (null == _createRequest) {
                 return;
             }
             ObtainAssetBundleFromCreateRequest();
         }
 
-        private void ObtainAssetBundleFromCreateRequest() {
+        private void ObtainAssetBundleFromCreateRequest()
+        {
             _assetBundle = _createRequest.assetBundle;
 
             if (_assetBundle) {

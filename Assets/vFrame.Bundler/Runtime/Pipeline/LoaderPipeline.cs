@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: LoaderPipeline.cs
-//        Brief: LoaderPipeline.cs
+//        Brief: Sequenced chain of Loaders driven one-by-one (each starts after the previous finishes); tracks
+//               progress, error state, and JSON-serializable diagnostics.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-3 20:43
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.Collections.Generic;
@@ -24,7 +26,8 @@ namespace vFrame.Bundler
         private int _processing;
         private bool _error;
 
-        public LoaderPipeline(BundlerContexts bundlerContexts, LoaderContexts loaderContexts) {
+        public LoaderPipeline(BundlerContexts bundlerContexts, LoaderContexts loaderContexts)
+        {
             _bundlerContexts = bundlerContexts;
             _loaderContexts = loaderContexts;
             _loaders = new List<Loader>();
@@ -34,7 +37,8 @@ namespace vFrame.Bundler
             _error = false;
         }
 
-        public void Add<T>() where T : Loader {
+        public void Add<T>() where T : Loader
+        {
             var loaderContexts = _loaderContexts;
             loaderContexts.ParentLoader = Last();
             var loader = Activator.CreateInstance(typeof(T), _bundlerContexts, loaderContexts) as T;
@@ -45,7 +49,8 @@ namespace vFrame.Bundler
             _loaders.Add(loader);
         }
 
-        public void Add(Loader loader) {
+        public void Add(Loader loader)
+        {
             if (null == loader || loader.IsError) {
                 _error = true;
                 return;
@@ -53,7 +58,8 @@ namespace vFrame.Bundler
             _loaders.Add(loader);
         }
 
-        public bool Startup<T>(out T result) where T: Loader {
+        public bool Startup<T>(out T result) where T : Loader
+        {
             if (_loaders.Count <= 0) {
                 throw new BundleException("No loaders in pipeline, please add some loaders first.");
             }
@@ -72,7 +78,8 @@ namespace vFrame.Bundler
             return false;
         }
 
-        private bool StartupLoaderQueue() {
+        private bool StartupLoaderQueue()
+        {
             foreach (var loader in _loaders) {
                 _bundlerContexts.AddLoader(loader);
             }
@@ -83,22 +90,26 @@ namespace vFrame.Bundler
             return !IsError;
         }
 
-        private LogSystem GetLogSystem() {
+        private LogSystem GetLogSystem()
+        {
             return _bundlerContexts.Bundler.GetSystem<LogSystem>();
         }
 
-        public Loader Last() {
+        public Loader Last()
+        {
             if (_loaders.Count <= 0) {
                 return null;
             }
             return _loaders[_loaders.Count - 1];
         }
 
-        public T Last<T>() where T: Loader {
+        public T Last<T>() where T : Loader
+        {
             return Last() as T;
         }
 
-        public void Update() {
+        public void Update()
+        {
             while (_processing < _loaders.Count) {
                 var loader = _loaders[_processing];
                 switch (loader.TaskState) {
@@ -142,7 +153,8 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public List<Loader> Loaders => _loaders;
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"[Guid: {Guid}, AssetPath: {AssetPath}, IsDone: {IsDone}, IsError: {IsError}, Processing: {Processing}, LoaderCount: {LoaderCount}]";
         }
     }

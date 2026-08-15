@@ -9,6 +9,8 @@
 //    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
+
+
 using System.Collections.Generic;
 using System.IO;
 using System.Security;
@@ -51,12 +53,10 @@ namespace vFrame.Bundler.Editor.TestRunner
             var api = ScriptableObject.CreateInstance<TestRunnerApi>();
             var collector = new ResultCollector();
             api.RegisterCallbacks(collector);
-            api.Execute(new ExecutionSettings(new Filter
-            {
+            api.Execute(new ExecutionSettings(new Filter {
                 testMode = TestMode.EditMode,
                 assemblyNames = assemblies == null || assemblies.Length == 0 ? null : assemblies
-            })
-            {
+            }) {
                 runSynchronously = true
             });
             Finish(collector);
@@ -73,8 +73,7 @@ namespace vFrame.Bundler.Editor.TestRunner
                       " skipped=" + collector.SkipCount +
                       " inconclusive=" + collector.InconclusiveCount +
                       " total=" + total);
-            if (total == 0)
-            {
+            if (total == 0) {
                 Debug.LogError("[HeadlessTestRunner] No EditMode tests ran. " +
                                "Check the assembly name(s) and that the test asmdef compiles.");
                 EditorApplication.Exit(2);
@@ -103,8 +102,7 @@ namespace vFrame.Bundler.Editor.TestRunner
             public void TestFinished(ITestResultAdaptor result)
             {
                 if (result.Test.IsSuite) return;
-                if (result.TestStatus == TestStatus.Failed)
-                {
+                if (result.TestStatus == TestStatus.Failed) {
                     _failures.Add("[" + result.ResultState + "] " + result.FullName + "\n" +
                                   result.Message + "\n" + result.StackTrace);
                 }
@@ -117,8 +115,7 @@ namespace vFrame.Bundler.Editor.TestRunner
                 sb.AppendLine("<test-results>");
                 sb.AppendLine("  <assembly passed=\"" + PassCount + "\" failed=\"" + FailCount +
                               "\" skipped=\"" + SkipCount + "\" inconclusive=\"" + InconclusiveCount + "\" />");
-                foreach (var failure in _failures)
-                {
+                foreach (var failure in _failures) {
                     sb.AppendLine("  <failure>");
                     sb.AppendLine("    " + SecurityElement.Escape(failure));
                     sb.AppendLine("  </failure>");

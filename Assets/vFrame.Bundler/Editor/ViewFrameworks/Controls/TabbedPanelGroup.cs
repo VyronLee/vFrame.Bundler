@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: TabbedPanelGroup.cs
-//        Brief: TabbedPanelGroup.cs
+//        Brief: Couples a TabbedMenu to a page container: shows only the panel mapped to the selected tab button.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-29 17:46
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -33,7 +34,8 @@ namespace vFrame.Bundler
         public TabbedPanelGroup(VisualElement menuRoot,
             VisualElement containerRoot,
             Dictionary<string, string> menuToPageNames,
-            string selectedStyle = "selected-tab-style") {
+            string selectedStyle = "selected-tab-style")
+        {
 
             _menuRoot = menuRoot;
             _containerRoot = containerRoot;
@@ -44,16 +46,19 @@ namespace vFrame.Bundler
             CreatePages();
         }
 
-        public void SelectTab(string tabName) {
+        public void SelectTab(string tabName)
+        {
             _tabbedMenu.SelectTab(tabName);
         }
 
-        private void CreateTabbedMenu() {
+        private void CreateTabbedMenu()
+        {
             _tabbedMenu = new TabbedMenu(_menuRoot, _selectedStyle);
             _tabbedMenu.RegisterCallback(OnSelectedTabChanged);
         }
 
-        private void CreatePages() {
+        private void CreatePages()
+        {
             _pages = new Dictionary<string, VisualElement>();
             foreach (var kv in _menuToPageNames) {
                 var panel = _containerRoot.Q<VisualElement>(kv.Value);
@@ -66,11 +71,13 @@ namespace vFrame.Bundler
             }
         }
 
-        public void RegisterCallback(Action<string> callback) {
+        public void RegisterCallback(Action<string> callback)
+        {
             _callback = callback;
         }
 
-        private void OnSelectedTabChanged(string tabName) {
+        private void OnSelectedTabChanged(string tabName)
+        {
             _selectedTab = tabName;
             if (!_menuToPageNames.TryGetValue(tabName, out var pageName)) {
                 Debug.Log("Cannot find mapping page name for: " + tabName);
@@ -83,7 +90,8 @@ namespace vFrame.Bundler
             _callback?.Invoke(pageName);
         }
 
-        private void UpdatePageVisibility() {
+        private void UpdatePageVisibility()
+        {
             foreach (var kv in _pages) {
                 kv.Value.style.display = kv.Key == _selectedPage ? DisplayStyle.Flex : DisplayStyle.None;
             }

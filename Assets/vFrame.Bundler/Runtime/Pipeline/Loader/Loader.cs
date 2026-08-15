@@ -1,12 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: Loader.cs
-//        Brief: Loader.cs
+//        Brief: Abstract ref-counted loader task: state machine (Start/Stop/Update/ForceComplete), progress, timing,
+//               parent-loader retain/release.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-2 22:24
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System.Diagnostics;
 using UnityEngine;
@@ -19,7 +21,8 @@ namespace vFrame.Bundler
         private readonly Stopwatch _stopwatch;
         private readonly int _createFrame;
 
-        protected Loader(BundlerContexts bundlerContexts, LoaderContexts loaderContexts) : base(bundlerContexts) {
+        protected Loader(BundlerContexts bundlerContexts, LoaderContexts loaderContexts) : base(bundlerContexts)
+        {
             _loaderContexts = loaderContexts;
             _stopwatch = new Stopwatch();
             _createFrame = Time.frameCount;
@@ -34,13 +37,15 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public int CreateFrame => _createFrame;
 
-        protected override void OnDestroy() {
+        protected override void OnDestroy()
+        {
             Facade.GetSystem<LogSystem>().LogInfo("Loader destroyed: {0}", this);
             ReleaseParent();
             Stop();
         }
 
-        public void Start() {
+        public void Start()
+        {
             if (TaskState != TaskState.NotStarted) {
                 return;
             }
@@ -49,7 +54,8 @@ namespace vFrame.Bundler
             OnStart();
         }
 
-        public void Stop() {
+        public void Stop()
+        {
             if (TaskState != TaskState.Processing && TaskState != TaskState.Finished) {
                 return;
             }
@@ -58,7 +64,8 @@ namespace vFrame.Bundler
             OnStop();
         }
 
-        public void Update() {
+        public void Update()
+        {
             if (TaskState != TaskState.Processing) {
                 return;
             }
@@ -73,25 +80,29 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public double Elapsed => _stopwatch.Elapsed.TotalMilliseconds;
 
-        protected void Abort() {
+        protected void Abort()
+        {
             TaskState = TaskState.Error;
             _stopwatch.Stop();
             Facade.GetSystem<LogSystem>().LogError("Loader abort: {0}", this);
         }
 
-        protected void Finish() {
+        protected void Finish()
+        {
             TaskState = TaskState.Finished;
             _stopwatch.Stop();
             Facade.GetSystem<LogSystem>().LogInfo("Loader finished: {0}", this);
         }
 
-        protected void ThrowIfNotFinished() {
+        protected void ThrowIfNotFinished()
+        {
             if (TaskState != TaskState.Finished) {
                 throw new BundleAssetNotReadyException($"Loader has not finished: {this}");
             }
         }
 
-        public void ForceComplete() {
+        public void ForceComplete()
+        {
             while (true) {
                 switch (TaskState) {
                     case TaskState.NotStarted:
@@ -116,15 +127,18 @@ namespace vFrame.Bundler
         protected abstract void OnUpdate();
         protected abstract void OnForceComplete();
 
-        private void RetainParent() {
+        private void RetainParent()
+        {
             LoaderContexts.ParentLoader?.Retain();
         }
 
-        private void ReleaseParent() {
+        private void ReleaseParent()
+        {
             LoaderContexts.ParentLoader?.Release();
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"[@TypeName: {GetType().Name}, TaskState: {TaskState}]";
         }
     }

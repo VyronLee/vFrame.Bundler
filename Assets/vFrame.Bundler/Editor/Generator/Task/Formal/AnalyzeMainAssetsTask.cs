@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: AnalyzeMainAssetsTask.cs
-//        Brief: AnalyzeMainAssetsTask.cs
+//        Brief: Build step 1: applies each MainRule by dispatching to the PackType-matched
+//               main-asset analyzer to collect directly-loaded assets.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2023-12-25 22:40
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using vFrame.Bundler.Helper;
@@ -16,7 +18,8 @@ namespace vFrame.Bundler.Task.Formal
 {
     internal class AnalyzeMainAssetsTask : BuildTaskBase
     {
-        public override void Run(BuildContext context) {
+        public override void Run(BuildContext context)
+        {
             ThrowHelper.ThrowIfNull(context.BuildRules,
                 ThrowHelper.Variables(nameof(context), nameof(context.BuildRules)));
             ThrowHelper.ThrowIfNull(context.BuildRules.MainRules,

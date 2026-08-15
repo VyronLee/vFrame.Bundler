@@ -9,6 +9,8 @@
 //    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
+
+
 using NUnit.Framework;
 
 namespace vFrame.Bundler.Tests.EditMode
@@ -44,14 +46,16 @@ namespace vFrame.Bundler.Tests.EditMode
         ///     constrained generic path (object initializer) so the explicit
         ///     interface Loader setter is invoked without boxing the struct.
         /// </summary>
-        private static T Create<T>(Loader loader) where T : ILoaderHandler, new() {
+        private static T Create<T>(Loader loader) where T : ILoaderHandler, new()
+        {
             return new T {
                 Loader = loader
             };
         }
 
         [Test]
-        public void Asset_Load_RetainsLoaderOnce() {
+        public void Asset_Load_RetainsLoaderOnce()
+        {
             var loader = new TestLoader();
             Assert.That(loader.References, Is.EqualTo(0), "fresh loader has no references");
 
@@ -62,7 +66,8 @@ namespace vFrame.Bundler.Tests.EditMode
         }
 
         [Test]
-        public void Asset_Unload_ReleasesLoadTimeRetain() {
+        public void Asset_Unload_ReleasesLoadTimeRetain()
+        {
             var loader = new TestLoader();
             var asset = Create<Asset>(loader);
             Assert.That(loader.References, Is.EqualTo(1));
@@ -74,7 +79,8 @@ namespace vFrame.Bundler.Tests.EditMode
         }
 
         [Test]
-        public void Asset_UnloadTwice_OnSameHandle_DoesNotDoubleRelease() {
+        public void Asset_UnloadTwice_OnSameHandle_DoesNotDoubleRelease()
+        {
             var loader = new TestLoader();
             var asset = Create<Asset>(loader);
 
@@ -86,7 +92,8 @@ namespace vFrame.Bundler.Tests.EditMode
         }
 
         [Test]
-        public void AssetAsync_Load_RetainsAndUnload_Releases() {
+        public void AssetAsync_Load_RetainsAndUnload_Releases()
+        {
             var loader = new TestLoader();
             var handler = Create<AssetAsync>(loader);
             Assert.That(loader.References, Is.EqualTo(1),
@@ -97,7 +104,8 @@ namespace vFrame.Bundler.Tests.EditMode
         }
 
         [Test]
-        public void RetainedLoader_IsNotReclaimableBeforeUnload() {
+        public void RetainedLoader_IsNotReclaimableBeforeUnload()
+        {
             // CollectSystem.FilterNonReferenceLoader reclaims loaders where
             // IsDone && References <= 0. A loaded-but-not-unloaded handle keeps
             // References > 0, so the loader survives Collect (the R6 invariant).

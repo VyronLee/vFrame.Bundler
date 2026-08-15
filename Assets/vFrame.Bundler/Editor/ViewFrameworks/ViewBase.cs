@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: ViewBase.cs
-//        Brief: ViewBase.cs
+//        Brief: UI Toolkit view base: instantiates uxml and wires [ViewElement]-marked fields/properties to elements.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-2-1 16:55
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 #if UNITY_2019_1_OR_NEWER
 
@@ -27,24 +28,28 @@ namespace vFrame.Bundler
                                                   | BindingFlags.NonPublic
                                                   | BindingFlags.FlattenHierarchy;
 
-        protected ViewBase(string uxmlPath) {
+        protected ViewBase(string uxmlPath)
+        {
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
             Root = visualTree.Instantiate();
             Root.userData = this;
             BindElements();
         }
 
-        public T Add<T>(T view) where T: ViewBase {
+        public T Add<T>(T view) where T : ViewBase
+        {
             Root.Add(view.Root);
             return view;
         }
 
-        private void BindElements() {
+        private void BindElements()
+        {
             BindPropertiesElement();
             BindFieldsElement();
         }
 
-        private void BindPropertiesElement() {
+        private void BindPropertiesElement()
+        {
             var properties = GetType().GetProperties(ElementFlags);
             foreach (var propertyInfo in properties) {
                 var attribute = propertyInfo.GetCustomAttribute<ViewElementAttribute>();
@@ -57,7 +62,8 @@ namespace vFrame.Bundler
             }
         }
 
-        private void BindFieldsElement() {
+        private void BindFieldsElement()
+        {
             var fields = GetType().GetFields(ElementFlags);
             foreach (var fieldInfo in fields) {
                 var attribute = fieldInfo.GetCustomAttribute<ViewElementAttribute>();
@@ -70,7 +76,8 @@ namespace vFrame.Bundler
             }
         }
 
-        private bool QueryElement(string path, Type elementType, out VisualElement element) {
+        private bool QueryElement(string path, Type elementType, out VisualElement element)
+        {
             if (!typeof(VisualElement).IsAssignableFrom(elementType)) {
                 Debug.LogError("Invalid view element type: " + elementType);
                 element = null;
@@ -84,7 +91,8 @@ namespace vFrame.Bundler
             }
             return true;
 
-            bool MatchElementType(VisualElement x) {
+            bool MatchElementType(VisualElement x)
+            {
                 return elementType.IsInstanceOfType(x);
             }
         }
@@ -101,7 +109,8 @@ namespace vFrame.Bundler
 
         private T2 _viewData;
 
-        protected ViewBase(T1 contexts, string uxmlPath) : base(uxmlPath) {
+        protected ViewBase(T1 contexts, string uxmlPath) : base(uxmlPath)
+        {
 
         }
 

@@ -1,12 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 //         File: Asset.cs
-//        Brief: Asset.cs
+//        Brief: Sync asset handle structs (Asset/Asset<T>) holding a retained loader;
+//               Unload releases the ref; exposes GetRawAsset/Instantiate/SetTo.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-2 23:20
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -29,11 +31,13 @@ namespace vFrame.Bundler
         }
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
-        void ILoaderHandler.Update() {
+        void ILoaderHandler.Update()
+        {
 
         }
 
-        public UnloadOperation Unload() {
+        public UnloadOperation Unload()
+        {
             if (IsUnloaded) {
                 return UnloadOperation.Completed;
             }
@@ -48,31 +52,37 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public bool IsUnloaded { get; private set; }
 
-        public Object GetRawAsset() {
+        public Object GetRawAsset()
+        {
             return AssetHelper<Asset>.GetRawAsset(this);
         }
 
-        public Object[] GetAllRawAssets() {
+        public Object[] GetAllRawAssets()
+        {
             return AssetHelper<Asset>.GetAllRawAssets(this);
         }
 
-        public Object Instantiate(Transform parent = null, bool stayWorldPosition = false) {
+        public Object Instantiate(Transform parent = null, bool stayWorldPosition = false)
+        {
             return AssetHelper<Asset>.Instantiate(this, parent, stayWorldPosition);
         }
 
         public void SetTo<TComponent, TLink, TProxy>(TComponent target)
             where TComponent : Component
             where TLink : Object
-            where TProxy : PropertyLink<TComponent, TLink>, new() {
+            where TProxy : PropertyLink<TComponent, TLink>, new()
+        {
 
             AssetHelper<Asset>.SetTo<TComponent, TLink, TProxy>(this, target);
         }
 
-        public void Retain() {
+        public void Retain()
+        {
             AssetHelper<Asset>.GetAssetLoader(this).Retain();
         }
 
-        public void Release() {
+        public void Release()
+        {
             AssetHelper<Asset>.GetAssetLoader(this).Release();
         }
     }
@@ -93,11 +103,13 @@ namespace vFrame.Bundler
         }
         BundlerContexts ILoaderHandler.BundlerContexts { get; set; }
 
-        void ILoaderHandler.Update() {
+        void ILoaderHandler.Update()
+        {
 
         }
 
-        public UnloadOperation Unload() {
+        public UnloadOperation Unload()
+        {
             if (IsUnloaded) {
                 return UnloadOperation.Completed;
             }
@@ -112,30 +124,36 @@ namespace vFrame.Bundler
         [JsonSerializableProperty]
         public bool IsUnloaded { get; private set; }
 
-        public T GetRawAsset() {
+        public T GetRawAsset()
+        {
             return AssetHelper<Asset<T>>.GetRawAsset(this) as T;
         }
 
-        public T[] GetAllRawAssets() {
+        public T[] GetAllRawAssets()
+        {
             return AssetHelper<Asset<T>>.GetAllRawAssets(this) as T[];
         }
 
-        public T Instantiate(Transform parent = null, bool stayWorldPosition = false) {
+        public T Instantiate(Transform parent = null, bool stayWorldPosition = false)
+        {
             return AssetHelper<Asset<T>>.Instantiate(this, parent, stayWorldPosition) as T;
         }
 
         public void SetTo<TComponent, TProxy>(TComponent target)
             where TComponent : Component
-            where TProxy : PropertyLink<TComponent, T>, new() {
+            where TProxy : PropertyLink<TComponent, T>, new()
+        {
 
             AssetHelper<Asset<T>>.SetTo<TComponent, T, TProxy>(this, target);
         }
 
-        public void Retain() {
+        public void Retain()
+        {
             AssetHelper<Asset<T>>.GetAssetLoader(this).Retain();
         }
 
-        public void Release() {
+        public void Release()
+        {
             AssetHelper<Asset<T>>.GetAssetLoader(this).Release();
         }
     }

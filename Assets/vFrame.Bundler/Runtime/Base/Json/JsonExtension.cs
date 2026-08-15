@@ -1,12 +1,14 @@
 // ------------------------------------------------------------
 //         File: JsonExtension.cs
-//        Brief: JsonExtension.cs
+//        Brief: Extension methods for MiniJson: serialize annotated objects to JsonObject, parse
+//               lists/dictionaries, and read typed values with SafeGetValue.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-22 20:14
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 using System;
 using System.Collections;
@@ -16,25 +18,30 @@ using UnityEngine;
 
 namespace vFrame.Bundler
 {
-    public class NotJsonObjectException : System.Exception {
+    public class NotJsonObjectException : System.Exception
+    {
 
     }
 
-    public class NotJsonListException : System.Exception {
+    public class NotJsonListException : System.Exception
+    {
 
     }
 
     public static class JsonExtension
     {
-        public static string ToJsonString(this JsonObject serializable) {
+        public static string ToJsonString(this JsonObject serializable)
+        {
             return Json.Serialize(serializable);
         }
 
-        public static string ToJsonString(this object obj) {
+        public static string ToJsonString(this object obj)
+        {
             return Json.Serialize(obj);
         }
 
-        public static JsonObject ToJsonObject(this string jsonStr) {
+        public static JsonObject ToJsonObject(this string jsonStr)
+        {
             var json = Json.Deserialize(jsonStr);
             if (json is JsonObject jsonObject) {
                 return jsonObject;
@@ -42,7 +49,8 @@ namespace vFrame.Bundler
             throw new NotJsonObjectException();
         }
 
-        public static JsonList ToJsonList(this string jsonStr) {
+        public static JsonList ToJsonList(this string jsonStr)
+        {
             var json = Json.Deserialize(jsonStr);
             if (json is JsonList jsonList) {
                 return jsonList;
@@ -50,11 +58,13 @@ namespace vFrame.Bundler
             throw new NotJsonListException();
         }
 
-        public static string ToJsonString(this IJsonSerializable serializable) {
+        public static string ToJsonString(this IJsonSerializable serializable)
+        {
             return Json.Serialize(ToJsonData(serializable));
         }
 
-        public static JsonList ParseFromList(this IList list) {
+        public static JsonList ParseFromList(this IList list)
+        {
             var jsonList = new JsonList();
             foreach (var item in list) {
                 switch (item) {
@@ -69,7 +79,8 @@ namespace vFrame.Bundler
             return jsonList;
         }
 
-        public static JsonObject ParseFromDictionary(this IDictionary<string, object> dictionary) {
+        public static JsonObject ParseFromDictionary(this IDictionary<string, object> dictionary)
+        {
             var jsonObject = new JsonObject();
             foreach (var item in dictionary) {
                 switch (item.Value) {
@@ -84,7 +95,8 @@ namespace vFrame.Bundler
             return jsonObject;
         }
 
-        public static JsonObject ToJsonData(this IJsonSerializable serializable) {
+        public static JsonObject ToJsonData(this IJsonSerializable serializable)
+        {
             var serializableType = serializable.GetType();
             var properties = serializableType.GetInstanceProperties();
 
@@ -129,7 +141,8 @@ namespace vFrame.Bundler
             return jsonData;
         }
 
-        public static T SafeGetValue<T>(this JsonObject jsonData, string key, T defaultValue = default(T)) {
+        public static T SafeGetValue<T>(this JsonObject jsonData, string key, T defaultValue = default(T))
+        {
             if (jsonData.TryGetValue(key, out var value)) {
                 try {
                     // Number deserialize from MiniJson will only convert to long or double.
@@ -137,11 +150,11 @@ namespace vFrame.Bundler
                         case null:
                             return defaultValue;
                         case long longValue:
-                            return (T) Convert.ChangeType(longValue, typeof(T));
+                            return (T)Convert.ChangeType(longValue, typeof(T));
                         case double doubleValue:
-                            return (T) Convert.ChangeType(doubleValue, typeof(T));
+                            return (T)Convert.ChangeType(doubleValue, typeof(T));
                     }
-                    return (T) value;
+                    return (T)value;
                 }
                 catch (InvalidCastException) {
                     Debug.LogErrorFormat("Cannot convert value: {0} from type: {1} to type: {2}",

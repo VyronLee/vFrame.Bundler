@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: RPCMethods.cs
-//        Brief: RPCMethods.cs
+//        Brief: String constants for profiler JSON-RPC method names (PingPong, QueryLoadersInfo, etc.).
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
 //      Created: 2024-1-22 19:45
 //    Copyright: Copyright (c) 2024, VyronLee
 // ============================================================
+
 
 namespace vFrame.Bundler
 {
