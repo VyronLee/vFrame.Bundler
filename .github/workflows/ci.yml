@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  editmode-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 2022.3.62f3
+          testMode: EditMode
+          artifactsPath: artifacts/editmode
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: editmode-results
+          path: artifacts/editmode
+          if-no-files-found: warn
