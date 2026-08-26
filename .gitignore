@@ -164,3 +164,4 @@ sysinfo.txt
 # consumed by other projects via file: path, so its own lock is a local artifact)
 /Packages/packages-lock.json
 /TestResults/
+.codegraph/
