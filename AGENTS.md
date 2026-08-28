@@ -1,3 +1,6 @@
+# Repository Agent Guidance
+
+The workspace-level guidance in `../AGENTS.md` applies to this repository. Read its referenced rules when their trigger matches the task.
 # vFrame.Bundler
 
 Unity AssetBundle build pipeline and runtime loader with one API across `AssetDatabase`, `Resources`, and `AssetBundle` modes. Handles dependency analysis, packing, manifest generation, and automatic reference-counted collection.
@@ -81,4 +84,4 @@ Entry: `vFrame.Bundler.Editor.TestRunner.HeadlessTestRunner.RunAllEditMode`. Req
 Standalone. To load AssetBundles from VFS packages, use `vFrame.Bundler.VFSAdapter` (implements `IAssetBundleCreateAdapter`).
 
 ## Cross-Package Conventions
-See workspace-root `.claude/rules/gotchas.md` (Update-before-Collect, ref-counted wrappers).
+See workspace-root `../.agents/rules/gotchas.md` (Update-before-Collect, ref-counted wrappers).
