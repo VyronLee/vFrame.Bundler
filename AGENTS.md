@@ -84,4 +84,4 @@ Entry: `vFrame.Bundler.Editor.TestRunner.HeadlessTestRunner.RunAllEditMode`. Req
 Standalone. To load AssetBundles from VFS packages, use `vFrame.Bundler.VFSAdapter` (implements `IAssetBundleCreateAdapter`).
 
 ## Cross-Package Conventions
-See workspace-root `../.agents/rules/gotchas.md` (Update-before-Collect, ref-counted wrappers).
+See workspace-root `../.pi/rules/gotchas.md` (Update-before-Collect, ref-counted wrappers).
