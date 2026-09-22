@@ -1,11 +1,11 @@
 // ------------------------------------------------------------
 //         File: LinkListItem.cs
-//        Brief: Profiler list row showing a link's type, create frame, target and owning loader's asset path.
+//        Brief: Profiler list item rendering a link's type name, creation frame, target, and loader's asset path.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-2-5 17:57
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 04:12:53
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -13,8 +13,12 @@
 
 using UnityEngine.UIElements;
 
-namespace vFrame.Bundler
+namespace vFrame.Bundler.Editor
 {
+    /// <summary>
+    ///     Profiler list item that renders one link entry with its type name, creation frame,
+    ///     target, and owning loader's asset path.
+    /// </summary>
     internal class LinkListItem : ProfilerViewBase<JsonObject>
     {
         [ViewElement("LabelCreateFrame")]
@@ -29,11 +33,19 @@ namespace vFrame.Bundler
         [ViewElement("LabelLoader")]
         private readonly Label _labelLoader;
 
+        /// <summary>
+        ///     Creates the list item view from the <c>Pages/Links/LinkListItem.uxml</c> template.
+        /// </summary>
+        /// <param name="contexts">Shared profiler contexts consumed by the view base.</param>
         public LinkListItem(ProfilerContexts contexts) : base(contexts, "Pages/Links/LinkListItem.uxml")
         {
 
         }
 
+        /// <summary>
+        ///     Binds the label texts from the current <see cref="ViewData" />, reading the link's
+        ///     type name, creation frame, target, and owning loader's asset path.
+        /// </summary>
         protected override void OnViewDataChanged()
         {
             var typeName = ViewData.SafeGetValue<string>("@TypeName");

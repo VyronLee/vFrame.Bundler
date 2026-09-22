@@ -1,12 +1,12 @@
 // ------------------------------------------------------------
 //         File: SimpleJsonRpcClient.cs
-//        Brief: HttpWebRequest-based JSON-RPC client: async POST, responses queued and dispatched to
-//               callbacks on Update from the main thread.
+//        Brief: HttpWebRequest-based JSON-RPC client: sends POST requests asynchronously and queues responses
+//               for dispatch to their callbacks on Update, from the main thread.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-1-22 21:35
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 04:50:48
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -18,12 +18,23 @@ using UnityEngine;
 
 namespace vFrame.Bundler
 {
+    /// <summary>
+    ///     JSON-RPC client that sends requests asynchronously over HTTP and delivers responses to their
+    ///     callbacks on the main thread when <see cref="Update"/> runs.
+    /// </summary>
     internal class SimpleJsonRpcClient : JsonRpcClient
     {
         private readonly string _address;
         private readonly ILogger _logger;
+
+        /// <summary>Completed requests waiting to be dispatched on the main thread.</summary>
         private readonly ConcurrentQueue<RequestContext> _works;
 
+        /// <summary>
+        ///     Create a client targeting the specified JSON-RPC endpoint.
+        /// </summary>
+        /// <param name="address">HTTP endpoint accepting JSON-RPC POST requests.</param>
+        /// <param name="logger">Logger for diagnostics; may be null to disable logging.</param>
         public SimpleJsonRpcClient(string address, ILogger logger)
         {
             _address = address;
@@ -31,6 +42,9 @@ namespace vFrame.Bundler
             _works = new ConcurrentQueue<RequestContext>();
         }
 
+        /// <summary>
+        ///     Dispatch all responses completed since the last call, invoking each request callback on the main thread.
+        /// </summary>
         public override void Update()
         {
             while (_works.TryDequeue(out var state)) {
@@ -41,6 +55,12 @@ namespace vFrame.Bundler
             }
         }
 
+        /// <summary>
+        ///     Send a request to the endpoint asynchronously via HTTP POST.
+        /// </summary>
+        /// <param name="method">Name of the remote method to invoke.</param>
+        /// <param name="args">Arguments passed to the remote method.</param>
+        /// <param name="callback">Invoked with the response on the main thread during <see cref="Update"/>.</param>
         public override void SendRequest(string method, JsonObject args, Action<RespondContext> callback)
         {
             var requestData = new JsonObject {
@@ -60,6 +80,11 @@ namespace vFrame.Bundler
             request.BeginGetRequestStream(OnGetRequestStream, state);
         }
 
+        /// <summary>
+        ///     Asynchronous callback for the request stream: writes the serialized request body and
+        ///     starts waiting for the response.
+        /// </summary>
+        /// <param name="state">The <see cref="RequestContext"/> passed to <see cref="WebRequest.BeginGetRequestStream"/>.</param>
         private void OnGetRequestStream(IAsyncResult state)
         {
             try {
@@ -76,6 +101,11 @@ namespace vFrame.Bundler
             }
         }
 
+        /// <summary>
+        ///     Asynchronous callback for the response: deserializes the JSON payload and enqueues the
+        ///     context for dispatch on the main thread.
+        /// </summary>
+        /// <param name="state">The <see cref="RequestContext"/> passed to <see cref="WebRequest.BeginGetResponse"/>.</param>
         private void OnGetResponseStream(IAsyncResult state)
         {
             try {
@@ -107,6 +137,9 @@ namespace vFrame.Bundler
             }
         }
 
+        /// <summary>
+        ///     State carried across the asynchronous HTTP request/response callbacks.
+        /// </summary>
         private class RequestContext
         {
             public HttpWebRequest Request { get; set; }

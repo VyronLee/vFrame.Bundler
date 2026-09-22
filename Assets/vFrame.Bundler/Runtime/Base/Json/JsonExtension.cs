@@ -1,12 +1,13 @@
 // ------------------------------------------------------------
 //         File: JsonExtension.cs
-//        Brief: Extension methods for MiniJson: serialize annotated objects to JsonObject, parse
-//               lists/dictionaries, and read typed values with SafeGetValue.
+//        Brief: Extension methods over MiniJson: serialize objects (including IJsonSerializable types
+//               and their annotated properties) to strings or JsonObject, parse JSON strings into
+//               JsonObject/JsonList, and read typed values with a safe default fallback.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-1-22 20:14
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 04:33:53
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -18,28 +19,54 @@ using UnityEngine;
 
 namespace vFrame.Bundler
 {
+    /// <summary>
+    /// Thrown when a JSON string is expected to contain a JSON object but deserializes to another JSON type.
+    /// </summary>
     public class NotJsonObjectException : System.Exception
     {
 
     }
 
+    /// <summary>
+    /// Thrown when a JSON string is expected to contain a JSON list but deserializes to another JSON type.
+    /// </summary>
     public class NotJsonListException : System.Exception
     {
 
     }
 
+    /// <summary>
+    /// Extension methods over MiniJson for serializing objects, parsing JSON strings,
+    /// and reading typed values with a safe default fallback.
+    /// </summary>
     public static class JsonExtension
     {
+        /// <summary>
+        /// Serializes a JSON object into its JSON string representation.
+        /// </summary>
+        /// <param name="serializable">The JSON object to serialize.</param>
+        /// <returns>The JSON string representation of <paramref name="serializable"/>.</returns>
         public static string ToJsonString(this JsonObject serializable)
         {
             return Json.Serialize(serializable);
         }
 
+        /// <summary>
+        /// Serializes an arbitrary object into its JSON string representation.
+        /// </summary>
+        /// <param name="obj">The object to serialize.</param>
+        /// <returns>The JSON string representation of <paramref name="obj"/>.</returns>
         public static string ToJsonString(this object obj)
         {
             return Json.Serialize(obj);
         }
 
+        /// <summary>
+        /// Deserializes a JSON string and returns it as a JSON object.
+        /// </summary>
+        /// <param name="jsonStr">The JSON string to parse.</param>
+        /// <returns>The parsed <see cref="JsonObject"/>.</returns>
+        /// <exception cref="NotJsonObjectException">The string does not represent a JSON object.</exception>
         public static JsonObject ToJsonObject(this string jsonStr)
         {
             var json = Json.Deserialize(jsonStr);
@@ -49,6 +76,12 @@ namespace vFrame.Bundler
             throw new NotJsonObjectException();
         }
 
+        /// <summary>
+        /// Deserializes a JSON string and returns it as a JSON list.
+        /// </summary>
+        /// <param name="jsonStr">The JSON string to parse.</param>
+        /// <returns>The parsed <see cref="JsonList"/>.</returns>
+        /// <exception cref="NotJsonListException">The string does not represent a JSON list.</exception>
         public static JsonList ToJsonList(this string jsonStr)
         {
             var json = Json.Deserialize(jsonStr);
@@ -58,11 +91,22 @@ namespace vFrame.Bundler
             throw new NotJsonListException();
         }
 
+        /// <summary>
+        /// Converts a serializable object to JSON data and serializes it into a JSON string.
+        /// </summary>
+        /// <param name="serializable">The object to convert and serialize.</param>
+        /// <returns>The JSON string representation of <paramref name="serializable"/>.</returns>
         public static string ToJsonString(this IJsonSerializable serializable)
         {
             return Json.Serialize(ToJsonData(serializable));
         }
 
+        /// <summary>
+        /// Converts a list into a JSON list, recursively converting
+        /// <see cref="IJsonSerializable"/> items into JSON objects.
+        /// </summary>
+        /// <param name="list">The list to convert.</param>
+        /// <returns>The converted <see cref="JsonList"/>.</returns>
         public static JsonList ParseFromList(this IList list)
         {
             var jsonList = new JsonList();
@@ -79,6 +123,12 @@ namespace vFrame.Bundler
             return jsonList;
         }
 
+        /// <summary>
+        /// Converts a dictionary into a JSON object, recursively converting
+        /// <see cref="IJsonSerializable"/> values into JSON objects.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to convert.</param>
+        /// <returns>The converted <see cref="JsonObject"/>.</returns>
         public static JsonObject ParseFromDictionary(this IDictionary<string, object> dictionary)
         {
             var jsonObject = new JsonObject();
@@ -95,6 +145,13 @@ namespace vFrame.Bundler
             return jsonObject;
         }
 
+        /// <summary>
+        /// Converts a serializable object into a JSON object containing its
+        /// <see cref="JsonSerializableProperty"/>-annotated instance properties, plus a
+        /// "@TypeName" entry recording the concrete type name.
+        /// </summary>
+        /// <param name="serializable">The object to convert.</param>
+        /// <returns>The converted <see cref="JsonObject"/>.</returns>
         public static JsonObject ToJsonData(this IJsonSerializable serializable)
         {
             var serializableType = serializable.GetType();
@@ -141,6 +198,16 @@ namespace vFrame.Bundler
             return jsonData;
         }
 
+        /// <summary>
+        /// Reads the value under <paramref name="key"/> and converts it to <typeparamref name="T"/>,
+        /// returning <paramref name="defaultValue"/> when the key is missing, the value is null,
+        /// or the conversion fails (the failure is logged, not thrown).
+        /// </summary>
+        /// <typeparam name="T">The target type of the value.</typeparam>
+        /// <param name="jsonData">The JSON object to read from.</param>
+        /// <param name="key">The key of the value to read.</param>
+        /// <param name="defaultValue">The value returned when the read or conversion fails.</param>
+        /// <returns>The converted value, or <paramref name="defaultValue"/>.</returns>
         public static T SafeGetValue<T>(this JsonObject jsonData, string key, T defaultValue = default(T))
         {
             if (jsonData.TryGetValue(key, out var value)) {

@@ -1,12 +1,12 @@
 // ------------------------------------------------------------
 //         File: BuildAssetBundleTask.cs
-//        Brief: Build step 5: converts BundleInfos to AssetBundleBuilds and invokes Unity
-//               BuildPipeline.BuildAssetBundles (honoring DryRun).
+//        Brief: Pipeline step 5: converts BundleInfos into AssetBundleBuild entries and invokes
+//               Unity BuildPipeline.BuildAssetBundles, honoring the DryRun build option.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2023-12-25 22:42
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 03:43:48
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -15,10 +15,19 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 
-namespace vFrame.Bundler.Task.Formal
+namespace vFrame.Bundler.Editor
 {
+    /// <summary>
+    ///     Build pipeline task that writes AssetBundle files to the output directory
+    ///     using Unity's build pipeline, and stores the resulting manifest in the context.
+    /// </summary>
     internal class BuildAssetBundleTask : BuildTaskBase
     {
+        /// <summary>
+        ///     Converts collected bundle infos into Unity build entries and runs
+        ///     <see cref="BuildPipeline.BuildAssetBundles" /> for the configured target.
+        /// </summary>
+        /// <param name="context">Build context carrying settings, bundle infos, and the output manifest.</param>
         public override void Run(BuildContext context)
         {
             var outputPath = context.BuildSettings.BundlePath;
@@ -36,6 +45,11 @@ namespace vFrame.Bundler.Task.Formal
             context.AssetBundleManifest = BuildPipeline.BuildAssetBundles(outputPath, builds, options, buildTarget);
         }
 
+        /// <summary>
+        ///     Maps one bundle info to Unity's <see cref="AssetBundleBuild" /> descriptor.
+        /// </summary>
+        /// <param name="kv">Key/value pair of bundle name and its analyzed info.</param>
+        /// <returns>Build descriptor with the bundle file name and its asset list.</returns>
         private AssetBundleBuild BundleInfoToBundleBuild(KeyValuePair<string, BundleInfo> kv)
         {
             var bundleInfo = kv.Value;

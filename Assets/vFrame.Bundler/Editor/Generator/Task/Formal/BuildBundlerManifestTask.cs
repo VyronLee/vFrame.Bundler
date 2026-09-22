@@ -1,12 +1,12 @@
 // ------------------------------------------------------------
 //         File: BuildBundlerManifestTask.cs
-//        Brief: Build step 7: assembles the BundlerManifest (asset-to-bundle map + bundle
-//               dependencies) from build results and writes it to disk as JSON.
+//        Brief: Formal build step 7: populates the bundler manifest from build context results and
+//               writes it to disk as JSON.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2023-12-25 22:42
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 03:43:52
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -15,10 +15,19 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace vFrame.Bundler.Task.Formal
+namespace vFrame.Bundler.Editor
 {
+    /// <summary>
+    ///     Formal build task (step 7): populates the bundler manifest from build results and writes it to
+    ///     disk as JSON, storing the result in <see cref="BuildContext.BundlerManifest" />.
+    /// </summary>
     internal class BuildBundlerManifestTask : BuildTaskBase
     {
+        /// <summary>
+        ///     Builds the manifest: grants asset-to-bundle mappings and bundle dependency sets from the
+        ///     build context, writes the JSON manifest to disk, and stores it in the context.
+        /// </summary>
+        /// <param name="context">Build context supplying build results and receiving the manifest.</param>
         public override void Run(BuildContext context)
         {
             var manifest = new BundlerManifest();
@@ -28,6 +37,11 @@ namespace vFrame.Bundler.Task.Formal
             context.BundlerManifest = manifest;
         }
 
+        /// <summary>
+        ///     Maps each main asset path to its owning bundle path in the manifest, with a progress bar.
+        /// </summary>
+        /// <param name="context">Build context supplying the analyzed main-asset infos.</param>
+        /// <param name="manifest">Manifest whose asset map is populated.</param>
         private void GrantAssetInfos(BuildContext context, BundlerManifest manifest)
         {
             var index = 0f;
@@ -45,6 +59,11 @@ namespace vFrame.Bundler.Task.Formal
             }
         }
 
+        /// <summary>
+        ///     Maps each built bundle to its dependency set in the manifest, with a progress bar.
+        /// </summary>
+        /// <param name="context">Build context supplying bundle infos and the AssetBundle dependency manifest.</param>
+        /// <param name="manifest">Manifest whose bundle dependency map is populated.</param>
         private void GrantAssetBundleInfos(BuildContext context, BundlerManifest manifest)
         {
             var index = 0f;
@@ -65,6 +84,12 @@ namespace vFrame.Bundler.Task.Formal
             }
         }
 
+        /// <summary>
+        ///     Serializes the manifest to JSON and writes it into the bundle output directory under the
+        ///     configured manifest file name, creating the directory if missing.
+        /// </summary>
+        /// <param name="context">Build context supplying bundle output path and manifest file name.</param>
+        /// <param name="manifest">Manifest to serialize.</param>
         private void WriteToDisk(BuildContext context, BundlerManifest manifest)
         {
             var jsonData = JsonUtility.ToJson(manifest);

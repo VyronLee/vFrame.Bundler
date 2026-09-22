@@ -1,11 +1,11 @@
 // ------------------------------------------------------------
 //         File: TabbedPanel.cs
-//        Brief: Minimal BindableElement subclass with UxmlFactory so TabbedPanel can be placed directly in uxml.
+//        Brief: BindableElement tab page container with a UxmlFactory for direct placement in UXML layouts.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-1-29 17:48
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 04:25:29
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -13,10 +13,15 @@
 
 using UnityEngine.UIElements;
 
-namespace vFrame.Bundler
+namespace vFrame.Bundler.Editor
 {
+    /// <summary>
+    ///     Minimal bindable element that serves as a tab page container; instances are managed by
+    ///     <see cref="TabbedPanelGroup" /> and placed directly in UXML layouts.
+    /// </summary>
     internal class TabbedPanel : BindableElement
     {
+        /// <summary>UXML factory enabling <see cref="TabbedPanel" /> instantiation from UXML documents.</summary>
         public new class UxmlFactory : UxmlFactory<TabbedPanel, UxmlTraits> { }
     }
 }

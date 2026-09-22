@@ -1,23 +1,32 @@
 // ------------------------------------------------------------
 //         File: AnalyzeMainAssetsTask.cs
-//        Brief: Simulation-mode step 1: applies MainRules via the Simulation PackType-matched
-//               analyzers to collect main assets.
+//        Brief: Simulation build step 1: applies each MainRules entry by dispatching to the PackType-matched
+//               simulation main-asset analyzer to collect directly-loaded main assets.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2023-12-25 22:40
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 06:22:15
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
 using System;
-using vFrame.Bundler.Helper;
-using vFrame.Bundler.Task.Simulation.MainAssetAnalyzers;
 
-namespace vFrame.Bundler.Task.Simulation
+namespace vFrame.Bundler.Editor
 {
-    internal class AnalyzeMainAssetsTask : BuildTaskBase
+    /// <summary>
+    ///     Simulation build step 1. Applies each main-asset rule (<see cref="BundleBuildRules.MainRules" />) by
+    ///     dispatching to the PackType-matched simulation main-asset analyzer to collect directly-loaded main assets.
+    /// </summary>
+    internal class SimulationAnalyzeMainAssetsTask : BuildTaskBase
     {
+        /// <inheritdoc cref="BuildTaskBase.Run" />
+        /// <exception cref="BundleArgumentException">
+        ///     Thrown if <paramref name="context" />.BuildRules or its MainRules list is null, or a rule's PackType is
+        ///     null or empty.
+        /// </exception>
+        /// <exception cref="ArgumentException">Thrown if a rule's PackType is not a valid <see cref="PackType" /> name.</exception>
+        /// <exception cref="BundleUnsupportedEnumException">Thrown if a rule's PackType is not a supported value.</exception>
         public override void Run(BuildContext context)
         {
             ThrowHelper.ThrowIfNull(context.BuildRules,
@@ -33,16 +42,16 @@ namespace vFrame.Bundler.Task.Simulation
                 var packType = Enum.Parse(typeof(PackType), rule.PackType);
                 switch (packType) {
                     case PackType.PackBySingleFile:
-                        analyzer = new AnalyzePackBySingleFileRule();
+                        analyzer = new SimulationAnalyzePackBySingleFileRule();
                         break;
                     case PackType.PackByAllFiles:
-                        analyzer = new AnalyzePackByAllFilesRule();
+                        analyzer = new SimulationAnalyzePackByAllFilesRule();
                         break;
                     case PackType.PackByTopDirectory:
-                        analyzer = new AnalyzePackByTopDirectoryRule();
+                        analyzer = new SimulationAnalyzePackByTopDirectoryRule();
                         break;
                     case PackType.PackByAllDirectories:
-                        analyzer = new AnalyzePackByAllDirectoriesRule();
+                        analyzer = new SimulationAnalyzePackByAllDirectoriesRule();
                         break;
                     default:
                         ThrowHelper.ThrowUnsupportedEnum(packType);

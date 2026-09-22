@@ -1,12 +1,12 @@
 // ------------------------------------------------------------
 //         File: InternalAssetBundleCreateAdapter.cs
-//        Brief: Default IAssetBundleCreateAdapter: resolves bundle files across ordered
-//               SearchPaths and loads them via AssetBundle.LoadFromFile(Async).
+//        Brief: Default IAssetBundleCreateAdapter: resolves bundle files against ordered SearchPaths
+//               and loads them synchronously or asynchronously via AssetBundle.LoadFromFile(Async).
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-1-3 16:2
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 05:29:26
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -16,18 +16,38 @@ using UnityEngine.Profiling;
 
 namespace vFrame.Bundler
 {
+    /// <summary>
+    /// Default <see cref="IAssetBundleCreateAdapter"/> implementation.
+    /// Resolves a bundle-relative path against the configured search paths in order and
+    /// loads the first match via <see cref="AssetBundle.LoadFromFile(string)"/> (or its async variant).
+    /// </summary>
     internal class InternalAssetBundleCreateAdapter : BundlerObject, IAssetBundleCreateAdapter
     {
+        /// <summary>
+        /// Initializes a new instance bound to the given bundler contexts.
+        /// </summary>
+        /// <param name="bundlerContexts">Owning bundler contexts providing options and facade access.</param>
         public InternalAssetBundleCreateAdapter(BundlerContexts bundlerContexts) : base(bundlerContexts)
         {
 
         }
 
+        /// <summary>
+        /// Called when the adapter is destroyed. No managed resources need explicit release.
+        /// </summary>
         protected override void OnDestroy()
         {
 
         }
 
+        /// <summary>
+        /// Creates an asynchronous load request for the bundle file resolved from the search paths.
+        /// </summary>
+        /// <param name="bundlePath">Bundle-relative path of the AssetBundle file.</param>
+        /// <returns>
+        /// A pending <see cref="AssetBundleCreateRequest"/> for the first candidate that yields a request,
+        /// or null if every candidate is missing or fails to produce a load request.
+        /// </returns>
         public AssetBundleCreateRequest CreateRequest(string bundlePath)
         {
             Facade.GetSystem<LogSystem>().LogDebug("Create AssetBundleCreateRequest: {0}", bundlePath);
@@ -52,6 +72,14 @@ namespace vFrame.Bundler
             return null;
         }
 
+        /// <summary>
+        /// Loads the bundle file resolved from the search paths synchronously.
+        /// </summary>
+        /// <param name="bundlePath">Bundle-relative path of the AssetBundle file.</param>
+        /// <returns>
+        /// The loaded <see cref="AssetBundle"/> from the first candidate that succeeds,
+        /// or null if every candidate is missing or fails to load.
+        /// </returns>
         public AssetBundle CreateAssetBundle(string bundlePath)
         {
             Facade.GetSystem<LogSystem>().LogDebug("Load AssetBundle: {0}", bundlePath);

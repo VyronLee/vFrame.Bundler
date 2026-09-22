@@ -1,12 +1,12 @@
 // ------------------------------------------------------------
 //         File: AssemblyInfo.cs
-//        Brief: Exposes internal reference-counting types to the
-//               EditMode test assembly so the Destroy-cascade
-//               underflow guard (R5) can be exercised directly.
+//        Brief: Grants the EditMode test assembly visibility into
+//               internal types so ref-counting and Destroy-cascade
+//               guards can be tested directly.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2026-08-09 00:00:00
+//     Modified: 2026-09-22 04:29:44
 //    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 

@@ -1,11 +1,11 @@
 // ------------------------------------------------------------
 //         File: LoaderListItem.cs
-//        Brief: Profiler list row showing a loader's type, path, ref count, progress, elapsed time and task state.
+//        Brief: Profiler list row showing one loader's type, path, ref count, progress, elapsed time and task state.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-1-18 18:43
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 04:12:58
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -13,8 +13,12 @@
 
 using UnityEngine.UIElements;
 
-namespace vFrame.Bundler
+namespace vFrame.Bundler.Editor
 {
+    /// <summary>
+    ///     Profiler list row visualizing a single asset loader: its type, creation frame, best-available path,
+    ///     reference count, load progress, elapsed time, and task state.
+    /// </summary>
     internal class LoaderListItem : ProfilerViewBase<JsonObject>
     {
         [ViewElement("LabelCreateFrame")]
@@ -38,11 +42,20 @@ namespace vFrame.Bundler
         [ViewElement("LabelStatus")]
         private readonly Label _labelStatus;
 
+        /// <summary>
+        ///     Initializes the row by loading its UXML layout and binding the labels to view elements.
+        /// </summary>
+        /// <param name="contexts">Shared profiler contexts used by the underlying view.</param>
         public LoaderListItem(ProfilerContexts contexts) : base(contexts, "Pages/Loaders/LoaderListItem.uxml")
         {
 
         }
 
+        /// <summary>
+        ///     Refreshes the row labels when new view data is bound, showing the loader's type, creation frame,
+        ///     path (main bundle, then bundle, then asset path, then GUID), progress, elapsed time, task state,
+        ///     and reference count.
+        /// </summary>
         protected override void OnViewDataChanged()
         {
             var typeName = ViewData.SafeGetValue<string>("@TypeName");

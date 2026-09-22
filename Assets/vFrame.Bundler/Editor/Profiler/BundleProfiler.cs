@@ -1,11 +1,11 @@
 // ------------------------------------------------------------
 //         File: BundleProfiler.cs
-//        Brief: EditorWindow profiler: polls a running Bundler over JSON-RPC and shows loaders/pipelines/handlers/links tabs.
+//        Brief: Editor window that profiles a running Bundler via JSON-RPC: loader, pipeline, handler and link tabs.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-1-25 21:32
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 04:07:50
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -18,8 +18,12 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
 
-namespace vFrame.Bundler
+namespace vFrame.Bundler.Editor
 {
+    /// <summary>
+    /// Editor window that polls a running Bundler's JSON-RPC profiler endpoint and renders the
+    /// loaders, pipelines, handlers and links data in tabbed list views.
+    /// </summary>
     public class BundleProfiler : EditorWindow
     {
         private TextField _clientAddress;
@@ -31,24 +35,38 @@ namespace vFrame.Bundler
         private ListView _links;
         private TabbedPanelGroup _tabbedPanelGroup;
 
+        /// <summary>JSON-RPC connection to the profiled Bundler; created when polling starts.</summary>
         private JsonRpcClient _rpcClient;
+        /// <summary>True while the profiler is polling the remote endpoint.</summary>
         private bool _isStarted;
+        /// <summary>Measures the time since the last refresh to throttle requests.</summary>
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
         private readonly ProfilerLogger _logger = new ProfilerLogger(LogLevel.Debug);
+        /// <summary>Shared per-view state passed to the list item views.</summary>
         private readonly ProfilerContexts _contexts = new ProfilerContexts();
 
+        /// <summary>Minimum seconds between consecutive profile data requests.</summary>
         private const float RefreshFrequency = 1f;
 
+        /// <summary>UXML name of the loaders tab button.</summary>
         private const string TabButtonLoadersName = "ButtonLoaders";
+        /// <summary>UXML name of the pipelines tab button.</summary>
         private const string TabButtonPipelinesName = "ButtonPipelines";
+        /// <summary>UXML name of the handlers tab button.</summary>
         private const string TabButtonHandlersName = "ButtonHandlers";
+        /// <summary>UXML name of the links tab button.</summary>
         private const string TabButtonLinksName = "ButtonLinks";
 
+        /// <summary>UXML name of the loaders list page.</summary>
         private const string LoaderListPageName = "LoaderListPage";
+        /// <summary>UXML name of the pipelines list page.</summary>
         private const string PipelineListPageName = "PipelineListPage";
+        /// <summary>UXML name of the handlers list page.</summary>
         private const string HandlerListPageName = "HandlerListPage";
+        /// <summary>UXML name of the links list page.</summary>
         private const string LinkListPageName = "LinkListPage";
 
+        /// <summary>Maps each tab button's UXML name to the UXML name of its list page.</summary>
         private static readonly Dictionary<string, string> _tabNameMapping = new Dictionary<string, string> {
             {TabButtonLoadersName, LoaderListPageName},
             {TabButtonPipelinesName, PipelineListPageName},
@@ -56,9 +74,12 @@ namespace vFrame.Bundler
             {TabButtonLinksName, LinkListPageName}
         };
 
+        /// <summary>Root of the instantiated UXML visual tree.</summary>
         private VisualElement _tree;
+        /// <summary>UXML page name of the currently selected tab.</summary>
         private string _selectedPage;
 
+        /// <summary>Menu entry that opens and sizes the profiler window.</summary>
         [MenuItem("Tools/vFrame/Bundler/Profiler")]
         public static void ShowWindow()
         {
@@ -67,6 +88,7 @@ namespace vFrame.Bundler
             wnd.minSize = new Vector2(1280, 720);
         }
 
+        /// <summary>Unity callback; instantiates the UXML layout and builds the toolbar, list pages and tab group.</summary>
         public void CreateGUI()
         {
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
@@ -82,6 +104,7 @@ namespace vFrame.Bundler
             CreateTabbedPanelGroup();
         }
 
+        /// <summary>Binds the address field and start/clear buttons to their UXML elements and click handlers.</summary>
         private void CreateToolbar()
         {
             _clientAddress = _tree.Q<TextField>("TextFieldClientAddress");
@@ -91,6 +114,7 @@ namespace vFrame.Bundler
             _buttonClear.RegisterCallback<ClickEvent>(OnButtonClearClicked);
         }
 
+        /// <summary>Builds the tab group that switches between the four list pages.</summary>
         private void CreateTabbedPanelGroup()
         {
             var pageButtons = _tree.Q<VisualElement>("PageButtonGroup");
@@ -103,6 +127,7 @@ namespace vFrame.Bundler
             _tabbedPanelGroup.SelectTab(TabButtonLoadersName);
         }
 
+        /// <summary>Binds the loaders list to loader JSON rows rendered by <see cref="LoaderListItem"/>.</summary>
         private void CreateLoaderListPage()
         {
             _loaders = _tree.Q<ListView>("ListViewLoaders");
@@ -116,6 +141,7 @@ namespace vFrame.Bundler
             };
         }
 
+        /// <summary>Binds the pipelines list to pipeline JSON rows rendered by <see cref="PipelineListItem"/>.</summary>
         private void CreatePipelineListPage()
         {
             _pipelines = _tree.Q<ListView>("ListViewPipelines");
@@ -135,6 +161,7 @@ namespace vFrame.Bundler
             };
         }
 
+        /// <summary>Binds the handlers list to handler JSON rows rendered by <see cref="HandlerListItem"/>.</summary>
         private void CreateHandlerListPage()
         {
             _handlers = _tree.Q<ListView>("ListViewHandlers");
@@ -148,6 +175,7 @@ namespace vFrame.Bundler
             };
         }
 
+        /// <summary>Binds the links list to link JSON rows rendered by <see cref="LinkListItem"/>.</summary>
         private void CreateLinkListPage()
         {
             _links = _tree.Q<ListView>("ListViewLinks");
@@ -161,11 +189,15 @@ namespace vFrame.Bundler
             };
         }
 
+        /// <summary>Tab group callback that records the selected page for requests and clearing.</summary>
+        /// <param name="pageName">UXML page name of the newly selected tab.</param>
         private void OnSelectedPageChanged(string pageName)
         {
             _selectedPage = pageName;
         }
 
+        /// <summary>Toggles polling on or off depending on the current state.</summary>
+        /// <param name="evt">Click event raised by the start/stop button.</param>
         private void OnButtonStartClicked(ClickEvent evt)
         {
             if (_isStarted) {
@@ -176,6 +208,8 @@ namespace vFrame.Bundler
             }
         }
 
+        /// <summary>Clears the item source of the currently selected list page.</summary>
+        /// <param name="evt">Click event raised by the clear button.</param>
         private void OnButtonClearClicked(ClickEvent evt)
         {
             switch (_selectedPage) {
@@ -201,6 +235,7 @@ namespace vFrame.Bundler
             }
         }
 
+        /// <summary>Stops polling and re-enables the address field.</summary>
         private void StopProfiler()
         {
             _isStarted = false;
@@ -209,6 +244,7 @@ namespace vFrame.Bundler
             _stopwatch.Stop();
         }
 
+        /// <summary>Validates the address, creates the RPC client and starts polling.</summary>
         private void StartProfiler()
         {
             var address = _clientAddress.text;
@@ -223,17 +259,20 @@ namespace vFrame.Bundler
             _stopwatch.Restart();
         }
 
+        /// <summary>Unity callback; stops polling when the window is closed.</summary>
         public void OnDestroy()
         {
             StopProfiler();
         }
 
+        /// <summary>Unity callback; pumps the RPC client and issues periodic refresh requests.</summary>
         private void Update()
         {
             UpdateRPCClient();
             RequestProfileData();
         }
 
+        /// <summary>Pumps the RPC client while polling is active.</summary>
         private void UpdateRPCClient()
         {
             if (!_isStarted) {
@@ -242,6 +281,7 @@ namespace vFrame.Bundler
             _rpcClient?.Update();
         }
 
+        /// <summary>Sends the query for the selected page at most once per refresh interval.</summary>
         private void RequestProfileData()
         {
             if (!_isStarted || IsRefreshmentCooling()) {
@@ -268,11 +308,15 @@ namespace vFrame.Bundler
             }
         }
 
+        /// <summary>Checks whether another refresh request should be throttled.</summary>
+        /// <returns>True while the stopwatch is stopped or the refresh interval has not elapsed.</returns>
         private bool IsRefreshmentCooling()
         {
             return !_stopwatch.IsRunning || _stopwatch.Elapsed.TotalSeconds < RefreshFrequency;
         }
 
+        /// <summary>Applies a loaders query response to its list; silently ignores errors or missing data.</summary>
+        /// <param name="respond">Response received from the profiled Bundler.</param>
         private void OnQueryLoadersInfoCallback(RespondContext respond)
         {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {
@@ -286,6 +330,8 @@ namespace vFrame.Bundler
             _loaders.RefreshItems();
         }
 
+        /// <summary>Applies a pipelines query response to its list; silently ignores errors or missing data.</summary>
+        /// <param name="respond">Response received from the profiled Bundler.</param>
         private void OnQueryPipelinesInfoCallback(RespondContext respond)
         {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {
@@ -300,6 +346,8 @@ namespace vFrame.Bundler
             _pipelines.RefreshItems();
         }
 
+        /// <summary>Applies a handlers query response to its list; silently ignores errors or missing data.</summary>
+        /// <param name="respond">Response received from the profiled Bundler.</param>
         private void OnQueryHandlersInfoCallback(RespondContext respond)
         {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {
@@ -315,6 +363,8 @@ namespace vFrame.Bundler
             _handlers.RefreshItems();
         }
 
+        /// <summary>Applies a links query response to its list; silently ignores errors or missing data.</summary>
+        /// <param name="respond">Response received from the profiled Bundler.</param>
         private void OnQueryLinksInfoCallback(RespondContext respond)
         {
             if (respond.ErrorCode != JsonRpcErrorCode.Success) {

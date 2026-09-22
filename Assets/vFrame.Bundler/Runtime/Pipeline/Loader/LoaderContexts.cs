@@ -1,11 +1,11 @@
 // ------------------------------------------------------------
 //         File: LoaderContexts.cs
-//        Brief: Parameter struct passed to loader constructors: asset path/type/load mode, scene mode, parent loader.
+//        Brief: Immutable parameter bundle passed to loader constructors describing the asset request.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-1-3 20:8
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 05:50:24
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -14,12 +14,26 @@ using UnityEngine.SceneManagement;
 
 namespace vFrame.Bundler
 {
+    /// <summary>
+    ///     Describes a pending load request: what to load (path, type, load mode), how scenes open,
+    ///    and which parent loader owns the resulting loader.
+    /// </summary>
     internal struct LoaderContexts
     {
+        /// <summary>Project-relative path of the asset or scene to load.</summary>
         public string AssetPath;
+
+        /// <summary>How the asset was requested; selects the concrete loader implementation.</summary>
         public AssetLoadType AssetLoadType;
+
         public Type AssetType;
+
+        /// <summary>Unity load mode applied when the requested asset is a scene.</summary>
         public LoadSceneMode SceneMode;
+
+        /// <summary>
+        ///     Parent loader in the dependency chain; retained and released together with the child.
+        /// </summary>
         public Loader ParentLoader;
     }
 }

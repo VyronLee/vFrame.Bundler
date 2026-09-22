@@ -1,24 +1,33 @@
 // ------------------------------------------------------------
 //         File: PipelineBase.cs
-//        Brief: Common pipeline driver: validates rules/settings, creates the BuildContext and
-//               runs each task in sequence with timing.
+//        Brief: Base bundle build pipeline: validates rules and settings, then runs each build task in
+//               sequence with elapsed-time logging.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2023-12-26 22:12
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 06:17:26
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
 using System;
 using System.Diagnostics;
-using vFrame.Bundler.Helper;
-using vFrame.Bundler.Task;
 
-namespace vFrame.Bundler.Pipeline
+namespace vFrame.Bundler.Editor
 {
+    /// <summary>
+    ///     Base implementation of an asset bundle build pipeline. Validates the supplied build rules and
+    ///     settings, then executes the pipeline's tasks in order.
+    /// </summary>
     internal abstract class PipelineBase : IPipeline
     {
+        /// <summary>
+        ///     Runs the pipeline: validates the build rules and settings, executes each task returned by
+        ///     <see cref="GetTasks" /> in order, and logs the total elapsed time.
+        /// </summary>
+        /// <param name="buildRules">Rules describing main assets and dependency grouping.</param>
+        /// <param name="buildSettings">Settings describing output paths and bundle name formatters.</param>
+        /// <exception cref="BundleArgumentException">Thrown when rules or settings are null or contain empty values.</exception>
         public void Build(BundleBuildRules buildRules, BundleBuildSettings buildSettings)
         {
             ValidateBuildRules(buildRules);
@@ -37,6 +46,12 @@ namespace vFrame.Bundler.Pipeline
             UnityEngine.Debug.Log($"Bundle build finished, cost: {stopWatch.Elapsed.TotalSeconds:F1}s.");
         }
 
+        /// <summary>
+        ///     Ensures that the build rules and all their required fields (main rules and group rules) are
+        ///     present and non-empty.
+        /// </summary>
+        /// <param name="buildRules">Rules to validate.</param>
+        /// <exception cref="BundleArgumentException">Thrown when a rule or one of its required fields is null or empty.</exception>
         private static void ValidateBuildRules(BundleBuildRules buildRules)
         {
             ThrowHelper.ThrowIfNull(buildRules, nameof(buildRules));
@@ -56,6 +71,12 @@ namespace vFrame.Bundler.Pipeline
             }
         }
 
+        /// <summary>
+        ///     Ensures that the build settings and all their required fields (output paths and bundle name
+        ///     formatters) are present and non-empty.
+        /// </summary>
+        /// <param name="buildSettings">Settings to validate.</param>
+        /// <exception cref="BundleArgumentException">Thrown when the settings or one of their required fields is null or empty.</exception>
         private static void ValidateBuildSettings(BundleBuildSettings buildSettings)
         {
             ThrowHelper.ThrowIfNull(buildSettings, nameof(buildSettings));
@@ -73,6 +94,10 @@ namespace vFrame.Bundler.Pipeline
                 ThrowHelper.Variables(nameof(buildSettings), nameof(buildSettings.SeparatedShaderBundlePath)));
         }
 
+        /// <summary>
+        ///     Creates the ordered list of build tasks this pipeline executes.
+        /// </summary>
+        /// <returns>The tasks to run in order, or null to run no tasks.</returns>
         protected abstract BuildTaskBase[] GetTasks();
     }
 }

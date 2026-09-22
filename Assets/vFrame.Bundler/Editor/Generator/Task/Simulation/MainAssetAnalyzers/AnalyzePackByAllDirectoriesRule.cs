@@ -1,21 +1,27 @@
 // ------------------------------------------------------------
 //         File: AnalyzePackByAllDirectoriesRule.cs
-//        Brief: Simulation PackByAllDirectories analyzer: registers each found asset with a
-//               placeholder "<AssetDatabase>" bundle path.
+//        Brief: Simulation PackByAllDirectories analyzer: registers every filtered asset as a
+//               main asset in the placeholder "<AssetDatabase>" bundle.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2023-12-25 22:54
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 06:22:08
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
 using System.Collections.Generic;
 
-namespace vFrame.Bundler.Task.Simulation.MainAssetAnalyzers
+namespace vFrame.Bundler.Editor
 {
-    internal class AnalyzePackByAllDirectoriesRule : SimulationMainAssetAnalyzerBase
+    /// <summary>
+    ///     Simulation analyzer for <c>PackByAllDirectories</c> rules. Registers every asset found
+    ///     under the rule's search path as a main asset assigned to the placeholder
+    ///     "&lt;AssetDatabase&gt;" bundle name (resolved to the real bundle by the simulation loader).
+    /// </summary>
+    internal class SimulationAnalyzePackByAllDirectoriesRule : SimulationMainAssetAnalyzerBase
     {
+        /// <inheritdoc cref="MainAssetAnalyzerBase.OnRun"/>
         protected override IEnumerator<(string, float)> OnRun(BuildContext context, MainBundleRule rule)
         {
             var assets = FindAssets(rule);

@@ -1,12 +1,11 @@
 // ------------------------------------------------------------
 //         File: SimpleJsonRpcServer.cs
-//        Brief: HttpListener-based JSON-RPC server: accepts requests async, routes to registered
-//               handlers on Update from the main thread, writes JSON response.
+//        Brief: HttpListener-based JSON-RPC server: accepts requests async, dispatches to handlers on Update.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2024-1-22 16:46
-//    Copyright: Copyright (c) 2024, VyronLee
+//     Modified: 2026-09-22 04:50:53
+//    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
 
@@ -18,16 +17,36 @@ using System.Net;
 
 namespace vFrame.Bundler
 {
+    /// <summary>
+    /// <see cref="HttpListener"/>-based JSON-RPC server that accepts requests on background threads,
+    /// queues them, and dispatches them to registered handlers on <see cref="Update"/> from the main thread.
+    /// </summary>
     internal class SimpleJsonRpcServer : JsonRpcServer
     {
+        /// <summary>HTTP listener accepting incoming requests on thread-pool threads.</summary>
         private readonly HttpListener _listener;
+
+        /// <summary>Optional logger; diagnostics are suppressed when null.</summary>
         private readonly ILogger _logger;
+
+        /// <summary>Registered handlers keyed by RPC method name.</summary>
         private readonly Dictionary<string, IRpcHandler> _handlers;
+
+        /// <summary>Requests accepted off-thread, pending main-thread dispatch in <see cref="Update"/>.</summary>
         private readonly ConcurrentQueue<(RequestContext, RespondContext)> _works;
+
+        /// <summary>Indicates whether the listener is currently running.</summary>
         private bool _started;
 
+        /// <summary>Shared empty response payload reused when a handler returns no data.</summary>
         private static readonly JsonObject _emptyRespondJsonData = new JsonObject();
 
+        /// <summary>
+        /// Creates an <see cref="HttpListener"/>-based JSON-RPC server.
+        /// </summary>
+        /// <param name="listenAddress">HTTP URI prefix to listen on, e.g. "http://127.0.0.1:16667/".</param>
+        /// <param name="logger">Optional logger; diagnostics are suppressed when null.</param>
+        /// <exception cref="BundleArgumentException">Thrown when <paramref name="listenAddress"/> is null or empty.</exception>
         public SimpleJsonRpcServer(string listenAddress, ILogger logger)
         {
             if (string.IsNullOrEmpty(listenAddress)) {
@@ -41,6 +60,7 @@ namespace vFrame.Bundler
             _listener.Prefixes.Add(listenAddress);
         }
 
+        /// <summary>Starts the HTTP listener and begins accepting requests; logs a warning on failure.</summary>
         public override void Start()
         {
             try {
@@ -54,6 +74,7 @@ namespace vFrame.Bundler
             }
         }
 
+        /// <summary>Stops the listener and clears all registered handlers; no-op when not started.</summary>
         public override void Stop()
         {
             if (!_started) {
@@ -64,6 +85,8 @@ namespace vFrame.Bundler
             _handlers.Clear();
         }
 
+        /// <summary>Registers a handler under its method name; duplicates are ignored with a warning.</summary>
+        /// <param name="handler">Handler to register.</param>
         public override void AddHandler(IRpcHandler handler)
         {
             if (_handlers.ContainsKey(handler.MethodName)) {
@@ -73,6 +96,7 @@ namespace vFrame.Bundler
             _handlers.Add(handler.MethodName, handler);
         }
 
+        /// <summary>Dispatches all requests queued since the last call; call once per frame.</summary>
         public override void Update()
         {
             while (_works.TryDequeue(out var state)) {
@@ -80,11 +104,17 @@ namespace vFrame.Bundler
             }
         }
 
+        /// <summary>Begins an asynchronous wait for the next incoming request.</summary>
         private void WaitNextRequest()
         {
             _listener.BeginGetContext(ListenerCallback, null);
         }
 
+        /// <summary>
+        /// Completes an accepted request: parses its body, resolves its handler, and queues it
+        /// for main-thread dispatch; then waits for the next request.
+        /// </summary>
+        /// <param name="result">Asynchronous result of the pending get-context operation.</param>
         private void ListenerCallback(IAsyncResult result)
         {
             var context = _listener.EndGetContext(result);
@@ -133,6 +163,11 @@ namespace vFrame.Bundler
             WaitNextRequest();
         }
 
+        /// <summary>
+        /// Invokes the resolved handler on the main thread and writes the JSON response to the HTTP output stream.
+        /// </summary>
+        /// <param name="requestContext">Accepted request carrying its parsed data and resolved handler.</param>
+        /// <param name="respondContext">Response accumulator; may already carry an error code from acceptance.</param>
         private void HandleRequest(RequestContext requestContext, RespondContext respondContext)
         {
             var context = requestContext.HttpContext;
@@ -160,10 +195,16 @@ namespace vFrame.Bundler
             httpRespond.OutputStream.Close();
         }
 
+        /// <summary>State of one accepted request pending main-thread dispatch.</summary>
         private class RequestContext
         {
+            /// <summary>HTTP context used to write the response.</summary>
             public HttpListenerContext HttpContext { get; set; }
+
+            /// <summary>Parsed JSON request body; null when the body was empty or not a JSON object.</summary>
             public JsonObject RequestData { get; set; }
+
+            /// <summary>Handler resolved for the requested method; null when no handler matched.</summary>
             public IRpcHandler Handler { get; set; }
         }
     }

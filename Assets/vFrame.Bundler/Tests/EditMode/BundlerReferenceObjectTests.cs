@@ -1,11 +1,10 @@
 // ------------------------------------------------------------
 //         File: BundlerReferenceObjectTests.cs
-//        Brief: Regression tests for the reference-count
-//               Destroy-cascade underflow guard (R5).
+//        Brief: Regression tests for the reference-count Destroy-cascade underflow guard (R5).
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//      Created: 2026-8-9
+//     Modified: 2026-09-22 06:12:09
 //    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
@@ -41,6 +40,11 @@ namespace vFrame.Bundler.Tests.EditMode
             protected override void OnDestroy() { }
         }
 
+        /// <summary>
+        /// A release on an already-destroyed object (child loader releasing a
+        /// parent destroyed first in the cascade) must neither throw nor drive
+        /// the reference count negative.
+        /// </summary>
         [Test]
         public void Release_AfterDestroy_DoesNotThrowAndDoesNotUnderflow()
         {
@@ -58,6 +62,10 @@ namespace vFrame.Bundler.Tests.EditMode
                 "release on a destroyed object must not drive the count negative");
         }
 
+        /// <summary>
+        /// Retaining an already-destroyed object must be a graceful no-op,
+        /// not resurrect the reference count.
+        /// </summary>
         [Test]
         public void Retain_AfterDestroy_IsGracefulNoOp()
         {
@@ -70,6 +78,10 @@ namespace vFrame.Bundler.Tests.EditMode
                 "retain on a destroyed object must be a no-op, not increment");
         }
 
+        /// <summary>
+        /// Legitimate underflow detection on live (non-destroyed) objects
+        /// must remain intact so real leaks are still caught.
+        /// </summary>
         [Test]
         public void Release_WithoutRetain_OnLiveObject_StillThrows()
         {

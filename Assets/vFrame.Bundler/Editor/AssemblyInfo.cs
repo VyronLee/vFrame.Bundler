@@ -1,10 +1,10 @@
 // ------------------------------------------------------------
 //         File: AssemblyInfo.cs
-//        Brief: Assembly metadata (title, version, COM visibility) for vFrame.Bundler.Editor.
+//        Brief: Assembly-level metadata (title, product, copyright, version, COM visibility) for vFrame.Bundler.Editor.
 //
 //       Author: VyronLee, lwz_jz@hotmail.com
 //
-//     Modified: 2026-08-15 20:04:22
+//     Modified: 2026-09-22 03:19:31
 //    Copyright: Copyright (c) 2026, VyronLee
 // ============================================================
 
