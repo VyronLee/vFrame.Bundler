@@ -1,7 +1,8 @@
 {
     "name": "vFrame.Bundler.Tests.EditMode",
     "references": [
-        "vFrame.Bundler"
+        "vFrame.Bundler",
+        "vFrame.Bundler.Editor"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
