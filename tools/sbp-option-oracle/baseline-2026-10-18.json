@@ -1,0 +1,1169 @@
+{
+  "ticket": "https://github.com/VyronLee/vFrame.AIWorkspace/issues/110",
+  "observedUtc": "2026-10-18T10:55:10.9321692Z",
+  "sourceBaseRevision": "50dbbba2286194a55dba949ceb342747891ac6f6",
+  "sourceFiles": [
+    {
+      "sha256": "835736D466837E2C4C6C1765700EDE92438E30621C287098CC915F153BFE8E98",
+      "path": "report.ps1"
+    },
+    {
+      "sha256": "87D1281FE30B25CB29D7E5BA57B014F04C046D60401A9EF586DA68ADCCE37B9A",
+      "path": "run.ps1"
+    },
+    {
+      "sha256": "D66172FC38A4A3E84258DDDCACF5785CCC65D7A5B812793CD92D8D557AC525A3",
+      "path": "test-preflight.ps1"
+    },
+    {
+      "sha256": "69E8F3E52E64D4D31E630E8FD5806E90F0312BCD722E76476EE23B025B4208A3",
+      "path": "test-report.ps1"
+    },
+    {
+      "sha256": "FCAABBAF062C4E7A4EF40F6D447D05356E647A718563477A3B658DF9A7D9E246",
+      "path": "fixture\\OracleAsset.cs"
+    },
+    {
+      "sha256": "8F461935D6757876A724E798518CFB62C02D57014561E53B3392FE6A1B529B0C",
+      "path": "fixture\\OracleRunner.cs"
+    },
+    {
+      "sha256": "EAE29C7F1E952DFCAE8F9CBEFEBD45DEB6A59E31BAC75F6A12287880166329E5",
+      "path": "fixture\\vFrame.Bundler.OptionOracle.asmdef"
+    },
+    {
+      "sha256": "95DC6150DE2361F37BE16E1596BF94ABF9228EFD2B3806F3E12F31FB97B233E7",
+      "path": "fixture\\vFrame.Bundler.OptionOracle.Editor.asmdef"
+    }
+  ],
+  "sbpSourceFiles": [
+    {
+      "sha256": "796D62A63F84F44BD125BD627A385354BC7BD69F0B119FEDC850C5C374DA6A5C",
+      "path": "Editor/ContentPipeline.cs"
+    },
+    {
+      "sha256": "E9D8C6DA3561B41024E86B404BE781C5FBDB94A54B52F83D3C23B54A577CEAE5",
+      "path": "Editor/CompatibilityBuildPipeline.cs"
+    },
+    {
+      "sha256": "9982B7338BC445FFB2BAA03D26CD79D7198ABB8812710DBD14459C192A6923A9",
+      "path": "Editor/Tasks/WriteSerializedFiles.cs"
+    },
+    {
+      "sha256": "A67B102BCC76585A235DA86730C1DB187ACA7F7C74B6A243F877ADC677220D5A",
+      "path": "Editor/Tasks/ArchiveAndCompressBundles.cs"
+    },
+    {
+      "sha256": "DEAC7F2EACAC3F79DBCAB4685210A30582C075D04D37F07B4F2B84BB20149174",
+      "path": "Editor/Utilities/TaskCachingUtility.cs"
+    },
+    {
+      "sha256": "8A3B961F763E935B22174FB90FF7B183197A02B5638C4A190BCFE353823A772F",
+      "path": "Editor/Utilities/BuildCacheUtility.cs"
+    }
+  ],
+  "sbpPackageMetadataHash": "4C71DCC0A63241EFB5A01ED0F60CC3091BD51AF9BB996ABDB649BFBB2CE2A4AF",
+  "platform": "Windows x64",
+  "editorVersion": "2022.3.62f3",
+  "sbpVersion": "1.20.1",
+  "reproductionCommand": "pwsh -NoProfile -File tools/sbp-option-oracle/run.ps1 -UnityPath '<Unity.exe>' -SbpPackagePath '<extracted-sbp-1.20.1>'",
+  "localEvidenceId": "a2d6a41fe04a46ae9ee522dc7b10bf97",
+  "sessions": [
+    {
+      "track": "standard",
+      "phase": "warm",
+      "sessionId": "0bbbc41bec3a4185811e5723b72cf251",
+      "processId": 28588,
+      "sourceBefore": "FC-AA-BB-AF-06-2C-4E-7A-4E-F4-0F-6D-44-7D-05-35-6E-64-7A-71-85-63-47-7A-3B-65-8D-F9-A7-D9-E2-46",
+      "sourceAfter": "FC-AA-BB-AF-06-2C-4E-7A-4E-F4-0F-6D-44-7D-05-35-6E-64-7A-71-85-63-47-7A-3B-65-8D-F9-A7-D9-E2-46",
+      "editorFields": [
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "playerFields": [
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "fatal": ""
+    },
+    {
+      "track": "standard",
+      "phase": "layout",
+      "sessionId": "0f22cbb20f8141498744e01e3cc3ccb9",
+      "processId": 36704,
+      "sourceBefore": "31-7C-76-BA-C9-94-B3-75-E5-A0-A1-0F-08-C0-67-10-26-AC-1E-1D-23-15-41-B4-84-90-B1-CD-9C-B1-5C-66",
+      "sourceAfter": "31-7C-76-BA-C9-94-B3-75-E5-A0-A1-0F-08-C0-67-10-26-AC-1E-1D-23-15-41-B4-84-90-B1-CD-9C-B1-5C-66",
+      "editorFields": [
+        "layoutOnly:System.Int32",
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "playerFields": [
+        "layoutOnly:System.Int32",
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "fatal": ""
+    },
+    {
+      "track": "standard",
+      "phase": "content",
+      "sessionId": "3747089d995f4361a570b99f1f3817d5",
+      "processId": 42612,
+      "sourceBefore": "31-7C-76-BA-C9-94-B3-75-E5-A0-A1-0F-08-C0-67-10-26-AC-1E-1D-23-15-41-B4-84-90-B1-CD-9C-B1-5C-66",
+      "sourceAfter": "31-7C-76-BA-C9-94-B3-75-E5-A0-A1-0F-08-C0-67-10-26-AC-1E-1D-23-15-41-B4-84-90-B1-CD-9C-B1-5C-66",
+      "editorFields": [
+        "layoutOnly:System.Int32",
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "playerFields": [
+        "layoutOnly:System.Int32",
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "fatal": ""
+    },
+    {
+      "track": "ignore",
+      "phase": "warm",
+      "sessionId": "50aa7ec9fe474bf198a3a92708280c14",
+      "processId": 25368,
+      "sourceBefore": "FC-AA-BB-AF-06-2C-4E-7A-4E-F4-0F-6D-44-7D-05-35-6E-64-7A-71-85-63-47-7A-3B-65-8D-F9-A7-D9-E2-46",
+      "sourceAfter": "FC-AA-BB-AF-06-2C-4E-7A-4E-F4-0F-6D-44-7D-05-35-6E-64-7A-71-85-63-47-7A-3B-65-8D-F9-A7-D9-E2-46",
+      "editorFields": [
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "playerFields": [
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "fatal": ""
+    },
+    {
+      "track": "ignore",
+      "phase": "layout",
+      "sessionId": "092638fe5af044fd87851c4607b71906",
+      "processId": 23292,
+      "sourceBefore": "31-7C-76-BA-C9-94-B3-75-E5-A0-A1-0F-08-C0-67-10-26-AC-1E-1D-23-15-41-B4-84-90-B1-CD-9C-B1-5C-66",
+      "sourceAfter": "31-7C-76-BA-C9-94-B3-75-E5-A0-A1-0F-08-C0-67-10-26-AC-1E-1D-23-15-41-B4-84-90-B1-CD-9C-B1-5C-66",
+      "editorFields": [
+        "layoutOnly:System.Int32",
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "playerFields": [
+        "layoutOnly:System.Int32",
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "fatal": ""
+    },
+    {
+      "track": "ignore",
+      "phase": "content",
+      "sessionId": "c8ab91a63c6f4109bbd32f82827a4d1b",
+      "processId": 34524,
+      "sourceBefore": "31-7C-76-BA-C9-94-B3-75-E5-A0-A1-0F-08-C0-67-10-26-AC-1E-1D-23-15-41-B4-84-90-B1-CD-9C-B1-5C-66",
+      "sourceAfter": "31-7C-76-BA-C9-94-B3-75-E5-A0-A1-0F-08-C0-67-10-26-AC-1E-1D-23-15-41-B4-84-90-B1-CD-9C-B1-5C-66",
+      "editorFields": [
+        "layoutOnly:System.Int32",
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "playerFields": [
+        "layoutOnly:System.Int32",
+        "link:vFrame.Bundler.OptionOracle.OracleAsset",
+        "value:System.Int32"
+      ],
+      "fatal": ""
+    }
+  ],
+  "observations": [
+    {
+      "name": "native-warm",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "native-unchanged",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "sbp-warm",
+      "backend": "sbp",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Success",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": 3,
+      "archiveWrites": 3,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "sbp-unchanged",
+      "backend": "sbp",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Success",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": 0,
+      "archiveWrites": 0,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "native-layout",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 2
+    },
+    {
+      "name": "sbp-layout",
+      "backend": "sbp",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Success",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": 2,
+      "archiveWrites": 2,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "sbp-layout-unchanged",
+      "backend": "sbp",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Success",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": 0,
+      "archiveWrites": 0,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "sbp-force",
+      "backend": "sbp",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Success",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": 3,
+      "archiveWrites": 3,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "native-force",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "native-content",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 1
+    },
+    {
+      "name": "sbp-content",
+      "backend": "sbp",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Success",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": 1,
+      "archiveWrites": 1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "sbp-content-unchanged",
+      "backend": "sbp",
+      "options": "DeterministicAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Success",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": 0,
+      "archiveWrites": 0,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "strict-native-clean-before",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, StrictMode, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "strict-native-error-strict",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, StrictMode, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 11,
+      "injectedErrors": 11,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "strict-native-clean-after-strict",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, StrictMode, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "strict-native-error-lenient",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 11,
+      "injectedErrors": 11,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "strict-native-clean-after-lenient",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "strict-native-invalid-strict",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, StrictMode, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab"
+      ],
+      "nativeBundleBuildSteps": 2
+    },
+    {
+      "name": "strict-native-invalid-lenient",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab"
+      ],
+      "nativeBundleBuildSteps": 2
+    },
+    {
+      "name": "strict-native-clean-after-invalid",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "strict-sbp-compat-clean-before",
+      "backend": "sbp-compat",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, StrictMode, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "strict-sbp-compat-error-strict",
+      "backend": "sbp-compat",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, StrictMode, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 8,
+      "injectedErrors": 8,
+      "nativeReportErrors": -1,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "strict-sbp-compat-clean-after-strict",
+      "backend": "sbp-compat",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, StrictMode, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "strict-sbp-compat-error-lenient",
+      "backend": "sbp-compat",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 8,
+      "injectedErrors": 8,
+      "nativeReportErrors": -1,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "strict-sbp-compat-clean-after-lenient",
+      "backend": "sbp-compat",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "strict-sbp-compat-invalid-strict",
+      "backend": "sbp-compat",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, StrictMode, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Exception",
+      "succeeded": false,
+      "loadedValuesValid": false,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "strict-sbp-compat-invalid-lenient",
+      "backend": "sbp-compat",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Exception",
+      "succeeded": false,
+      "loadedValuesValid": false,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "strict-sbp-compat-clean-after-invalid",
+      "backend": "sbp-compat",
+      "options": "DeterministicAssetBundle, ForceRebuildAssetBundle, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": false,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": -1,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "native-ignore-warm",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, IgnoreTypeTreeChanges, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 3
+    },
+    {
+      "name": "native-ignore-unchanged",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, IgnoreTypeTreeChanges, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "native-ignore-layout",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, IgnoreTypeTreeChanges, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 0
+    },
+    {
+      "name": "native-ignore-content",
+      "backend": "native",
+      "options": "DeterministicAssetBundle, IgnoreTypeTreeChanges, ChunkBasedCompression, DisableLoadAssetByFileName, DisableLoadAssetByFileNameWithExtension",
+      "useCache": true,
+      "returnCode": "Manifest",
+      "succeeded": true,
+      "loadedValuesValid": true,
+      "gateRemoved": true,
+      "errorCount": 0,
+      "injectedErrors": 0,
+      "nativeReportErrors": 0,
+      "serializedWrites": -1,
+      "archiveWrites": -1,
+      "bundleNames": [
+        "leaf.ab",
+        "note.ab",
+        "root.ab"
+      ],
+      "nativeBundleBuildSteps": 1
+    }
+  ],
+  "verdict": {
+    "Passed": true,
+    "Checks": [
+      {
+        "Name": "complete session matrix",
+        "Passed": true
+      },
+      {
+        "Name": "independent Editor sessions",
+        "Passed": true
+      },
+      {
+        "Name": "standard/warm schema and immutable script",
+        "Passed": true
+      },
+      {
+        "Name": "standard/layout schema and immutable script",
+        "Passed": true
+      },
+      {
+        "Name": "standard/content schema and immutable script",
+        "Passed": true
+      },
+      {
+        "Name": "ignore/warm schema and immutable script",
+        "Passed": true
+      },
+      {
+        "Name": "ignore/layout schema and immutable script",
+        "Passed": true
+      },
+      {
+        "Name": "ignore/content schema and immutable script",
+        "Passed": true
+      },
+      {
+        "Name": "standard layout changes only between sessions",
+        "Passed": true
+      },
+      {
+        "Name": "ignore layout changes only between sessions",
+        "Passed": true
+      },
+      {
+        "Name": "complete unique observations",
+        "Passed": true
+      },
+      {
+        "Name": "complete typed measurements and available native reports",
+        "Passed": true
+      },
+      {
+        "Name": "observation backend identities",
+        "Passed": true
+      },
+      {
+        "Name": "native-warm clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "native-unchanged clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-warm clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-unchanged clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "native-layout clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-layout clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-layout-unchanged clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-force clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "native-force clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "native-content clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-content clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-content-unchanged clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "native-ignore-warm clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "native-ignore-unchanged clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "native-ignore-layout clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "native-ignore-content clean build and values",
+        "Passed": true
+      },
+      {
+        "Name": "fixed output/cache options: native-warm",
+        "Passed": true
+      },
+      {
+        "Name": "fixed output/cache options: native-ignore-warm",
+        "Passed": true
+      },
+      {
+        "Name": "fixed output/cache options: sbp-warm",
+        "Passed": true
+      },
+      {
+        "Name": "native option variants have isolated project caches",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-warm actual write/archive work",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-unchanged actual write/archive work",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-layout-unchanged actual write/archive work",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-content-unchanged actual write/archive work",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-force actual write/archive work",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-layout actual invalidation",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-content actual invalidation",
+        "Passed": true
+      },
+      {
+        "Name": "forced SBP rebuild is separate from cache reuse",
+        "Passed": true
+      },
+      {
+        "Name": "native-warm real BuildReport bundle work",
+        "Passed": true
+      },
+      {
+        "Name": "native-unchanged real BuildReport bundle work",
+        "Passed": true
+      },
+      {
+        "Name": "native-ignore-warm real BuildReport bundle work",
+        "Passed": true
+      },
+      {
+        "Name": "native-ignore-unchanged real BuildReport bundle work",
+        "Passed": true
+      },
+      {
+        "Name": "native-force real BuildReport bundle work",
+        "Passed": true
+      },
+      {
+        "Name": "native-layout real BuildReport invalidation",
+        "Passed": true
+      },
+      {
+        "Name": "native-content real BuildReport invalidation",
+        "Passed": true
+      },
+      {
+        "Name": "native-ignore-content real BuildReport invalidation",
+        "Passed": true
+      },
+      {
+        "Name": "native strict/lenient option identities",
+        "Passed": true
+      },
+      {
+        "Name": "native strict/lenient fixed cache and output",
+        "Passed": true
+      },
+      {
+        "Name": "native clean-before has no leaked error state",
+        "Passed": true
+      },
+      {
+        "Name": "native clean-after-strict has no leaked error state",
+        "Passed": true
+      },
+      {
+        "Name": "native clean-after-lenient has no leaked error state",
+        "Passed": true
+      },
+      {
+        "Name": "native clean-after-invalid has no leaked error state",
+        "Passed": true
+      },
+      {
+        "Name": "native error-strict stimulus occurred inside build",
+        "Passed": true
+      },
+      {
+        "Name": "native error-lenient stimulus occurred inside build",
+        "Passed": true
+      },
+      {
+        "Name": "native invalid-strict cannot produce a valid bundle set",
+        "Passed": true
+      },
+      {
+        "Name": "native invalid-lenient cannot produce a valid bundle set",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat strict/lenient option identities",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat strict/lenient fixed cache and output",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat clean-before has no leaked error state",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat clean-after-strict has no leaked error state",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat clean-after-lenient has no leaked error state",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat clean-after-invalid has no leaked error state",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat error-strict stimulus occurred inside build",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat error-lenient stimulus occurred inside build",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat invalid-strict cannot produce a valid bundle set",
+        "Passed": true
+      },
+      {
+        "Name": "sbp-compat invalid-lenient cannot produce a valid bundle set",
+        "Passed": true
+      }
+    ],
+    "StrictOutcomes": [
+      {
+        "Backend": "native",
+        "StrictReturnedSuccess": true,
+        "LenientReturnedSuccess": true,
+        "StrictWindowErrors": 11,
+        "LenientWindowErrors": 11,
+        "NativeBuildReportErrors": 0,
+        "Scope": "Observed serialization-callback log stimulus only; NOT certification of all StrictMode errors or a production guard."
+      },
+      {
+        "Backend": "sbp-compat",
+        "StrictReturnedSuccess": true,
+        "LenientReturnedSuccess": true,
+        "StrictWindowErrors": 8,
+        "LenientWindowErrors": 8,
+        "NativeBuildReportErrors": -1,
+        "Scope": "Observed serialization-callback log stimulus only; NOT certification of all StrictMode errors or a production guard."
+      }
+    ],
+    "NativeIgnoreLayoutBuildSteps": 0,
+    "ProductEquivalenceCertified": false,
+    "PendingMatrix": [
+      "Unity 2019.4.40f1; not executed and no installation authorized"
+    ]
+  },
+  "regression": {
+    "wrapperNote": "Existing run-tests.ps1 has a stale executeMethod namespace; the actual documented runner entry point was invoked directly without modifying unrelated code.",
+    "failed": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "command": "Unity -batchmode -nographics -quit -projectPath <repository> -executeMethod vFrame.Bundler.TestRunner.Editor.HeadlessTestRunner.RunAllEditMode -logFile <log>",
+    "passed": 18,
+    "inconclusive": 0
+  },
+  "supersession": "RemainingOptionsProbe.cs / ProbeResults/remaining-20261018-052511/results.json were invalid experiments. Original artifacts, including failed/inconclusive evidence, remain unchanged; the former 17/20 count is NOT semantic acceptance.",
+  "limitations": [
+    "Only this controlled serialization-log stimulus is characterized; broader StrictMode error classes and a production guard remain unverified.",
+    "No Unity 2019.4.40f1 execution or editor installation.",
+    "No product equivalence, actual IBundler lifecycle or independent Player certification.",
+    "CI unavailable: Unity license activation (workspace issue #107); local results do not imply CI green."
+  ]
+}

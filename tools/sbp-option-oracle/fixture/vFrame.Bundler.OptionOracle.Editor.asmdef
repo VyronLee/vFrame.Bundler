@@ -1,0 +1,10 @@
+{
+  "name": "vFrame.Bundler.OptionOracle.Editor",
+  "references": [
+    "vFrame.Bundler.OptionOracle",
+    "Unity.ScriptableBuildPipeline",
+    "Unity.ScriptableBuildPipeline.Editor"
+  ],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}
